@@ -1,0 +1,44 @@
+<template>
+  <q-btn flat :icon="icon" v-if="locales && locales[1]">
+    <q-menu>
+      <q-list>
+        <q-item
+          v-for="(locale, index) in locales"
+          :key="index"
+          clickable
+          v-close-popup
+          @click="localeChanged(locale.locale)"
+        >
+          <q-item-section>{{locale.name}}</q-item-section>
+        </q-item>
+      </q-list>
+    </q-menu>
+  </q-btn>
+</template>
+<script>
+import {defineComponent} from 'vue';
+
+export default defineComponent({
+  name: 'SelectLocales',
+  props: {
+    icon: { type: String, default: 'translate' },
+  },
+  computed: {
+    locales() {
+      return (this.ctx && this.ctx.config.locales) || [];
+    },
+  },
+  created() {
+    // set the default locale
+    // if (this.locales && this.locales.length > 0) {
+    //   this.$i18n.locale = this.locales[0].locale;
+    // }
+  },
+  methods: {
+    localeChanged(l){
+      this.$i18n.locale = l;
+      this.$store.commit('app/SET_LOCALE', l);
+    }
+  }
+});
+</script>

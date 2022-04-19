@@ -1,0 +1,197 @@
+<template>
+  <div class="flow-list">
+    <summary-head :values="data.summary" :Bus="Bus"></summary-head>
+    <q-table
+      :rows="data ? data.docs : []"
+      :columns="columns"
+      row-key="id"
+      :hide-bottom="!pagination"
+      :pagination="tablePagination"
+    >
+      <template v-slot:header-cell-status="props" v-if="data.Filters && data.Filters.length > 0">
+        <q-th :props="props" class="filter-header-cell">
+          <q-btn flat icon="search" @click="showFilters = !showFilters">查询</q-btn>
+        </q-th>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr>
+          <q-td v-for="col in props.cols" :key="col.name" :props="props" class="ellipsis">
+            <span v-if="col.name === 'index'">{{props.row.index}}</span>
+            <span v-else>
+              {{ valueFilters(col, col.value || Object.nestValue(props.row, col.field))}}
+              <q-popup-edit
+                v-model="props.row.Message"
+                v-if="col.name === 'message'"
+                buttons
+                persistent
+                label-set="保存"
+                label-cancel="取消"
+                @save="messageChanged(props.row.id, props.row.Message)"
+              >
+                <q-input v-model="props.row.Message" hide-bottom-space autofocus />
+              </q-popup-edit>
+              <q-popup-edit
+                v-model="props.row.Description"
+                v-if="col.name === 'description'"
+                buttons
+                persistent
+                label-set="保存"
+                label-cancel="取消"
+                @save="descriptionChanged(props.row.id, props.row.Description)"
+              >
+                <q-input v-model="props.row.Description" hide-bottom-space autofocus />
+              </q-popup-edit>
+            </span>
+          </q-td>
+        </q-tr>
+      </template>
+
+      <template v-slot:top-row>
+        <q-tr class="persistant-top-row full-width">
+          <q-td class="full-width" colspan="100%"></q-td>
+        </q-tr>
+        <q-tr v-if="showFilters" class="table-row filter-row">
+          <q-td colspan="100%" class="table-cell filter-cell">
+            <free-field
+              :Field="{Type: 'QueryFilters', Name: 'Filters'}"
+              :values="data"
+              @search="querySearch"
+            ></free-field>
+          </q-td>
+        </q-tr>
+      </template>
+
+      <template v-slot:no-data>
+        <div class="full-width full-height row flex-center q-gutter-sm">
+          <span>暂 无 数 据</span>
+        </div>
+      </template>
+
+      <template v-slot:bottom>
+        <div v-if="pagination" class="full-width row flex-center">
+          共{{data.total}}条
+          <q-pagination
+            v-model="data.page"
+            :max="data.pages"
+            @input="paginationChanged"
+            boundary-links
+            boundary-numbers
+            direction-links
+            :max-pages="6"
+          ></q-pagination>
+        </div>
+      </template>
+    </q-table>
+  </div>
+</template>
+
+<script>
+import mixins from 'free-fe-mixins';
+import { updateErrorCode, updateDescription } from '../../router/error/api';
+import {defineComponent} from 'vue';
+
+export default defineComponent({
+  name: 'ErrorCodeList',
+  mixins: [mixins.ObjectDataMixin],
+  props: {
+    pagination: { type: Boolean, default: true },
+  },
+  data() {
+    return {
+      queryFilter: {},
+      showFilters: false,
+      tablePagination: {
+        rowsPerPage: this.data && this.data.limit ? this.data.limit : 8,
+        rowsNumber: this.data && this.data.total ? this.data.total : 0,
+      },
+      columns: [
+        {
+          name: 'index',
+          label: '#',
+          field: 'index',
+        },
+        {
+          name: 'date',
+          label: '日期',
+          field: 'LastUpdateDate',
+          filters: 'normalDate',
+          style: 'max-width: 200px;',
+        },
+        {
+          name: 'code',
+          label: '代码',
+          field: 'Code',
+          style: 'max-width: 120px;',
+        },
+        {
+          name: 'message',
+          label: '信息',
+          field: 'Message',
+        },
+        {
+          name: 'description',
+          label: '描述',
+          field: 'Description',
+        },
+      ],
+    };
+  },
+  computed: {
+    valueFilters() {
+      return (col, v) => {
+        let val = v || col.value;
+        if (col.filters) {
+          let filters = [];
+          if (typeof col.filters === 'string') {
+            // only one filter
+            filters.push(col.filters);
+          } else if (Array.isArray(col.filters)) {
+            filters = filters.concat(col.filters);
+          }
+
+          for (let i = 0; i < filters.length; i += 1) {
+            const f = filters[i];
+            const filter = this.$options.filters[f];
+            if (filter) {
+              val = filter(v || col.value);
+            }
+          }
+        }
+
+        return val;
+      };
+    },
+  },
+  created() {},
+  methods: {
+    paginationChanged(p) {
+      this.refreshData({ page: p });
+    },
+    messageChanged(id, msg) {
+      updateErrorCode(id, msg).then((d) => {
+        if (d && d.msg === 'OK') {
+          this.$q.notify(this.$t('notifySaved'));
+        } else {
+          this.$q.notify(this.$t('notifyChangeFailed'));
+        }
+      });
+    },
+    descriptionChanged(id, desc) {
+      updateDescription(id, desc).then((d) => {
+        if (d && d.msg === 'OK') {
+          this.$q.notify(this.$t('notifySaved'));
+        } else {
+          this.$q.notify(this.$t('notifyChangeFailed'));
+        }
+      });
+    },
+  },
+  beforeUnmount() {},
+});
+</script>
+
+<style lang="sass" scoped>
+.persistant-top-row
+  display: none
+</style>

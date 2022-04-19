@@ -1,0 +1,11 @@
+{
+  "name": "free-fe-core-modules",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@gitlab.com:eis-base/modules/free-fe-core-modules.git",
+  "author": "zhiquan",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@tinymce/tinymce-vue": "^4.0.3"
+  }
+}

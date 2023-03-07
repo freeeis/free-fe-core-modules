@@ -6,6 +6,6 @@
   "author": "zhiquan",
   "license": "UNLICENSED",
   "dependencies": {
-    "@tinymce/tinymce-vue": "^4.0.3"
+    "@tinymce/tinymce-vue": "^5.0.0"
   }
 }

@@ -3,18 +3,20 @@
 </template>
 
 <script>
-import store from '../../store';
-import {defineComponent} from 'vue';
+import useMourningStore from '../../stores/mourning';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'mourning',
+  name: 'mourningNode',
   mounted() {
+    const mourningStore = useMourningStore();
+
     this.getRequest('mourning').then((d) => {
       let inMourning = false;
       if (d && d.data && d.data.mourning) {
         inMourning = true;
       }
-      store.commit('app/SET_MOURNING', inMourning);
+      mourningStore.mourning = inMourning;
 
       let classes = this.$root.$el.className.split(' ').filter((c) => !!c);
 

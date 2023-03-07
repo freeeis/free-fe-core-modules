@@ -77,7 +77,6 @@
 
       <template
         v-slot:bottom
-        class="summary-row"
       >
         <q-tr class="summary-tr">
           <q-td
@@ -92,7 +91,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 import mixins from 'free-fe-mixins';
 
 export default defineComponent({

@@ -89,7 +89,7 @@
 <script>
 import mixins from 'free-fe-mixins';
 import { updateErrorCode, updateDescription } from '../../router/error/api';
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'ErrorCodeList',

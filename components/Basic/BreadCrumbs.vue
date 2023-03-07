@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
+import { mapWritableState } from 'pinia';
+import useAppStore from '@/stores/app';
 
 export default defineComponent({
   name: 'BreadCrumbs',
@@ -30,10 +32,11 @@ export default defineComponent({
     };
   },
   computed: {
+    ...mapWritableState(useAppStore, ['crumbs']),
     meta() {
       let mt = [];
-      if (this.$store.state.app.crumbs && this.$store.state.app.crumbs.length) {
-        mt = this.$store.state.app.crumbs;
+      if (this.crumbs && this.crumbs.length) {
+        mt = this.crumbs;
       } else if (this.$route.meta && this.$route.meta.length) {
         mt = this.$route.meta;
       } else {
@@ -54,7 +57,7 @@ export default defineComponent({
     },
   },
   created() {
-    this.$store.commit('app/SET_CRUMBS', undefined);
+    this.crumbs = undefined;
   },
   methods: {
     Bread(index) {
@@ -73,7 +76,7 @@ export default defineComponent({
       if (this.whiteList.indexOf(URL) === -1) {
         window.history.go(-1);
       } else {
-        this.$store.state.watchData.refreshFlag = true;
+        // this.$store.state.watchData.refreshFlag = true;
         window.history.go(-1);
       }
     },

@@ -69,16 +69,9 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
-// import Vuex from 'vuex';
+import { defineComponent } from 'vue';
 import mixins from 'free-fe-mixins';
 import DynamicList from './DynamicList';
-
-// const clipBoardStore = new Vuex.Store({
-//   state: {
-//     content: '',
-//   },
-// });
 
 const clipBoardStore = {
   content: '',

@@ -79,7 +79,7 @@
 <script>
 import mixins from 'free-fe-mixins';
 import { updateConfig } from '../../router/system/api';
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'SystemConfigPage',

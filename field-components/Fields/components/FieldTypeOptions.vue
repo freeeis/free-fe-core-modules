@@ -69,7 +69,7 @@
                         @click="typeChanged(option)"
                       >
                         <q-item-section>
-                          <q-item-label v-html="option.Label" />
+                          <q-item-label>{{ option.Label }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 import mixins from 'free-fe-mixins';
 
 export default defineComponent({

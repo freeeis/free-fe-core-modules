@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 import mixnins from 'free-fe-mixins';
 
 export default defineComponent({

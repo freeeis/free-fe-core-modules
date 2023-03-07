@@ -16,7 +16,8 @@
   </q-btn>
 </template>
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
+import useAppStore from '@/stores/app';
 
 export default defineComponent({
   name: 'SelectLocales',
@@ -36,8 +37,10 @@ export default defineComponent({
   },
   methods: {
     localeChanged(l){
+      const store = useAppStore();
+
       this.$i18n.locale = l;
-      this.$store.commit('app/SET_LOCALE', l);
+      store.SET_LOCALE(l);
     }
   }
 });

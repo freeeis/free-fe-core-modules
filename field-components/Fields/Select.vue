@@ -90,7 +90,7 @@
             </q-item-section>
 
             <q-item-section>
-              <q-item-label v-html="scope.opt.Label" />
+              <q-item-label>{{ scope.opt.Label }}</q-item-label>
               <q-tooltip v-if="scope.opt.Tooltip">
                 {{scope.opt.Tooltip}}
               </q-tooltip>
@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 import mixins from 'free-fe-mixins';
 
 export default defineComponent({

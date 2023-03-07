@@ -105,7 +105,7 @@
 
 <script>
 import mixins from 'free-fe-mixins';
-import {defineComponent} from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'BasicDialog',
@@ -191,12 +191,6 @@ export default defineComponent({
       if (!this.showWarning) return '';
 
       if (!this.warning) {
-        // if (store.getters.isAdmin) {
-        //   return '请谨慎操作管理员权限';
-        // }
-        // if (store.getters.isGroup) {
-        //   return '请谨慎操作核心企业权限';
-        // }
         return '';
       }
       return this.warning;

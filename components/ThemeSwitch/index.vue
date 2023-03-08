@@ -14,6 +14,7 @@
             clickable
             v-close-popup
             @click="theme = tm"
+            :active="theme === tm"
           >
             <q-item-section>{{$t(tm)}}</q-item-section>
           </q-item>
@@ -25,6 +26,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import useAppStore from '@/stores/app';
 
 export default defineComponent({
   name: 'ThemeSwitch',
@@ -65,13 +67,15 @@ export default defineComponent({
         arr.push(`theme-${v}`);
 
         appEle.className = arr.join(' ');
+
+        const appStore = useAppStore();
+        appStore.SET_THEME(v);
       }
     },
   },
   created() {
-    if (this.themes && this.themes.length > 0) {
-      this.theme = this.themes[0];
-    }
+    const appStore = useAppStore();
+    this.theme = appStore.theme || (this.themes && (this.themes.length > 0) && this.themes[0]);
   },
 });
 </script>

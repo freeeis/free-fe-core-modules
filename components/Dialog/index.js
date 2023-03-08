@@ -1,38 +1,40 @@
-import { createApp } from 'vue'
-import BasicDialog from './BasicDialog.vue';
+import { createApp, defineAsyncComponent, getCurrentInstance } from 'vue';
+import Dialog from './BasicDialog.vue'
 
-let $inst
-// 创建挂载实例
-let createMount = (opts) => {
-  const app = createApp(BasicDialog, {
-    ...opts, modelValue: true,
-    remove () {
-      app.unmount(mountNode)
-      document.body.removeChild(mountNode)
-    }
-  })
-  return app.mount('#eis-dialog')
-}
-
-function MsgDialog (options = {}) {
-  if (typeof options === 'string') {
-    options = {content: options};
-  }
-
-  $inst = createMount(options)
-
-  return $inst.show()
-    .then((val) => {
-      return Promise.resolve(val);
-    })
-    .catch((err) => {
-      return Promise.reject(err);
-    });
-}
-
+const MsgDialog = {};
 MsgDialog.install = (app) => {
-  app.config.globalProperties.$MsgDialog = MsgDialog;
-  // app.provide('MsgDialog', MsgDialog)
-}
+  let MsgDialogInstance;
+  const init = (opts) => {
+    // const app = createApp(defineAsyncComponent(() => import('./BasicDialog.vue')));
+    const app = createApp(Dialog, { ...opts, modelValue: true });
+    MsgDialogInstance = app.mount('#free-dialog');
+  };
+
+  app.config.globalProperties.$MsgDialog = (options) => {
+    const opts = {};
+
+    console.error(getCurrentInstance())
+
+    if (typeof options === 'string') {
+      opts.content = options;
+    } else if (typeof options === 'object') {
+      Object.assign(opts, options);
+    }
+
+    if (!MsgDialogInstance) {
+      init(opts);
+    }
+
+    return MsgDialogInstance.show()
+      .then((val) => {
+        MsgDialogInstance = null;
+        return Promise.resolve(val);
+      })
+      .catch((err) => {
+        MsgDialogInstance = null;
+        return Promise.reject(err);
+      });
+  };
+};
 
 export default MsgDialog;

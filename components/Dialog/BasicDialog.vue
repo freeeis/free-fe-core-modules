@@ -6,7 +6,7 @@
     <q-card
       :class="['basic-dialog-card', dialogClass]"
       :style="`min-height: ${size.h}px;
-         width: ${size.w}px; min-width: ${size.w}`"
+        width: ${size.w}px; min-width: ${size.w}`"
     >
       <q-btn
         class="float-right close-dialog-button"
@@ -32,10 +32,6 @@
           v-if="tips"
           class="tips"
         >{{ tips }}</div>
-        <!-- <div
-          v-if="warning"
-          class="warning"
-        >{{ warning }}</div> -->
         <div
           v-if="warning"
           class="warning no-wrap"
@@ -106,6 +102,8 @@
 <script>
 import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
+import FreeField from '../../field-components/components/FieldComponents.vue';
+import EIcon from '../Basic/EIcon.vue';
 
 export default defineComponent({
   name: 'BasicDialog',
@@ -149,6 +147,10 @@ export default defineComponent({
     fieldsData: { type: Object, default: () => ({}) },
     fieldsClass: { type: String, default: '' },
     dialogClass: { type: String, default: '' },
+  },
+  components: {
+    FreeField,
+    EIcon,
   },
   data() {
     return {
@@ -200,7 +202,7 @@ export default defineComponent({
     // following method is REQUIRED
     // (don't change its name --> "show")
     show() {
-      debugger
+      // debugger
       this.$refs.dialog.show();
       this.timeout_counter();
 
@@ -394,49 +396,4 @@ export default defineComponent({
   text-align: center;
   color: red;
 }
-
-// .admin {
-//   margin-top: 10px;
-//   text-align: center;
-//   color: red;
-//   font-size: 12px;
-// }
-
-// .cancel-btn {
-//   background: rgba(255, 255, 255, 1);
-//   border: 1px solid rgba(74, 74, 74, 1);
-//   color: rgba(74, 74, 74, 1);
-// }
-
-// .cancel-btn:hover {
-//   background: rgba(0, 69, 156, 1);
-//   color: rgba(255, 255, 255, 1);
-//   border: 0;
-// }
-
-// .disabled-cancel-btn {
-//   background: rgba(255, 255, 255, 1);
-//   border: 1px solid rgba(155, 155, 155, 1);
-//   color: rgba(155, 155, 155, 1);
-// }
-
-// .ok-btn {
-//   background: rgba(24, 115, 220, 1);
-//   color: rgba(255, 255, 255, 1);
-// }
-
-// .ok-btn:hover {
-//   background: rgba(0, 69, 156, 1);
-//   color: rgba(255, 255, 255, 1);
-// }
-
-// .disabled-ok-btn {
-//   background: rgba(155, 155, 155, 1);
-//   color: rgba(255, 255, 255, 1);
-// }
-
-// .disabled-ok-btn:hover {
-//   background: rgba(155, 155, 155, 1);
-//   color: rgba(255, 255, 255, 1);
-// }
 </style>

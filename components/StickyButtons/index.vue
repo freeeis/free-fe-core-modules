@@ -47,7 +47,7 @@ export default defineComponent({
   emits: ['click'],
   props: {
     position: { type: String, default: 'bottom-right' },
-    offset: { type: Array, default: () => [36, 128, 0, 0] },
+    offset: { type: Array, default: () => [36, 128] },
     fab: { type: Boolean, default: true },
     fabIcon: { type: String, default: 'add' },
     fabColor: { type: String, default: '' },
@@ -58,7 +58,7 @@ export default defineComponent({
   },
   data() {
     return {
-      stickyOffset: [36, 128, 0, 0],
+      stickyOffset: [36, 128],
       draggingSticky: false,
     };
   },

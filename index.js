@@ -13,6 +13,8 @@ import LeveledMenus from './components/Basic/LeveledMenus.vue';
 import BreadCrumbs from './components/Basic/BreadCrumbs.vue';
 import ThemeSwitch from './components/ThemeSwitch/index.vue';
 
+import Mourning from './view/mourning/mourning.vue';
+
 import FieldComponents from './field-components';
 import FreeFields from './free-fields';
 import routers from './router';
@@ -143,13 +145,6 @@ const filters = {
     return diff + this.$t('yearsAgo');
   },
 };
-
-// export default {
-//   config: {},
-//   routers: [],
-//   filters,
-//   components
-// }
 
 export default (app, root) => {
   root.use(MsgDialog);
@@ -294,7 +289,7 @@ export default (app, root) => {
       ThemeSwitch,
       ...FieldComponents.components,
       ...FreeFields,
-      mourning: () => import("./view/mourning/mourning.vue"),
+      Mourning,
     },
     fieldComponents: FieldComponents.fieldComponents,
 

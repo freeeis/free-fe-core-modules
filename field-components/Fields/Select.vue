@@ -78,7 +78,6 @@
         </template>
 
         <template v-slot:option="scope">
-          {{scope.itemProps}}
           <q-item
             v-bind="scope.itemProps"
           >

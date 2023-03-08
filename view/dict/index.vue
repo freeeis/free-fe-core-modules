@@ -271,13 +271,11 @@ export default defineComponent({
 
 <style lang="sass" scoped>
 .admin-dictionary-mgmt-wrapper
-  background: $background
   .dictionary-head
     .description
       max-width: 680px
       font-size: 12px
       font-weight: 400
-      color: $grey-7
     .dictionary-data-name
       font-size: 14px
       font-weight: normal

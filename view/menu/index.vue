@@ -325,8 +325,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="sass" scoped>
-.admin-menu-mgmt-wrapper
-  background: $background
-</style>

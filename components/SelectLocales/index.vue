@@ -8,6 +8,7 @@
           clickable
           v-close-popup
           @click="localeChanged(locale.locale)"
+            :active="$i18n.locale === locale.locale"
         >
           <q-item-section>{{locale.name}}</q-item-section>
         </q-item>
@@ -30,10 +31,8 @@ export default defineComponent({
     },
   },
   created() {
-    // set the default locale
-    // if (this.locales && this.locales.length > 0) {
-    //   this.$i18n.locale = this.locales[0].locale;
-    // }
+    const appStore = useAppStore();
+    this.$i18n.locale = appStore.locale || (this.locales && (this.locales.length > 0) && this.locales[0]);
   },
   methods: {
     localeChanged(l){

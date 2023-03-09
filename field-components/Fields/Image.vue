@@ -68,7 +68,7 @@
         </q-btn>
         <q-img
           v-if="onlyIcon && scope.files.length > 0"
-          :src="runFilter('serverThumb',`${scope.files[0].id}`)"
+          :src="$filter('serverThumb',`${scope.files[0].id}`)"
           style="width: 32px; max-height: 32px;"
         >
           <q-uploader-add-trigger/>
@@ -125,7 +125,7 @@
                 <a
                   v-if="file && file.id"
                   target="_blank"
-                  :href="runFilter('serverPath',file.id)"
+                  :href="$filter('serverPath',file.id)"
                   :download="file.name">
                     {{ file.name }}
                 </a>

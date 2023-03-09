@@ -46,7 +46,7 @@
             <a
               class="ellipsis"
               target="_blank"
-              :href="runFilter('serverPath',file.id)"
+              :href="$filter('serverPath',file.id)"
               :download="file.name"
             >
               {{ file.name }}
@@ -109,7 +109,7 @@
                 <span class="file-name full-width ellipsis">
                   <a
                     target="_blank"
-                    :href="runFilter('serverPath',file.id)"
+                    :href="$filter('serverPath',file.id)"
                     :download="file.name">
                       {{ file.name }}
                   </a>
@@ -160,7 +160,7 @@
               <span class="file-name full-width ellipsis">
                 <a
                   target="_blank"
-                  :href="runFilter('serverPath',file.id)"
+                  :href="$filter('serverPath',file.id)"
                   :download="file.name">
                     {{ file.name }}
                 </a>

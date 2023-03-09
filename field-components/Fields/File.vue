@@ -45,7 +45,7 @@
             <a
               class="ellipsis"
               target="_blank"
-              :href="runFilter('serverPath',file.id)"
+              :href="$filter('serverPath',file.id)"
               :download="file.name"
             >
               {{ file.name }}
@@ -135,7 +135,7 @@
                 <a
                   v-if="file && file.id"
                   target="_blank"
-                  :href="runFilter('serverPath',file.id)"
+                  :href="$filter('serverPath',file.id)"
                   :download="file.name">
                     {{ file.name }}
                 </a>

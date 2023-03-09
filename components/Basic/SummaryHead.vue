@@ -85,7 +85,6 @@ export default defineComponent({
     has_multiple_head: { type: Boolean, default: false },
   },
   created() {
-    this.Bus?.$on('update_summary_head', this.refreshData);
   },
   methods: {
     filteredValue(item) {
@@ -137,7 +136,6 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
-    this.Bus?.$off('update_summary_head', this.refreshData);
   },
 });
 </script>

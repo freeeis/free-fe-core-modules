@@ -19,17 +19,6 @@ import FieldComponents from './field-components';
 import FreeFields from './free-fields';
 import routers from './router';
 
-// Vue.component('EIcon', () => import('./components/Basic/EIcon.vue'));
-// Vue.component('StickyButtons', () => import('./components/StickyButtons'));
-// Vue.component('SelectLocales', () => import('./components/SelectLocales'));
-// Vue.component('SummaryHead', () => import('./components/Basic/SummaryHead.vue'));
-// Vue.component('SlidingCarousel', () => import('./components/SlidingCarousel/index.vue'));
-// Vue.component('SlidingNews', () => import('./components/SlidingNews/index.vue'));
-// Vue.component('FloatingWindow', () => import('./components/FloatingWindow/index.vue'));
-// Vue.component('LeveledMenus', () => import('./components/Basic/LeveledMenus.vue'));
-// Vue.component('BreadCrumbs', () => import('./components/Basic/BreadCrumbs.vue'));
-// Vue.component('ThemeSwitch', () => import('./components/ThemeSwitch/index.vue'));
-
 // global filters
 const filters = {
   serverImage: url => (url ? `${config.imageUrlBase}${url}` : ''),
@@ -147,6 +136,7 @@ const filters = {
 };
 
 export default (app, root) => {
+  console.error('register dialog')
   root.use(MsgDialog);
 
   return {

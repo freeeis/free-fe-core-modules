@@ -147,6 +147,8 @@ export default defineComponent({
     fieldsData: { type: Object, default: () => ({}) },
     fieldsClass: { type: String, default: '' },
     dialogClass: { type: String, default: '' },
+
+    remove: { type: Function, default: () => {}}
   },
   components: {
     FreeField,
@@ -163,13 +165,6 @@ export default defineComponent({
       reject: '',
     };
   },
-  // created() {
-  //   if (this.visible) {
-  //     this.show();
-  //   } else {
-  //     this.hide();
-  //   }
-  // },
   watch: {
     visible() {
       if (this.visible) {
@@ -259,15 +254,6 @@ export default defineComponent({
         this.remove();
       }
     },
-    // show_msg_box() {
-    //   this.show();
-    //   this.promise = new Promise((resolve, reject) => {
-    //     this.resolve = resolve;
-    //     this.reject = reject;
-    //   });
-
-    //   return this.promise;
-    // },
     btnCancel() {
       this.$emit('cancel');
 
@@ -282,12 +268,6 @@ export default defineComponent({
       }
     },
     btn_ok() {
-      // // validate
-      // if (this.validateFunc && typeof this.validateFunc === 'function') {
-      //   // now we only have such content, but later we might will have more
-      //   this.textValid = this.validateFunc(this.textContent);
-      //   if (!this.textValid) return;
-      // }
       if (!this.validate()) {
         return;
       }
@@ -323,10 +303,6 @@ export default defineComponent({
           this.btn_ok();
         }
       }, 1000);
-    },
-    remove() {
-      this.$destroy();
-      document.body.removeChild(this.$el);
     },
     onInputFieldInput(field){
       if(field.onInput) {

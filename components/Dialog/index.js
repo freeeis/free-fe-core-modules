@@ -1,19 +1,27 @@
-import { createApp, defineAsyncComponent, getCurrentInstance } from 'vue';
+import { createApp } from 'vue';
 import Dialog from './BasicDialog.vue'
 
 const MsgDialog = {};
 MsgDialog.install = (app) => {
   let MsgDialogInstance;
   const init = (opts) => {
-    // const app = createApp(defineAsyncComponent(() => import('./BasicDialog.vue')));
-    const app = createApp(Dialog, { ...opts, modelValue: true });
-    MsgDialogInstance = app.mount('#free-dialog');
+    const dialogApp = createApp(Dialog, {
+      ...opts, modelValue: true,
+      remove: () => {
+        dialogApp.unmount();
+      }
+    });
+
+    dialogApp.config.globalProperties = app.config.globalProperties;
+
+    const { reload, ...appContext } = app._context;
+    Object.assign(dialogApp._context, appContext);
+
+    MsgDialogInstance = dialogApp.mount('#free-dialog');
   };
 
   app.config.globalProperties.$MsgDialog = (options) => {
     const opts = {};
-
-    console.error(getCurrentInstance())
 
     if (typeof options === 'string') {
       opts.content = options;

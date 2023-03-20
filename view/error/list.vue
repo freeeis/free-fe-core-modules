@@ -2,6 +2,8 @@
   <div class="flow-list">
     <summary-head :values="data.summary" :Bus="Bus"></summary-head>
     <q-table
+      flat
+      bordered
       :rows="data ? data.docs : []"
       :columns="columns"
       row-key="id"
@@ -48,9 +50,9 @@
       </template>
 
       <template v-slot:top-row>
-        <q-tr class="persistant-top-row full-width">
+        <!-- <q-tr class="persistant-top-row full-width">
           <q-td class="full-width" colspan="100%"></q-td>
-        </q-tr>
+        </q-tr> -->
         <q-tr v-if="showFilters" class="table-row filter-row">
           <q-td colspan="100%" class="table-cell filter-cell">
             <free-field
@@ -113,25 +115,25 @@ export default defineComponent({
         },
         {
           name: 'date',
-          label: '日期',
+          label: this.$t('日期'),
           field: 'LastUpdateDate',
           filters: 'normalDate',
           style: 'max-width: 200px;',
         },
         {
           name: 'code',
-          label: '代码',
+          label: this.$t('代码'),
           field: 'Code',
           style: 'max-width: 120px;',
         },
         {
           name: 'message',
-          label: '信息',
+          label: this.$t('信息'),
           field: 'Message',
         },
         {
           name: 'description',
-          label: '描述',
+          label: this.$t('描述'),
           field: 'Description',
         },
       ],
@@ -190,8 +192,3 @@ export default defineComponent({
   beforeUnmount() {},
 });
 </script>
-
-<style lang="sass" scoped>
-.persistant-top-row
-  display: none
-</style>

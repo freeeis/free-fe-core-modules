@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'"
+      v-if="Field.Label !== void 0"
     >
       <q-tooltip
         v-if="Field.Description"
@@ -55,55 +55,21 @@
         :disabled="Field.ReadOnly"
         toolbar
         value
-        v-model="fieldData"
-        @onChange="validate();$emit('input')"
+        v-model="fieldData.value"
+        @update:model-value="tinyChanged"
       />
     </span>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, watchEffect, ref } from 'vue';
 import tiny from '@tinymce/tinymce-vue';
-
-function fileSizeStrToNumber(s) {
-  if (!s) return undefined;
-
-  const sizeMatch = s.match(/^([0-9]*)(k|m|g*)(b*)/);
-
-  if (sizeMatch) {
-    // eslint-disable-next-line no-unused-vars
-    // const [tmp, num, unit] = sizeMatch;
-    const num = sizeMatch[1];
-    const unit = sizeMatch[2];
-    if (!num || !Number(num)) return '';
-
-    let multi = 1;
-    switch (unit) {
-      case 'k':
-        multi = 1024;
-        break;
-      case 'm':
-        multi = 1024 * 1024;
-        break;
-      case 'g':
-        multi = 1024 * 1024 * 1024;
-        break;
-      default:
-        multi = 1024;
-        break;
-    }
-
-    return Number(num) * multi;
-  }
-
-  return undefined;
-}
+import { fileSizeStrToNumber } from '../components/useFileSizeUtils';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldRich',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'Advanced',
     Label: '所见即所得',
@@ -144,12 +110,24 @@ export default defineComponent({
     tiny,
   },
   props: {
+    ...freeFieldProps,
     enableField: { type: Boolean, default: false },
   },
-  data() {
-    return {
-      isValid: true,
-      plugins: [
+  setup(props, { expose, emit })  {
+    if (!props.Field) return {};
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    const readonlyContent = ref(null);
+    const tiny = ref(null);
+
+    // TODO: 设置默认warning信息不生效
+    if (props.Field.Warning) {
+      Object.setValue(props.Field, 'Warning', `可嵌入图片、视频、超级链接。内容不可超过${(props.Field.Options?.MaxLength) || 1000}字，内容总大小不可超过${(props.Field.Options?.MaxSize) || '5m'}。较大图片或视频请使用超链接！`);
+    }
+
+    const isValid = ref(true);
+    const plugins = [
         'print',
         // 'preview',
         'paste',
@@ -186,9 +164,9 @@ export default defineComponent({
         // 'charmap',
         'quickbars',
         'emoticons',
-      ],
-      menubar: ['insert', 'format', 'table'],
-      toolbar: [
+      ];
+    const menubar = ['insert', 'format', 'table'];
+    const toolbar = [
         'undo',
         'redo',
         '|',
@@ -221,8 +199,8 @@ export default defineComponent({
         '|',
         'code',
         'insertFieldButton',
-      ],
-      quickbars_selection_toolbar: [
+      ];
+    const quickbars_selection_toolbar = [
         'bold',
         'italic',
         '|',
@@ -234,49 +212,39 @@ export default defineComponent({
         'quicktable',
         '|',
         'insertFieldButton',
-      ],
-      contextmenu: ['link', 'image', 'table'],
-    };
-  },
-  watch: {
-    fieldData() {
-      if (this.$refs.readonlyContent && this.Field.ReadOnly && this.fieldData) {
-        this.$refs.readonlyContent.innerHTML = this.fieldData;
-      }
-    },
-  },
-  created() {
-    if (this.$refs.readonlyContent && this.Field.ReadOnly) {
-      this.$refs.readonlyContent.innerHTML = this.fieldData;
+      ];
+    const contextmenu = ['link', 'image', 'table'];
+
+    if (props.Field.ReadOnly) {
+      watchEffect(() => {
+        readonlyContent.value.innerHTML = fieldData.value;
+      });
     }
 
-    this.Field.Warning = this.Field.Warning
-    || `可嵌入图片、视频、超级链接。内容不可超过${(this.Field.Options && this.Field.Options.MaxLength) || 1000}字，内容总大小不可超过${(this.Field.Options && this.Field.Options.MaxSize) || '5m'}。较大图片或视频请使用超链接！`;
-  },
-  methods: {
-    validate() {
-      let isValid = true;
-      if (this.$refs.tiny) {
-        if (this.Field.Required) isValid = !!this.fieldData;
+    const validate = () => {
+      let isVal = true;
+      if (tiny.value) {
+        if (props.Field.Required) isVal = !!fieldData.value;
 
-        const rules = Array.isArray(typeof this.Field.Rules)
-          ? this.Field.Rules : [this.Field.Rules];
+        const rules = Array.isArray(typeof props.Field.Rules)
+          ? props.Field.Rules : [props.Field.Rules];
 
         for (let i = 0; i < rules.length; i += 1) {
           const r = rules[i];
 
           if (typeof r === 'function') {
-            isValid = isValid && r(this.fieldData);
+            isVal = isVal && r(fieldData.value);
           }
         }
       }
 
-      this.isValid = isValid;
+      isValid.value = isVal;
 
-      return isValid;
-    },
-    tinySetup(editor) {
-      if (this.enableField) {
+      return isVal;
+    };
+
+    const tinySetup = (editor) => {
+      if (props.enableField) {
         editor.ui.registry.addButton('insertFieldButton', {
           text: '数据字段',
           tooltip: '插入数据字段',
@@ -289,49 +257,71 @@ export default defineComponent({
         });
       }
 
-      if (this.Field && this.Field.Options) {
-        if (this.Field.Options.MaxLength) {
-          editor.on('keydown', (e) => {
-            const allowedKeys = [8, 37, 38, 39, 40, 46];
-            if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
+      if (props.Field.Options?.MaxLength) {
+        editor.on('keydown', (e) => {
+          const allowedKeys = [8, 37, 38, 39, 40, 46];
+          if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
 
-            const selectedText = editor.selection.getContent({
-              format: 'text',
-            });
-
-            if (selectedText.length <= 0
-            && editor.getContent({ format: 'text' }).length >= this.Field.Options.MaxLength) {
-              e.preventDefault();
-              e.stopPropagation();
-              return false;
-            }
-
-            return true;
+          const selectedText = editor.selection.getContent({
+            format: 'text',
           });
-        }
-        if (this.Field.Options.MaxSize) {
-          const maxSize = fileSizeStrToNumber(this.Field.Options.MaxSize);
 
-          editor.on('keydown', (e) => {
-            const allowedKeys = [8, 37, 38, 39, 40, 46];
-            if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
+          if (selectedText.length <= 0
+          && editor.getContent({ format: 'text' }).length >= props.Field.Options.MaxLength) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
 
-            const selectedText = editor.selection.getContent({
-              format: 'text',
-            });
-
-            if (selectedText.length <= 0
-            && editor.getContent({ format: 'html' }).length >= maxSize) {
-              e.preventDefault();
-              e.stopPropagation();
-              return false;
-            }
-
-            return true;
-          });
-        }
+          return true;
+        });
       }
-    },
+      if (props.Field.Options?.MaxSize) {
+        const maxSize = fileSizeStrToNumber(props.Field.Options.MaxSize);
+
+        editor.on('keydown', (e) => {
+          const allowedKeys = [8, 37, 38, 39, 40, 46];
+          if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
+
+          const selectedText = editor.selection.getContent({
+            format: 'text',
+          });
+
+          if (selectedText.length <= 0
+          && editor.getContent({ format: 'html' }).length >= maxSize) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+
+          return true;
+        });
+      }
+    };
+
+    const tinyChanged = (v) => {
+      validate();
+      setFieldData(v, emit);
+    };
+
+    expose({
+      validate,
+    })
+
+    return {
+      isValid,
+      fieldData,
+      readonlyContent,
+      tiny,
+      tinySetup,
+      tinyChanged,
+
+      plugins,
+      menubar,
+      toolbar,
+      quickbars_selection_toolbar,
+      contextmenu,
+    };
   },
 });
 </script>

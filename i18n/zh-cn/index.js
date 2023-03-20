@@ -39,7 +39,7 @@ export default {
     validatorOnlyCNUDescription: "",
     validatorOnlyCNSName: "只能是中文或数字或特殊字符",
     validatorOnlyCNSDescription:
-      '只能是中文或数字或（"."、"@"、"<"、">"、"_"、"?"）',
+      `只能是中文或数字或（"."、{'@'}、"<"、">"、"_"、"?"）`,
 
     validatorOnlyIntegerName: "只能是整数",
     validatorOnlyIntegerDescription: "",

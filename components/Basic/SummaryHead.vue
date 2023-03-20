@@ -46,7 +46,7 @@
           <span class="text">{{ item.text }}</span>
         </q-btn>
         <span
-          v-if="typeof item.number !== 'undefined'"
+          v-if="item.number !== void 0"
           :class="
             item.number && Number(item.number).toString() !== 'NaN'
               ? 'summary-head-number is-number highlight'
@@ -83,8 +83,17 @@ export default defineComponent({
   mixins: [mixins.ArrayDataMixin],
   props: {
     has_multiple_head: { type: Boolean, default: false },
+    values: {type: Object, default: () => ({})},
   },
   created() {
+    if (this.values) {
+      this.data = this.values;
+    }
+  },
+  watch: {
+    values(v) {
+      this.data = v || [];
+    },
   },
   methods: {
     filteredValue(item) {

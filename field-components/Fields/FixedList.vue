@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'"
+      v-if="Field.Label !== void 0"
     >
       <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
       {{Field.Label || ''}}
@@ -72,12 +72,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, watchEffect, ref, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldFixedList',
-  mixins: [mixins.InputFieldMixin],
   emits:['input'],
   fieldInfo: {
     Category: 'Table',
@@ -203,35 +202,55 @@ export default defineComponent({
       }
     },
   },
-  data() {
-    return {
-      tableData: [],
-    };
+  props: {
+    ...freeFieldProps,
   },
-  computed: {
-    tableTdClass() {
-      return (index) => (((index || 0) % 2) ? 'col-zebra-even' : 'col-zebra-odd');
-    },
-    showCell() {
-      return (p) => {
+  setup(props, { emit }) {
+    if (!props.Field) return {};
+
+    const { fieldData, setFieldData } = useFreeField(props);
+    const tableData = ref(props.Field.Options?.Default || []);
+
+    watchEffect(() => {
+      if (fieldData.value) {
+        const dd = [];
+        for (let i = 0; i < fieldData.value.length; i += 1) {
+          const fd = fieldData.value[i];
+
+          dd[i] = fd;
+          if (fd.rowSize !== void 0) {
+            Object.keys(dd[i]).forEach((ddk) => {
+              if (Number(ddk) && Number(ddk) > fd.rowSize) {
+                delete dd[i][ddk];
+              }
+            });
+          }
+        }
+
+        tableData.value = dd;
+      }
+    })
+
+    const tableTdClass = (index) => (((index || 0) % 2) ? 'col-zebra-even' : 'col-zebra-odd');
+    const showCell = (p) => {
         const colNum = Number(p.col.name);
 
         // eslint-disable-next-line no-restricted-globals
         if (isNaN(colNum)) return true;
 
-        if (typeof p.row.rowSize !== 'undefined') {
+        if (p.row.rowSize !== void 0) {
           return colNum < p.row.rowSize && !!p.row[colNum];
         }
         return !!p.row[colNum];
-      };
-    },
-    columns() {
-      if (!this.Field || !this.Field.Options || !this.Field.Options.Columns) {
+    };
+
+    const columns = computed(() => {
+      if (!props.Field.Options?.Columns) {
         return [];
       }
 
       const cls = [];
-      this.Field.Options.Columns.forEach((c) => {
+      props.Field.Options.Columns.forEach((c) => {
         const newC = { ...c };
         newC.name = c.Name;
         newC.label = c.Label;
@@ -258,46 +277,43 @@ export default defineComponent({
       });
 
       return cls;
-    },
-    columnField() {
-      return (col, withLabel = false, pCol) => {
-        const field = { ...(col.List ? col.List[0] : col) };
-        field.Name = field.Name || field.name || field.field;
+    });
 
-        if (withLabel) {
-          field.Name = `${(pCol && pCol.field) ? `${pCol.field}.` : ''}${field.Name}`;
-        } else {
-          delete field.Label;
-          delete field.label;
-        }
+    const columnField  = (col, withLabel = false, pCol) => {
+      const field = { ...(col.List ? col.List[0] : col) };
+      field.Name = field.Name || field.name || field.field;
 
-        delete field.field;
+      if (withLabel) {
+        field.Name = `${(pCol && pCol.field) ? `${pCol.field}.` : ''}${field.Name}`;
+      } else {
+        delete field.Label;
+        delete field.label;
+      }
 
-        field.ReadOnly = this.Field.ReadOnly || field.ReadOnly;
+      delete field.field;
 
-        return field;
-      };
-    },
-    summaryContent() {
+      field.ReadOnly = props.Field.ReadOnly || field.ReadOnly;
+
+      return field;
+    };
+
+    const summaryContent = computed(() => {
       if (
-        !this.tableData
-        || !this.Field
-        || !this.Field.Options
-        || !this.Field.Options.Summary
-        || !this.Field.Options.Summary.Pattern
+        !tableData.value
+        || !props.Field.Options?.Summary?.Pattern
       ) {
         return '';
       }
-      let summaryText = this.Field.Options.Summary.Pattern;
+      let summaryText = props.Field.Options.Summary.Pattern;
 
-      for (let i = 0; i < this.Field.Options.Summary.Fields.length; i += 1) {
-        const sf = this.Field.Options.Summary.Fields[i];
-        const fdList = this.tableData.filter((fd) => !!fd[sf.Field]);
+      for (let i = 0; i < props.Field.Options.Summary.Fields.length; i += 1) {
+        const sf = props.Field.Options.Summary.Fields[i];
+        const fdList = tableData.value.filter((fd) => !!fd[sf.Field]);
         let vi = 0;
 
         switch (sf.Way) {
           case 'count':
-            vi = this.tableData.filter((fd) => !!fd[sf.Field]).length;
+            vi = tableData.value.filter((fd) => !!fd[sf.Field]).length;
             break;
           case 'sum':
             if (fdList) {
@@ -312,50 +328,29 @@ export default defineComponent({
 
         // round vi
         vi = vi.toFixed(
-          (this.Field
-          && this.Field.Options
-          && this.Field.Options.Summary
-          && this.Field.Options.Summary.Digits)
+          (this.Field.Options?.Summary?.Digits)
           || 2,
         );
 
         summaryText = summaryText.replace(`$\{${i + 1}}`, vi);
       }
       return summaryText;
-    },
-  },
-  watch: {
-    fieldData() {
-      if (this.fieldData) {
-        this.tableData = this.fieldData;
-        const dd = [];
-        for (let i = 0; i < this.fieldData.length; i += 1) {
-          const fd = this.fieldData[i];
+    });
 
-          dd[i] = fd;
-          if (typeof fd.rowSize !== 'undefined') {
-            Object.keys(dd[i]).forEach((ddk) => {
-              if (Number(ddk) && Number(ddk) > fd.rowSize) {
-                delete dd[i][ddk];
-              }
-            });
-          }
-        }
+    const cellChanged = () => {
+      setFieldData(tableData.value, emit);
+    };
 
-        this.tableData = dd;
-      }
-    },
-  },
-  created() {
-    if (!this.fieldData && this.Field.Options) {
-      this.tableData = this.Field.Options.Default || [];
-    }
-  },
-  methods: {
-    cellChanged() {
-      this.fieldData = this.tableData;
-      this.$emit('input');
-    },
+    return {
+      fieldData,
+      tableData,
+      tableTdClass,
+      showCell,
+      columns,
+      columnField,
+      summaryContent,
+      cellChanged,
+    };
   },
 });
 </script>

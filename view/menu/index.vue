@@ -154,12 +154,12 @@ export default defineComponent({
 
         // add the customize input option
         m.Options.push({
-          Label: '自定义',
+          Label: this.$t('自定义'),
           Value: 'customize',
           Extra: [
             {
               Name: 'CustomizeRoute',
-              Label: '自定义路径',
+              Label: this.$t('自定义路径'),
             },
           ],
         });
@@ -322,6 +322,9 @@ export default defineComponent({
         this.onCancelClick();
       }
     },
+    fieldInput(e) {
+      console.log(e)
+    }
   },
 });
 </script>

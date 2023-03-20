@@ -4,16 +4,16 @@
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="typeof Field.Label !== 'undefined'"
+        v-if="Field.Label !== void 0"
       >
         <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
         {{Field.Label || ''}}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData}}</span>
+      <span class="readonly-content">{{fieldData.value}}</span>
     </span>
     <span v-else class="row items-center no-wrap">
-      <span v-if="typeof Field.Label !== 'undefined'" class="q-field__before">
+      <span v-if="Field.Label !== void 0" class="q-field__before">
         <span
           :class="`field-label ${(Field.Label && Field.Label.trim().length)
           ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -25,7 +25,6 @@
       </span>
       <q-input
         v-model="min"
-        v-bind="$attrs"
         hide-bottom-space
         :readonly="Field.ReadOnly"
         :ref="`input_field_validator_first`"
@@ -61,7 +60,6 @@
 
       <q-input
         v-model="max"
-        v-bind="$attrs"
         hide-bottom-space
         :readonly="Field.ReadOnly"
         :ref="`input_field_validator_second`"
@@ -98,12 +96,14 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref, getCurrentInstance } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldTimeRange',
-  mixins: [mixins.InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   emits:['input'],
   fieldInfo: {
     Category: 'DateTime',
@@ -155,84 +155,85 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
-    return {
-      min: '',
-      max: '',
+  setup(props, { emit }) {
+    if (!props.Field) return () => null;
+
+    const { proxy:vm } = getCurrentInstance();
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    const updateFieldDate = () => {
+      setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
     };
-  },
-  watch: {
-    fieldData() {
-      const yl = (this.fieldData || '').split(this.Field.Separator || '~');
-      this.min = yl[0] && yl[0].trim();
-      this.max = yl[1] && yl[1].trim();
-    },
-    min() {
-      this.fieldData = [this.min, this.max].join(this.Field.Separator || '~');
-      this.$emit('input');
-    },
-    max() {
-      this.fieldData = [this.min, this.max].join(this.Field.Separator || '~');
-      this.$emit('input');
-    },
-  },
-  computed: {
-    locale() {
-      return this.ctx.config.locales.find(
-        (l) => l.locale === (this.ctx.config.locale || this.ctx.config.defaultLocale),
-      ).calendar;
-    },
-    minDateOptions() {
+
+    const min = ref('');
+    const max = ref('');
+
+    watch(min, () => updateFieldDate());
+    watch(max, () => updateFieldDate());
+
+    watchEffect(() => {
+      const yl = (fieldData.value || '').split(props.Field.Separator || '~');
+      min.value = yl[0] && yl[0].trim();
+      max.value = yl[1] && yl[1].trim();
+    });
+
+    const locale = vm.ctx.config.locales.find(
+      (l) => l.locale === (vm.ctx.config.locale || vm.ctx.config.defaultLocale),
+    )?.calendar;
+
+
+    const minDateOptions = computed(() => {
       let minDate = '1900/01/01';
       let maxDate = '2050/12/31';
 
-      if (this.Field.MinValue) {
-        minDate = this.Field.MinValue.replace(/-/g, '/');
+      if (props.Field.MinValue) {
+        minDate = props.Field.MinValue.replace(/-/g, '/');
         [minDate] = minDate.split(' ');
       }
 
-      if (this.Field.TillNow) {
+      if (props.Field.TillNow) {
         maxDate = new Date().toLocaleDateString();
-      } else if (this.Field.MaxValue) {
-        maxDate = this.Field.MaxValue.replace(/-/g, '/');
+      } else if (props.Field.MaxValue) {
+        maxDate = props.Field.MaxValue.replace(/-/g, '/');
         [maxDate] = maxDate.split(' ');
       }
 
-      if (this.max && this.max.replace(/-/g, '/') < maxDate) {
-        return (date) => date >= minDate && date <= this.max.replace(/-/g, '/').split(' ')[0];
+      if (max.value && max.value.replace(/-/g, '/') < maxDate) {
+        return (date) => date >= minDate && date <= max.value.replace(/-/g, '/').split(' ')[0];
       }
 
       return (date) => date >= minDate && date <= maxDate;
-    },
-    maxDateOptions() {
+    });
+    const maxDateOptions = computed(() => {
       let minDate = '1900/01/01';
       let maxDate = '2050/12/31';
 
-      if (this.Field.MinValue) {
-        minDate = this.Field.MinValue.replace(/-/g, '/');
+      if (props.Field.MinValue) {
+        minDate = props.Field.MinValue.replace(/-/g, '/');
         [minDate] = minDate.split(' ');
       }
 
-      if (this.Field.TillNow) {
+      if (props.Field.TillNow) {
         maxDate = new Date().toLocaleDateString();
-      } else if (this.Field.MaxValue) {
-        maxDate = this.Field.MaxValue.replace(/-/g, '/');
+      } else if (props.Field.MaxValue) {
+        maxDate = props.Field.MaxValue.replace(/-/g, '/');
         [maxDate] = maxDate.split(' ');
       }
 
-      if (this.min && this.min.replace(/-/g, '/') > minDate) {
-        return (date) => date >= this.min.replace(/-/g, '/').split(' ')[0] && date <= maxDate;
+      if (min.value && min.value.replace(/-/g, '/') > minDate) {
+        return (date) => date >= min.value.replace(/-/g, '/').split(' ')[0] && date <= maxDate;
       }
 
       return (date) => date >= minDate && date <= maxDate;
-    },
-    minTimeLimit() {
-      if (this.min && this.Field.MinValue) {
+    });
+    const minTimeLimit = computed(() => {
+      if (min.value && props.Field.MinValue) {
         try {
-          const dSplit = this.Field.MinValue.split(' ');
+          const dSplit = props.Field.MinValue.split(' ');
           const mD = dSplit[0];
 
-          if (this.min.split(' ')[0] <= mD) {
+          if (min.value.split(' ')[0] <= mD) {
             const [mH, mM] = dSplit[1].split(':');
 
             if (mH && mM) {
@@ -251,14 +252,14 @@ export default defineComponent({
         hour: (t) => t >= 0,
         minute: (t) => t >= 0,
       };
-    },
-    maxTimeLimit() {
-      if (this.max && this.Field.MaxValue) {
+    });
+    const maxTimeLimit = computed(() => {
+      if (max.value && props.Field.MaxValue) {
         try {
-          const dSplit = this.Field.MaxValue.split(' ');
+          const dSplit = props.Field.MaxValue.split(' ');
           const mD = dSplit[0];
 
-          if (this.max.split(' ')[0] >= mD) {
+          if (max.value.split(' ')[0] >= mD) {
             const [mH, mM] = dSplit[1].split(':');
 
             if (mH && mM) {
@@ -277,33 +278,30 @@ export default defineComponent({
         hour: (t) => t >= 0,
         minute: (t) => t >= 0,
       };
-    },
-    minHourOptions() {
-      return this.objOptions
-        ? (this.objOptions.hour || []).filter(this.minTimeLimit.hour) : undefined;
-    },
-    minMinuteOptions() {
-      return this.objOptions
-        ? (this.objOptions.minute || []).filter(this.minTimeLimit.minute) : undefined;
-    },
-    maxHourOptions() {
-      return this.objOptions
-        ? (this.objOptions.hour || []).filter(this.maxTimeLimit.hour) : undefined;
-    },
-    maxMinuteOptions() {
-      return this.objOptions
-        ? (this.objOptions.minute || []).filter(this.maxTimeLimit.minute) : undefined;
-    },
-    objOptions() {
-      if (this.Field.Options) {
-        return this.Field.Options;
-      }
-      return undefined;
-    },
-    timeOptions() {
-      if (this.objOptions) return undefined;
+    });
+    const minHourOptions = computed(() => {
+      return objOptions.value
+        ? (objOptions.value.hour || []).filter(minTimeLimit.value.hour) : undefined;
+    });
+    const minMinuteOptions = computed(() => {
+      return objOptions.value
+        ? (objOptions.value.minute || []).filter(minTimeLimit.value.minute) : undefined;
+    });
+    const maxHourOptions = computed(() => {
+      return objOptions.value
+        ? (objOptions.value.hour || []).filter(maxTimeLimit.value.hour) : undefined;
+    });
+    const maxMinuteOptions = computed(() => {
+      return objOptions.value
+        ? (objOptions.value.minute || []).filter(maxTimeLimit.value.minute) : undefined;
+    });
 
-      if (!this.Field.MinValue && !this.Field.MaxValue) {
+    const objOptions = computed(() => props.Field.Options || undefined);
+
+    const timeOptions = computed(() => {
+      if (objOptions.values) return undefined;
+
+      if (!props.Field.MinValue && !props.Field.MaxValue) {
         return undefined;
       }
 
@@ -311,15 +309,15 @@ export default defineComponent({
       let minM;
       let minS;
 
-      if (this.Field.MinValue) {
-        [minH, minM, minS] = this.Field.MinValue;
+      if (props.Field.MinValue) {
+        [minH, minM, minS] = props.Field.MinValue;
       }
 
       let maxH;
       let maxM;
       let maxS;
-      if (this.Field.MaxValue) {
-        [maxH, maxM, maxS] = this.Field.MaxValue;
+      if (props.Field.MaxValue) {
+        [maxH, maxM, maxS] = props.Field.MaxValue;
       }
 
       minH = minH || 0;
@@ -342,7 +340,24 @@ export default defineComponent({
         }
         return true;
       };
-    },
+    });
+
+    return {
+      fieldData,
+      locale,
+
+      minDateOptions,
+      maxDateOptions,
+      minHourOptions,
+      minMinuteOptions,
+      maxHourOptions,
+      maxMinuteOptions,
+      timeOptions,
+
+      changed: (v) => {
+        setFieldData(v, emit);
+      }
+    };
   },
 });
 </script>

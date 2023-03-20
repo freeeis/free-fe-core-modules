@@ -32,7 +32,8 @@
             row-key="id"
             :pagination="searchPagination"
             :selection="Field.Multiple ? 'multiple' : 'single'"
-            v-model:selected="searchSelected"
+            :selected="searchSelected"
+            @update:selected="searchSelected = $event"
           >
             <template v-slot:header="props">
               <q-tr :props="props">
@@ -108,7 +109,7 @@
         :class="`field-label field-label-readonly ${
           (Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="typeof Field.Label !== 'undefined'"
+        v-if="Field.Label !== void 0"
       >
         <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
         {{Field.Label || ''}}
@@ -120,11 +121,10 @@
     </span>
     <q-input
       v-else
-      v-model="searchDisplay"
+      modelValue=""
       :type="`${Field && Field.Multiple ? 'textarea' : ''}`"
       hide-bottom-space
       readonly
-      v-bind="$attrs"
       :class="`${Field && Field.Multiple
         ? '' : 'simple-field'} ${searchDisplay ? 'has-data' : 'empty'}`"
       :ref="`input_field_validator_${Field.Name || Field.Label}`"
@@ -150,7 +150,7 @@
         <span
           :class="`field-label ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          v-if="typeof Field.Label !== 'undefined'"
+          v-if="Field.Label !== void 0"
         >
           <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
           {{Field.Label || ''}}
@@ -174,12 +174,14 @@
 
 <script>
 import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldSearch',
-  mixins: [mixins.InputFieldMixin],
   emits:['input'],
+  props: {
+    ...freeFieldProps,
+  },
   fieldInfo: {
     Category: 'Advanced',
     Label: '搜索',
@@ -284,6 +286,16 @@ export default defineComponent({
     ],
     Description: '',
   },
+  setup(props) {
+    if (!props.Field) return {};
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    return {
+      fieldData,
+      setFieldData,
+    };
+  },
   data() {
     return {
       searchKey: '',
@@ -302,16 +314,12 @@ export default defineComponent({
   },
   computed: {
     searchColumns() {
-      if (
-        !this.Field
-        || !this.Field.Options
-        || !this.Field.Options.SearchColumns
-      ) {
+      if (!this.Field?.Options?.SearchColumns) {
         return [];
       }
 
       const cls = [];
-      this.Field.Options.SearchColumns.forEach((c) => {
+      (this.Field?.Options?.SearchColumns || []).forEach((c) => {
         const newC = { ...c };
         newC.name = c.Name;
         newC.label = c.Label;
@@ -336,14 +344,14 @@ export default defineComponent({
     },
   },
   watch: {
-    data(n, o) {
+    fieldData(n, o) {
       // init search data from exist id
-      if (typeof this.fieldData === 'undefined') {
+      if (typeof this.fieldData.value === 'undefined') {
         this.searchSelected = [];
         this.searchData = {};
         this.searchDisplay = '';
         this.searchKey = '';
-      } else if (this.Field.Type === 'Search' && this.data) {
+      } else if (this.Field.Type === 'Search' && this.fieldData.value) {
         if (n && o) {
           const nV = Object.nestValue(n, this.Field.Name);
           const oV = Object.nestValue(o, this.Field.Name);
@@ -354,8 +362,8 @@ export default defineComponent({
         if (this.Field.Options && this.Field.Options.SearchUrl) {
           const paramObj = {};
           paramObj[this.Field.Options.SearchField || 'id'] = this.Field.Multiple
-            ? JSON.stringify(Object.nestValue(this.data, this.Field.Name))
-            : Object.nestValue(this.data, this.Field.Name);
+            ? JSON.stringify(this.fieldData.value)
+            : this.fieldData.value;
 
           this.getRequest(
               `${this.Field.Options.SearchUrl}`,
@@ -404,9 +412,8 @@ export default defineComponent({
   methods: {
     search(p) {
       if (
-        !this.Field.Options
-        || !this.Field.Options.SearchUrl
-        || (!this.searchKey && !this.Field.Options.AllowEmptySearch)
+        !this.Field?.Options?.SearchUrl
+        || (!this.searchKey && !this.Field?.Options?.AllowEmptySearch)
       ) {
         return;
       }
@@ -419,7 +426,7 @@ export default defineComponent({
           if (d && d.msg === 'OK') {
             const { data } = d;
             if (data) {
-              for (let i = 0; i < data.docs.length; i += 1) {
+              for (let i = 0; i < data.docs?.length; i += 1) {
                 const dc = data.docs[i];
 
                 dc.index = (data.page - 1) * data.limit + i + 1;
@@ -439,11 +446,13 @@ export default defineComponent({
           ? this.searchSelected : [this.searchSelected[0]];
 
         const sFieldName = this.Field.SearchField || 'id';
-        this.fieldData = selected.map(
+
+        this.setFieldData(selected.map(
           (ss) => Object.nestValue(ss, sFieldName),
-        ).filter((ss) => !!ss);
+        ).filter((ss) => !!ss));
+
         if (!this.Field || !this.Field.Multiple) {
-          [this.fieldData] = this.fieldData;
+        this.setFieldData(this.fieldData.value[0]);
         }
 
         const sdFieldName = this.Field.Options.SearchDisplayField || 'id';
@@ -459,7 +468,7 @@ export default defineComponent({
 
       if (!this.Field || !this.Field.Multiple) {
         this.searchSelected = [];
-        this.fieldData = undefined;
+        this.setFieldData(undefined);
 
         this.$emit('input');
 

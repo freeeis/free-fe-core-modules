@@ -7,7 +7,7 @@
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="typeof Field.Label !== 'undefined'"
+        v-if="Field.Label !== void 0"
       >
         <q-tooltip
           v-if="Field.Description"
@@ -44,7 +44,7 @@
     >
       <template v-slot:prepend>
         <q-chip
-          v-for="(label, index) in fieldData"
+          v-for="(label, index) in fieldData.value"
           :key="index"
           removable
           :value="!!fieldData[index]"
@@ -57,7 +57,7 @@
         <span
           :class="`field-label ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          v-if="typeof Field.Label !== 'undefined'"
+          v-if="Field.Label !== void 0"
         >
           <q-tooltip
             v-if="Field.Description"
@@ -86,11 +86,13 @@
 
 <script>
 import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldLabels',
-  mixins: [mixins.InputFieldMixin],
+  props:  {
+    ...freeFieldProps,
+  },
   emits:['input'],
   fieldInfo: {
     Category: 'Simple',
@@ -112,15 +114,23 @@ export default defineComponent({
       newLabel: '',
     };
   },
-  created() {
-    // init labels
-    if (this.Field.Type === 'Labels') {
-      this.data[this.Field.Name] = this.data[this.Field.Name] || [];
+  setup(props) {
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    return {
+      fieldData,
+      setFieldData,
     }
   },
+  // created() {
+  //   // init labels
+  //   if (this.Field.Type === 'Labels') {
+  //     this.data[this.Field.Name] = this.data[this.Field.Name] || [];
+  //   }
+  // },
   computed: {
     reaonlyContent() {
-      return (this.fieldData || []).filter((f) => !!f).join(',');
+      return (this.fieldData.value || []).filter((f) => !!f).join(',');
     },
   },
   methods: {
@@ -140,23 +150,22 @@ export default defineComponent({
       if (!labelList || labelList.length <= 0) return;
 
       let changed = false;
+      const currentList = this.fieldData.value || [];
 
       for (let i = 0; i < labelList.length; i += 1) {
         const l = labelList[i];
 
         if (
           l
-          && (!this.data
-            || !this.data[this.Field.Name]
-            || this.data[this.Field.Name].indexOf(l) < 0)
+          && (currentList.indexOf(l) < 0)
         ) {
-          this.data[this.Field.Name].push(l);
+          currentList.push(l);
           changed = true;
         }
       }
 
       if (changed) {
-        this.$emit('input');
+        this.setFieldData(currentList);
       }
 
       this.newLabel = '';

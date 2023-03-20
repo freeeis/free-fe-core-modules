@@ -10,7 +10,7 @@
         {{Field.Label || ''}}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData}}</span>
+      <span class="readonly-content">{{fieldData.value}}</span>
     </span>
     <span v-else class="row items-center no-wrap">
       <q-select
@@ -18,11 +18,10 @@
         hide-bottom-space
         :options="minYearOptions"
         :readonly="Field.ReadOnly"
-        v-bind="$attrs"
         @input="rangeChanged"
         :ref="`input_field_validator_first`"
       >
-        <template v-slot:before v-if="typeof Field.Label !== 'undefined'">
+        <template v-slot:before v-if="Field.Label !== void 0">
           <span
             :class="`field-label ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -40,7 +39,6 @@
         :options="maxYearOptions"
         :readonly="Field.ReadOnly"
         @input="rangeChanged"
-        v-bind="$attrs"
         :ref="`input_field_validator_second`"
       />
     </span>
@@ -50,12 +48,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref, getCurrentInstance } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldYearRange',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'DateTime',
     Label: '年份范围',
@@ -84,62 +81,51 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
-    return {
-      range: {
-        min: '',
-        max: '',
-      },
+  props: {
+    ...freeFieldProps,
+  },
+  emits:['input'],
+  setup(props, { emit }) {
+    if (!props.Field) return () => null;
+
+    const { proxy:vm } = getCurrentInstance();
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    const min = ref('');
+    const max = ref('');
+
+    const rangeChanged = () => {
+      setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
     };
-  },
-  watch: {
-    fieldData() {
-      const yl = (this.fieldData || '').split(this.Field.Separator || '~');
-      [this.range.min, this.range.max] = yl;
 
-      // if (!this.range.min) {
-      //   this.$set(this.range, 'min', Number(this.Field.MinValue) || 1900);
-      // }
-      // if (!this.range.max) {
-      //   this.$set(this.range, 'max', Number(this.Field.MaxValue)
-      //   || (this.Field.TillNow ? Date.now().year : 2050));
-      // }
-    },
-    range() {
-      if (this.range.min && this.range.max) return;
-      this.fieldData = [this.range.min, this.range.max].join(
-        this.Field.Separator || '~',
-      );
-      this.$emit('input');
-    },
-  },
-  created() {
-    // if (!this.range.min) {
-    //   this.$set(this.range, 'min', Number(this.Field.MinValue) || 1900);
-    // }
-    // if (!this.range.max) {
-    //   this.$set(this.range, 'max', Number(this.Field.MaxValue)
-    //     || (this.Field.TillNow ? Date.now().year : 2050));
-    // }
-  },
-  computed: {
-    minYearOptions() {
-      if (this.Field.Options && Array.isArray(this.Field.Options)) {
-        return this.Field.Options;
+    watchEffect(() => {
+      const yl = (fieldData.value || '').split(props.Field.Separator || '~');
+      min.value = yl[0] && yl[0].trim();
+      max.value = yl[1] && yl[1].trim();
+    });
+
+    watch(range, () => {
+      rangeChanged();
+    })
+
+    const minYearOptions = computed(() => {
+      if (props.Field.Options && Array.isArray(props.Field.Options)) {
+        return props.Field.Options;
       }
 
       let minYear = 1900;
       let maxYear = Date.now().year;
 
-      if (this.Field.MinValue && Number(this.Field.MinValue)) {
-        minYear = Number(this.Field.MinValue);
+      if (props.Field.MinValue && Number(props.Field.MinValue)) {
+        minYear = Number(props.Field.MinValue);
       }
-      if (this.Field.MaxValue && Number(this.Field.MaxValue)) {
-        maxYear = Number(this.Field.MaxValue);
+      if (props.Field.MaxValue && Number(props.Field.MaxValue)) {
+        maxYear = Number(props.Field.MaxValue);
       }
 
-      if (this.range.max && this.range.max < maxYear.toString()) {
-        maxYear = Number(this.range.max) - 1;
+      if (max.value && max.value < maxYear.toString()) {
+        maxYear = Number(max.value) - 1;
       }
 
       const options = [];
@@ -148,24 +134,25 @@ export default defineComponent({
       }
 
       return options;
-    },
-    maxYearOptions() {
-      if (this.Field.Options && Array.isArray(this.Field.Options)) {
-        return this.Field.Options;
+    });
+
+    const maxYearOptions = computed(() => {
+      if (props.Field.Options && Array.isArray(props.Field.Options)) {
+        return props.Field.Options;
       }
 
       let minYear = 1900;
       let maxYear = Date.now().year;
 
-      if (this.Field.MinValue && Number(this.Field.MinValue)) {
-        minYear = Number(this.Field.MinValue);
+      if (props.Field.MinValue && Number(props.Field.MinValue)) {
+        minYear = Number(props.Field.MinValue);
       }
-      if (this.Field.MaxValue && Number(this.Field.MaxValue)) {
-        maxYear = Number(this.Field.MaxValue);
+      if (props.Field.MaxValue && Number(props.Field.MaxValue)) {
+        maxYear = Number(props.Field.MaxValue);
       }
 
-      if (this.range.min && this.range.min > minYear.toString()) {
-        minYear = Number(this.range.min) + 1;
+      if (min.value && min.value > minYear.toString()) {
+        minYear = Number(min.value) + 1;
       }
 
       const options = [];
@@ -174,15 +161,18 @@ export default defineComponent({
       }
 
       return options;
-    },
-  },
-  methods: {
-    rangeChanged() {
-      this.fieldData = [this.range.min, this.range.max].join(
-        this.Field.Separator || '~',
-      );
-      this.$emit('input');
-    },
+    });
+
+
+    return {
+      fieldData,
+      range,
+
+      minYearOptions,
+      maxYearOptions,
+
+      rangeChanged,
+    };
   },
 });
 </script>

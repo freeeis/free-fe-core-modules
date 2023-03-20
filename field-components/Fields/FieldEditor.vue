@@ -5,7 +5,6 @@
     maximized
     class="q-ma-xl"
   >
-
     <q-card
       class="input-field-editor q-ma-xl"
       style="height: calc(100% - 96px)"
@@ -24,13 +23,13 @@
               icon="cancel"
               class="cancel-btn"
               :label="$t('cancelButtonText')"
-              @click="$emit('cancel')"
+              @click="cancelClicked"
             />
             <q-btn
               icon="save"
               class="save-btn"
               :label="$t('saveButtonText')"
-              @click="$emit('save')"
+              @click="saveClicked"
             />
           </q-toolbar>
         </q-footer>
@@ -42,7 +41,7 @@
               :key="fIndex"
             >
               <free-field
-                :values="data"
+                :values="fieldData.value"
                 :Field="field"
                 @input="fieldChanged"
                 @updateOptions="fieldOptionsChanged"
@@ -56,13 +55,12 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, getCurrentInstance, watchEffect } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 import FieldTypeOptions from './components/FieldTypeOptions';
 
 export default defineComponent({
   name: 'FieldEditor',
-  mixins: [mixins.InputFieldMixin],
   emits: ['update:field', 'save', 'cancel'],
   fieldInfo: {
     Category: 'Advanced',
@@ -70,10 +68,18 @@ export default defineComponent({
     Value: 'FieldEditor',
     Description: '',
   },
-  data() {
-    return {
-      visible: true,
-      Fields: [
+  props: {
+    ...freeFieldProps,
+  },
+  setup(props, { emit }) {
+    if (!props.Field) return {};
+
+    const { proxy:vm } = getCurrentInstance();
+
+    const { fieldData } = useFreeField(props);
+
+    // const visible = ref(true);
+    const Fields = [
         {
           Label: '基本信息',
           Type: 'Category',
@@ -141,13 +147,13 @@ export default defineComponent({
           Type: 'Select',
           Placeholder: '请选择',
           Multiple: true,
-          Options: Object.keys(this.ctx.validators).map((vlk) => {
-            const name = this.$t(`${vlk}Name`);
-            const desc = this.$t(`${vlk}Description`);
+          Options: Object.keys(vm.ctx.validators).map((vlk) => {
+            const name = vm.$t(`${vlk}Name`);
+            const desc = vm.$t(`${vlk}Description`);
             return {
-              Label: name === `${vlk}Name` ? vlk : name,
+              Label: (name === `${vlk}Name`) ? vlk : name,
               Value: vlk,
-              Tooltip: desc === `${vlk}Description` ? '' : desc,
+              Tooltip: (desc === `${vlk}Description`) ? '' : desc,
             };
           }),
         },
@@ -329,43 +335,56 @@ export default defineComponent({
           Name: 'Permission',
           ServiceList: '_service_list',
         },
-      ],
-    };
-  },
-  watch: {
-    // eslint-disable-next-line func-names
-    'Field.show': function (v) {
-      if (v) {
-        this.fieldChanged(this.Fields.find((f) => f.Name === 'Type'));
-      }
-    },
-  },
-  methods: {
-    fieldOptionsChanged(field) {
+      ];
+
+
+    const fieldOptionsChanged = (field) => {
       if (!field || !field.Name || !field.Options) return;
 
-      const fListField = this.Fields.find((f) => f.Name === field.Name);
+      const fListField = Fields.find((f) => f.Name === field.Name);
       if (fListField) {
         fListField.Options = field.Options;
       }
-    },
-    fieldChanged(field) {
+    };
+    const fieldChanged = (field) => {
       if (!field || !field.Name) return;
 
       if (field.Name === 'Type' || field.Name.startsWith('Options.')) {
         // when the field is fixed list, we have to set columns for the default value list
-        this.data.Options = this.data.Options || {};
-        const fListField = this.Fields.find((f) => f.Name === 'Type');
-        if (fListField) {
-          const theOpt = fListField.Options.find((op) => op.Value === this.data.Type);
-          if (theOpt && theOpt.onOptionsChanged) {
-            theOpt.onOptionsChanged(this, this.data, theOpt);
-          }
-        }
+
+        // TODO: do we need this?
+        // fieldData.value.Options = fieldData.value?.Options || {};
+        // const fListField = Fields.find((f) => f.Name === 'Type');
+        // if (fListField) {
+        //   const theOpt = fListField.Options.find((op) => op.Value === fieldData.value?.Type);
+        //   if (theOpt && theOpt.onOptionsChanged) {
+        //     theOpt.onOptionsChanged(vm, fieldData.value, theOpt);
+        //   }
+        // }
       }
 
-      this.$emit('update:field', field.Name);
-    },
+      emit('update:field', field.Name);
+    };
+
+    watchEffect(() => {
+      if(props.Field.show) {
+        fieldChanged(Fields.find((f) => f.Name === 'Type'));
+      }
+    });
+
+    return {
+      fieldData,
+      Fields,
+      fieldOptionsChanged,
+      fieldChanged,
+      saveClicked: () => {
+        emit('save');
+      },
+      cancelClicked: () => {
+        // TODO: when click cancel, we should rollback the field data
+        emit('cancel');
+      },
+    };
   },
 });
 </script>

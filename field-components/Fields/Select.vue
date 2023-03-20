@@ -12,7 +12,7 @@
         <span
           :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          v-if="typeof Field.Label !== 'undefined'"
+          v-if="Field.Label !== void 0"
         >
           <q-tooltip
             v-if="Field.Description"
@@ -45,14 +45,14 @@
         v-else
         popup-content-class="input-field-select-control"
         hide-bottom-space
-        v-model="fieldData"
+        :modelValue="fieldData.value"
+        @update:modelValue="setFieldData"
         :options="Field.Options || []"
         option-value="Value"
         option-label="Label"
         map-options
         :label="Field.Placeholder"
         emit-value
-        v-bind="$attrs"
         :multiple="Field.Multiple"
         :readonly="Field.ReadOnly"
         :ref="`input_field_validator_${Field.Name || Field.Label}`"
@@ -63,7 +63,7 @@
           <span
             :class="`field-label ${(Field.Label && Field.Label.trim().length)
               ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-            v-if="typeof Field.Label !== 'undefined'"
+            v-if="Field.Label !== void 0"
           >
             <q-tooltip
               v-if="Field.Description"
@@ -109,7 +109,7 @@
       <span
         :class="`field-label ${(Field.Label && Field.Label.trim().length)
           ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="typeof Field.Label !== 'undefined'"
+        v-if="Field.Label !== void 0"
       >
         <q-tooltip
           v-if="Field.Description"
@@ -154,12 +154,14 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { ref, computed, defineComponent, getCurrentInstance, watch, watchEffect } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldSelect',
-  mixins: [mixins.InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   emits:['udpate:fieldData', 'input'],
   fieldInfo: {
     Category: 'Simple',
@@ -238,124 +240,151 @@ export default defineComponent({
       },
     ],
   },
-  data() {
-    return {
-      checked: [],
-      dependencies: {},
-    };
-  },
-  computed: {
-    readonlyContent() {
-      if (this.Field && this.Field.Options && Array.isArray(this.Field.Options)) {
+  setup(props, { emit, expose }) {
+    if (!props.Field) return () => null;
+
+    const { proxy:vm } = getCurrentInstance();
+
+    const { fieldData, getFieldData, setFieldData } = useFreeField(props);
+
+    const hasError = ref(false);
+    const checked = ref([]);
+    const dependencies = ref({});
+    const selectOptions = ref([]);
+
+    watchEffect(() => {
+      if (Array.isArray(props.Field.Options)) {
+        selectOptions.value = props.Field.Options;
+      }
+    });
+
+    const readonlyContent = computed(() => {
+      if (Array.isArray(props.Field.Options)) {
         let valueList;
-        if (this.Field.Multiple) {
-          if (Array.isArray(this.fieldData)) {
-            valueList = this.fieldData;
-          } else if (typeof this.fieldData === 'string') {
-            valueList = this.fieldData.split(',');
+        if (props.Field.Multiple) {
+          if (Array.isArray(fieldData.value)) {
+            valueList = fieldData.value;
+          } else if (typeof fieldData.value === 'string') {
+            valueList = fieldData.value.split(',');
           }
         } else {
-          valueList = [this.fieldData];
+          valueList = [fieldData.value];
         }
 
         const labelList = [];
         (valueList || []).forEach((vl) => {
-          const theOpt = this.Field.Options.find((opt) => opt.Value === vl);
-          if (theOpt) labelList.push(theOpt.Label || this.fieldData);
+          const theOpt = props.Field.Options.find((opt) => opt.Value === vl);
+          if (theOpt) labelList.push(theOpt.Label || fieldData.value);
         });
 
         return labelList.join(',');
       }
 
-      return this.fieldData;
-    },
-  },
-  watch: {
-    fieldData() {
-      if (this.Field.AsCheck) {
-        if (this.fieldData) {
-          this.checked = this.fieldData.toString().split(',');
+      return fieldData.value;
+    });
+
+
+    watch(fieldData, () => {
+      if (props.Field.AsCheck) {
+        if (fieldData.value) {
+          checked.value = `${fieldData.value}`.split(',');
         } else {
-          this.checked = [];
+          checked.value = [];
         }
       }
-      this.$emit('update:fieldData');
-    },
-    data: {
-      handler() {
-        if (!this.Field || !this.Field.Info || !this.Field.Info.Url || !this.data) return;
+    });
 
-        this.Field.Info.Params = this.Field.Info.Params || '';
-        if (this.Field.Info.Params) {
-          const paramList = typeof this.Field.Info.Params === 'string' ? this.Field.Info.Params.split(',') : this.Field.Info.Params;
-
-          for (let i = 0; i < paramList.length; i += 1) {
-            if (Object.nestValue(this.data, paramList[i])
-              !== Object.nestValue(this.dependencies, paramList[i])) {
-              // changed
-              this.apiCall();
-              return;
-            }
-          }
-        }
-      },
-      deep: true,
-      immediate: true,
-    },
-  },
-  methods: {
-    selfValidate() {
-      if (this.Field && this.Field.AsCheck && this.Field.Required) {
-        const isValid = this.checked && this.checked.length > 0;
-        this.hasError = !isValid;
+    const selfValidate = () => {
+      if (props.Field.AsCheck && props.Field.Required) {
+        const isValid = checked.value && checked.value.length > 0;
+        hasError.value = !isValid;
         return isValid;
       }
 
       return true;
-    },
-    checkChanged(v) {
-      this.selfValidate();
+    };
 
-      if (!this.Field.Multiple) {
-        this.checked = [v];
+    expose ({
+      selfValidate,
+    })
+
+    const checkChanged = (v) => {
+      selfValidate();
+
+      if (!props.Field.Multiple) {
+        checked.value = [v];
       }
-      this.fieldData = this.checked.join(',');
-      this.$emit('input');
-    },
-    apiCall() {
-      if (!this.Field.Info || !this.Field.Info.Url) {
+      setFieldData(checked.value.join(','));
+      emit('input');
+    };
+
+    const apiCall = () => {
+      if (!props.Field.Info?.Url) {
         return;
       }
 
       const paramObj = {};
-      this.Field.Info.Params = this.Field.Info.Params || '';
-      if (this.Field.Info.Params.length > 0) {
-        if (typeof this.Field.Info.Params === 'string') {
-          this.Field.Info.Params = this.Field.Info.Params.split(',');
+      const params = props.Field.Info.Params || '';
+      if (params.length > 0) {
+        if (typeof params === 'string') {
+          params = params.split(',');
         }
-        for (let i = 0; i < this.Field.Info.Params.length; i += 1) {
-          const param = this.Field.Info.Params[i];
+        for (let i = 0; i < params.length; i += 1) {
+          const param = params[i];
 
           if (param) {
-            Object.setValue(paramObj, param, Object.nestValue(this.data, param));
-            Object.setValue(this.dependencies, param, Object.nestValue(this.data, param));
+            paramObj[param] = getFieldData(param);
+            dependencies.value[param] = getFieldData(param);
           }
         }
       }
 
-      this.postRequest(this.Field.Info.Url, paramObj).then((d) => {
+      vm.postRequest(props.Field.Info.Url, paramObj).then((d) => {
         if (d && d.msg === 'OK') {
           if (d.data && d.data.options) {
-            this.Field.Options = d.data.options;
-            if (d.data.options.findIndex((o) => o.Value === this.fieldData) < 0) {
-              this.fieldData = undefined;
+            selectOptions.value = d.data.options;
+            if (d.data.options.findIndex((o) => o.Value === fieldData.value) < 0) {
+              setFieldData(undefined);
+              emit('input');
             }
           } else {
-            this.Field.Options = [];
+            selectOptions.value = [];
           }
         }
       });
-    },
+    };
+
+    watchEffect(() => {
+      if (!props.Field.Info?.Url || !props.values) return;
+
+      const params = props.Field.Info?.Params || '';
+      if (params) {
+        const paramList = typeof params === 'string' ? params.split(',') : params;
+
+        for (let i = 0; i < paramList.length; i += 1) {
+          if (getFieldData(paramList[i]) !== Object.nestValue(dependencies.value, paramList[i])) {
+            // changed
+            apiCall();
+            return;
+          }
+        }
+      }
+    });
+
+    return {
+      fieldData,
+      setFieldData,
+
+      hasError,
+      checked,
+      dependencies,
+
+      selectOptions,
+
+      readonlyContent,
+
+      checkChanged,
+    };
   },
 });
 </script>

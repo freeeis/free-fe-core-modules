@@ -4,14 +4,12 @@
       v-if="isIcon"
       class="full-width full-height"
       :name="name"
-      v-bind="$attrs"
     ></q-icon>
     <q-img
       v-else
       class="full-width full-height"
       style="display: block;"
       :src="imgPath"
-      v-bind="$attrs"
       round
     >
       <slot></slot>
@@ -54,8 +52,8 @@ export default defineComponent({
       // TODO:默认使用二倍图？
       if (this.relative) return `images/${this.name}${this.defaultSize}.png`;
       return this.thumb
-        ? this.$options.filters.serverThumb(this.name)
-        : this.$options.filters.serverImage(this.name);
+        ? this.$filter('serverThumb', this.name)
+        : this.$filter('serverImage', this.name);
     },
   },
 });

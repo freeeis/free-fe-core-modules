@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'"
+      v-if="Field.Label !== void 0"
     >
       <q-tooltip
         v-if="Field.Description"
@@ -34,12 +34,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldSingleList',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'Table',
     Label: '单列表',
@@ -71,27 +70,29 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
-    return {
-      tableData: [],
-    };
+  props: {
+    ...freeFieldProps,
   },
-  computed: {
-    localData() {
+  setup(props) {
+    if (!props.Field) return () => null;
+
+    const { fieldData } = useFreeField(props);
+
+    const localData = computed(() => {
       let list = [];
-      if (typeof this.fieldData !== 'undefined' && this.fieldData !== '') {
-        if (Array.isArray(this.fieldData)) {
-          list = this.fieldData;
-        } else if (typeof this.fieldData === 'string') {
-          const newStr = this.fieldData.replace(/，/g, ',');
+      if (fieldData.value !== void 0 && fieldData.value !== '') {
+        if (Array.isArray(fieldData.value)) {
+          list = fieldData.value;
+        } else if (typeof fieldData.value === 'string') {
+          const newStr = fieldData.value.replace(/，/g, ',');
           list = newStr.split(',');
         } else {
-          list = [this.fieldData];
+          list = [fieldData.value];
         }
       }
 
-      if (this.Field.Options) {
-        if (this.Field.Options.NoSpace) {
+      if (props.Field.Options) {
+        if (props.Field.Options.NoSpace) {
           for (let i = 0; i < list.length; i += 1) {
             const l = list[i];
 
@@ -101,11 +102,11 @@ export default defineComponent({
           }
         }
 
-        if (this.Field.Options.NoEmpty) {
+        if (props.Field.Options.NoEmpty) {
           list = list.filter((l) => !!l);
         }
 
-        if (this.Field.Options.NoDup) {
+        if (props.Field.Options.NoDup) {
           const newList = [];
           for (let i = 0; i < list.length; i += 1) {
             const l = list[i];
@@ -119,7 +120,12 @@ export default defineComponent({
       }
 
       return list;
-    },
+    });
+
+
+    return {
+      localData,
+    };
   },
 });
 </script>

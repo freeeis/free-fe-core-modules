@@ -6,7 +6,6 @@
     infinite
     :transition-prev="transitionPrev"
     :transition-next="transitionNext"
-    v-bind="$attrs"
     :height="heightString"
     :autoplay="interval"
     :arrows="data && data.length > 0"

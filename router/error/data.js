@@ -1,6 +1,9 @@
 // import Vue from 'vue';
 import { getErrorCode } from './api';
 
+import { i18n } from '@/boot/i18n';
+const {global:{t}} = i18n;
+
 // const bus = new Vue();
 
 export default {
@@ -19,7 +22,7 @@ export default {
 
       d.summary = [
         {
-          text: '代码数',
+          text: t('代码数'),
           number: d.total || '0',
           number_color: 'red',
           icon: app.config.countIcon || 'fas fa-calculator',

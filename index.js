@@ -136,7 +136,6 @@ const filters = {
 };
 
 export default (app, root) => {
-  console.error('register dialog')
   root.use(MsgDialog);
 
   return {

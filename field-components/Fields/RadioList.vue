@@ -36,8 +36,8 @@
         >
           <q-radio
             class="radio"
-            v-model="data[Field.Name]"
-            @input="validate(); $emit('input')"
+            v-model="fieldData.value"
+            @update:model-value="radioChanged"
             :val="oValue.Value"
             :disable="Field.ReadOnly"
           />
@@ -54,28 +54,52 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldRadioList',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'Simple',
     Label: '展开单选',
     Value: 'RadioList',
     Description: '',
   },
-  methods: {
-    validate() {
-      if (!this.data || !this.Field || !this.Field.Name) {
-        this.hasError = false;
+  props: {
+    ...freeFieldProps,
+  },
+  setup(props, { expose, emit }) {
+    if (!props.Field) return {};
+
+    const { fieldData, setFieldData } = useFreeField(props);
+    const hasError = ref(false);
+
+    const validate = () => {
+      if (!props.Field.Name) {
+        hasError.value = false;
         return true;
       }
 
-      this.hasError = typeof this.data[this.Field.Name] === 'undefined';
-      return !this.hasError;
-    },
+      hasError.value = typeof fieldData.value === 'undefined';
+      return !hasError.value;
+    }
+
+    const radioChanged = (v) => {
+      validate();
+      setFieldData(v, emit);
+    };
+    
+    expose({
+      validate,
+    })
+
+    return {
+      hasError,
+      fieldData,
+      setFieldData,
+      validate,
+      radioChanged,
+    };
   },
 });
 </script>

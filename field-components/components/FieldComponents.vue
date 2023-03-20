@@ -12,14 +12,14 @@
       :style="shouldHide ? 'display: none;' : ''"
       :is="realComp"
       :Field="localField"
-      :modelValue="data"
+      :modelValue="values"
       :ref="`input_field_validator_${localField.Name || localField.Label}`"
       :class="[
         (localField && localField.ReadOnly) ? 'free-field--readonly' : '',
         (!shouldHide && hasError) ? 'hasError' : ''
       ]"
       @input="inputChanged"
-      v-bind="Object.assign({},vBindValue(localField), $attrs)"
+      v-bind="Object.assign({},vBindValue(localField))"
     >
       <template
         v-for="slt in ((Field && Field.Slots) || [])"
@@ -57,6 +57,7 @@ export default defineComponent({
   emits: ['input'],
   props: {
     Field: { type: Object },
+    values: { type: Object, default: () => ({}) },
   },
   data() {
     return {
@@ -118,7 +119,7 @@ export default defineComponent({
       }
 
       if (lField.Required) {
-        rules.push(val => typeof val !== 'undefined' && val !== '');
+        rules.push(val => val !== void 0 && val !== '');
       }
 
       lField.rules = [].concat(this.Field.Rules).concat(rules).concat(lField.rules);
@@ -191,7 +192,7 @@ export default defineComponent({
         }
       }
 
-      this.realComp = markRaw(field);
+      this.realComp = field && markRaw(field);
       // return field;
     },
     inputChanged(f) {

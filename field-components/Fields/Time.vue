@@ -4,18 +4,18 @@
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
           ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="typeof Field.Label !== 'undefined'">
+        v-if="Field.Label !== void 0">
         <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
         {{Field.Label || ''}}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData}}</span>
+      <span class="readonly-content">{{fieldData.value}}</span>
     </span>
-    <q-input v-else v-model="fieldData" hide-bottom-space
+    <q-input v-else v-model="fieldData.value" hide-bottom-space
       :readonly="Field.ReadOnly"
-      v-bind="$attrs" @input="$emit('input')"
+      @input="$emit('input')"
       :ref="`input_field_validator_${Field.Name || Field.Label}`">
-      <template v-slot:before v-if="typeof Field.Label !== 'undefined'">
+      <template v-slot:before v-if="Field.Label !== void 0">
         <span
           :class="`field-label ${(Field.Label && Field.Label.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`">
@@ -27,20 +27,20 @@
       <q-popup-proxy v-if="!Field.ReadOnly" transition-show="scale" transition-hide="scale">
         <span class="row">
           <q-date
-            v-model="fieldData"
+            :modelValue="fieldData.value"
             mask="YYYY-MM-DD HH:mm:ss"
             :hour-options="hourOptions"
             :minute-options="minuteOptions"
             :second-options="secondOptions"
             :options="timeOptions"
-            @input="$emit('input')"
+            @update:modelValue="changed"
             :locale="locale"
           />
           <q-time
-            v-model="fieldData"
+            :modelValue="fieldData.value"
             mask="YYYY-MM-DD HH:mm:ss"
             format24h
-            @input="$emit('input')"
+            @update:modelValue="changed"
           />
         </span>
       </q-popup-proxy>
@@ -54,12 +54,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { computed, defineComponent, getCurrentInstance } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldTime',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'DateTime',
     Label: '时间',
@@ -88,34 +87,37 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
-    return {};
+  props: {
+    ...freeFieldProps,
   },
-  computed: {
-    locale() {
-      return this.ctx.config.locales.find(
-        (l) => l.locale === (this.ctx.config.locale || this.ctx.config.defaultLocale),
-      ).calendar;
-    },
-    hourOptions() {
-      return this.objOptions ? this.objOptions[0] : undefined;
-    },
-    minuteOptions() {
-      return this.objOptions ? this.objOptions[1] : undefined;
-    },
-    secondOptions() {
-      return this.objOptions ? this.objOptions[2] : undefined;
-    },
-    objOptions() {
-      if (this.Field.Options) {
-        return this.Field.Options;
-      }
-      return undefined;
-    },
-    timeOptions() {
-      if (this.objOptions) return undefined;
+  emits:['input'],
+  setup(props, { emit }) {
+    if (!props.Field) return () => null;
 
-      if (!this.Field.MinValue && !this.Field.MaxValue) {
+    const { proxy:vm } = getCurrentInstance();
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    const locale = vm.ctx.config.locales.find(
+      (l) => l.locale === (vm.ctx.config.locale || vm.ctx.config.defaultLocale),
+    )?.calendar;
+
+
+    const hourOptions = computed(() => {
+      return objOptions.value ? objOptions.value[0] : undefined;
+    });
+    const minuteOptions = computed(() => {
+      return objOptions.value ? objOptions.value[1] : undefined;
+    });
+    const secondOptions = computed(() => {
+      return objOptions.value ? objOptions.value[2] : undefined;
+    });
+    const objOptions = computed(() => props.Field.Options || undefined);
+
+    const timeOptions = computed(() => {
+      if (objOptions.value) return undefined;
+
+      if (!props.Field.MinValue && !props.Field.MaxValue) {
         return undefined;
       }
 
@@ -123,15 +125,15 @@ export default defineComponent({
       let minM;
       let minS;
 
-      if (this.Field.MinValue) {
-        [minH, minM, minS] = this.Field.MinValue;
+      if (props.Field.MinValue) {
+        [minH, minM, minS] = props.Field.MinValue;
       }
 
       let maxH;
       let maxM;
       let maxS;
-      if (this.Field.MaxValue) {
-        [maxH, maxM, maxS] = this.Field.MaxValue;
+      if (props.Field.MaxValue) {
+        [maxH, maxM, maxS] = props.Field.MaxValue;
       }
 
       minH = minH || 0;
@@ -154,7 +156,21 @@ export default defineComponent({
         }
         return true;
       };
-    },
+    });
+
+    return {
+      fieldData,
+      locale,
+
+      hourOptions,
+      minuteOptions,
+      secondOptions,
+      timeOptions,
+
+      changed: (v) => {
+        setFieldData(v, emit);
+      }
+    };
   },
 });
 </script>

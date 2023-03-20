@@ -20,7 +20,6 @@
       :height="heightString"
       :autoplay="interval"
       :navigation="false"
-      v-bind="$attrs"
       animated
       infinite
       padding

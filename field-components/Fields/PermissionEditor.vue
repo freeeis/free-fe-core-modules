@@ -27,7 +27,7 @@
             Name: `Scope.${scope.Field}`,
             Options: scope.Options || [],
           }"
-          :values="data"
+          :values="fieldData"
           @input="scopeChanged"
         />
       </div>
@@ -65,15 +65,15 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-// import mixins from 'free-fe-mixins';
+import { defineComponent, ref, watchEffect, watch, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'PermissionEditor',
-  // mixins: [mixins.InputFieldMixin],
   emits:['changed'],
   components: {},
   props: {
+    ...freeFieldProps,
     Code: { type: String, default: '' },
     Service: { type: Object },
     Permission: { type: Object },
@@ -81,125 +81,83 @@ export default defineComponent({
     readonly: { type: Boolean, default: false },
     noDataScope: { type: Boolean, default: false },
   },
-  data() {
-    return {
-      data: undefined,
-      hasThis: false,
-      permScope: {},
-    };
-  },
-  watch: {
-    data() {
-      this.hasThis = !!this.data;
-    },
-    hasThis() {
-      if (this.hasThis) {
-        // checked from unchecked
-        this.data = this.data || {};
+  setup(props, { emit }) {
+    const { fieldData, setFieldData } = useFreeField(props);
 
-        this.$emit('changed', this.data);
-      } else {
-        // unchecked from checked
-        this.data = undefined;
-        this.$emit('changed', this.data);
+    const hasThis = ref(false);
+
+    watchEffect(() => {
+      hasThis.value = !!fieldData.value;
+    })
+
+    const scopeChanged = () => {
+      emit('changed', fieldData.value);
+    };
+
+    const childUpdated = (v, f) => {
+      if (!v && fieldData.value && fieldData.value[f]) {
+        fieldData.value[f] = undefined;
+      } else if (v) {
+        fieldData.value = fieldData.value || {};
+        fieldData.value[f] = v;
       }
-    },
-    Permission() {
-      this.data = this.Permission;
-    },
-  },
-  computed: {
-    permissionData() {
-      return (service) => (this.data ? this.data[service] : undefined);
-    },
-    childrenService() {
-      if (!this.Service) return [];
+
+      scopeChanged();
+    };
+
+    const permissionData = (service) => (fieldData.value ? fieldData.value[service] : undefined);
+
+    const childrenService = () => {
+      if (!props.Service) return [];
       const children = [];
 
-      for (let i = 0; i < Object.keys(this.Service).length; i += 1) {
-        const sk = Object.keys(this.Service)[i];
-        const service = this.Service[sk];
+      for (let i = 0; i < Object.keys(props.Service).length; i += 1) {
+        const sk = Object.keys(props.Service)[i];
+        const service = props.Service[sk];
 
         if (
           typeof service === 'object'
           && !Array.isArray(service)
           && ['scope'].indexOf(service) < 0
         ) {
-          children.push({ Name: sk, Index: this.Service[sk].Index || 0 });
+          children.push({ Name: sk, Index: props.Service[sk].Index || 0 });
         }
       }
       return children.sort(
         (a, b) => (a ? a.Index : 0) - (b ? b.Index : 0),
       ).map((cdn) => cdn.Name);
-    },
-    childrenStepService() {
-      return this.childrenService.filter((s) => Number(s));
-    },
-    childrenNormalService() {
-      return this.childrenService.filter((s) => !Number(s));
-    },
-  },
-  created() {
-    this.data = this.Permission;
-  },
-  methods: {
-    childUpdated(v, f) {
-      if (!v && this.data && this.data[f]) {
-        // this.$set(this.data, f, undefined);
-        this.data[f] = undefined;
-      } else if (v) {
-        this.data = this.data || {};
-        // this.$set(this.data, f, v);
-        this.data[f] = v;
-      }
+    };
 
-      this.$emit('changed', this.data);
-    },
-    scopeChanged() {
-      this.$emit('changed', this.data);
-    },
+    const childrenStepService = computed(() => childrenService().filter((s) => Number(s)));
+
+    const childrenNormalService = computed(() => childrenService().filter((s) => !Number(s)));
+
+    watchEffect(() => {
+      fieldData.value = props.Permission;
+    })
+
+    watch(hasThis, (v) => {
+      console.log('hasThis changed', v)
+      if (v) {
+        // checked from unchecked
+        fieldData.value = fieldData.value || {};
+      } else {
+        // unchecked from checked
+        fieldData.value = undefined;
+        setFieldData(undefined);
+      }
+      scopeChanged();
+    })
+
+    return {
+      fieldData: fieldData.value,
+      hasThis,
+      childUpdated,
+      scopeChanged,
+      permissionData,
+      childrenStepService,
+      childrenNormalService,
+    };
   },
 });
 </script>
-<style lang="sass" scoped>
-.input-field-permission-editor
-  font-size: 12px
-  padding: 4px
-  .input-field-permission-title
-    &.without-scope
-      height: 35px
-    .data-scope
-      margin-left: 32px
-  .step-number-icon-wrapper
-    border-radius: 50%
-    border: 1px solid $grey-7
-    height: 20px
-    width: 20px
-    display: inline-block
-    vertical-align: top
-    padding: 0
-    margin: 0
-    margin-right: 4px
-    .step-number-icon
-      display: block
-      height: 20px
-      line-height: 20px
-      text-align: center
-  .permission-field
-    &-steps
-      margin-left: 32px
-      &>.input-field-permission-editor
-        min-height: 180px
-        min-width: 128px
-      &-label
-        margin-left: 32px
-    &-children
-      padding: 0
-      margin-left: 16px
-</style>
-
-<style lang="sass">
-.input-field-permission-editor
-  .permission-field-steps.q-card__section
-    flex-wrap: wrap !important
-</style>

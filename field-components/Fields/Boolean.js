@@ -1,41 +1,10 @@
-<template>
-  <span class="simple-field input-field-boolean row items-center no-wrap">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.showLabel && !Field.dense && typeof Field.Label !== 'undefined'"
-    >
-      <q-tooltip
-        v-if="Field.Description"
-        anchor="top right"
-      >{{Field.Description}}</q-tooltip>
-      {{Field.Label || ''}}
-      <span
-        v-if="Field.Required"
-        class="required-mark"
-      >*</span>
-    </span>
-    <span v-else-if="!Field.showLabel && !Field.dense" class="field-label-empty"></span>
-
-    <q-toggle
-      v-model="fieldData"
-      :label="!Field.showLabel ? Field.Label : ''"
-      @input="$emit('input')"
-      :disable="Field.ReadOnly"
-      v-bind="$attrs">
-      <q-tooltip v-if="Field.Description">{{Field.Description}}</q-tooltip>
-    </q-toggle>
-    <slot name="warning"></slot>
-  </span>
-</template>
-
-<script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, h, ref } from 'vue';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../components/useFreeField';
+import { QToggle } from 'quasar';
+import freeFieldLabel from '../components/freeFieldLabel';
 
 export default defineComponent({
   name: 'InputFieldBoolean',
-  mixins: [mixins.InputFieldMixin],
   fieldInfo: {
     Category: 'Simple',
     Label: '开关',
@@ -96,17 +65,42 @@ export default defineComponent({
     ],
     Description: '',
   },
-  watch: {
-    fieldData() {
-      if (!this.fieldData) {
-        this.fieldData = false;
-      }
-    },
+  props: {
+    ...freeFieldProps,
   },
-  created() {
-    if (!this.fieldData) {
-      this.fieldData = false;
-    }
+  emits: ['input'],
+  methods: {
+    ...useFreeFieldMethods,
+  },
+  setup(props, { emit, slots }){
+    if (!props.Field) return {};
+
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    const before = (props.Field.showLabel && !props.Field.dense && props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
+      Field: props.Field,
+    }) : () => h('div', {
+      class: 'field-label-empty'
+    });
+
+    const toggleNode = () => h(QToggle, {
+      disable: props.Field?.ReadOnly,
+      label: props.Field?.showLabel ? props.Field?.Lable :  '',
+
+      style: props.Field.Info?.Style,
+
+      modelValue: fieldData.value,
+      'onUpdate:modelValue': (v) => {
+        setFieldData(v, emit);
+      },
+    })
+
+    return () => h('div', {
+      class: 'simple-field input-field-boolean row items-center no-wrap',
+    }, [
+      before(),
+      toggleNode(),
+      slots.warning && slots.warning(),
+    ]);
   },
 });
-</script>

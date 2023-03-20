@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'">
+      v-if="Field.Label !== void 0">
       <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
       {{Field.Label || ''}}
     </span>

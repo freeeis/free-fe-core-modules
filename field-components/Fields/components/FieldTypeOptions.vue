@@ -4,7 +4,6 @@
       :value="optionLabel"
       hide-bottom-space
       readonly
-      v-bind="$attrs"
       :ref="`input_field_validator_date`"
     >
       <template v-slot:before>
@@ -16,7 +15,7 @@
                 : 'field-label-empty'
             } ${Field.Required ? 'required' : ''}`
           "
-          v-if="typeof Field.Label !== 'undefined'"
+          v-if="Field.Label !== void 0"
         >
           <q-tooltip v-if="Field.Description" anchor="top right">
             {{
@@ -104,88 +103,59 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'FieldTypeOptions',
-  mixins: [mixins.InputFieldMixin],
-  emits: ['updateOptions'],
-  data() {
-    return {
-      leftTab: 'Static',
-      splitter: 10,
-      testData: {
-        Type: 'String',
-        Label: 'Label',
-        Name: 'value',
-        Required: true,
-        value: 'test value',
-        Options: [
-          {
-            Label: 'Option one',
-            Value: 'test value',
-          },
-        ],
-        Warning: 'This is some warning message.',
-        Description: 'This is some description',
-        Tips: [
-          {
-            Text: 'this is some tip',
-          },
-        ],
-      },
-      optionLabel: '',
-      fieldCategory: [],
-    };
+  props: {
+    ...freeFieldProps,
   },
-  computed: {
-    demoField() {
-      if (!this.Field || !this.Field.Options) return [];// this.testData;
+  emits: ['updateOptions'],
+  setup(props, { emit }) {
+    if (!props.Field) return {};
 
-      const f = this.Field.Options.find((o) => o.Value === this.fieldData);
+    const { proxy:vm } = getCurrentInstance();
+    const { fieldData, setFieldData } = useFreeField(props);
 
-      if (f && f.fieldInfo && f.fieldInfo.demoField) {
-        return f.demoField;
-      }
+    const leftTab = ref('Static');
+    const splitter = ref(10);
+    const optionLabel = ref('');
+    const fieldCategory = ref([]);
 
-      return [];// { ...this.testData, Type: this.fieldData };
-    },
-    demoData() {
-      if (!this.Field || !this.Field.Options) return {};// this.testData;
+    const demoField = computed(() => {
+      if (!props.Field.Options) return [];
 
-      const f = this.Field.Options.find((o) => o.Value === this.fieldData);
+      const f = props.Field.Options.find((o) => o.Value === fieldData.value);
 
-      if (f && f.fieldInfo && f.fieldInfo.demoData) {
-        return f.demoData;
-      }
+      return f?.fieldInfo?.demoField || [];
+    });
 
-      return {};// this.testData;
-    },
-    categoryList() {
-      return this.fieldCategory.map((fc) => fc.Name);
-    },
-    categoryFields() {
+    const demoData = computed(() => {
+      if (!props.Field.Options) return {};
+
+      const f = props.Field.Options.find((o) => o.Value === fieldData.value);
+
+      return f?.fieldInfo?.demoData || {};
+    });
+
+    const categoryList = computed(() => fieldCategory.value.map((fc) => fc.Name));
+
+    const categoryFields = computed(() => {
       return (c) => {
-        const cat = this.fieldCategory.find((fc) => fc.Name === c);
+        const cat = fieldCategory.value.find((fc) => fc.Name === c);
         if (cat) return cat.Fields || [];
         return [];
       };
-    },
-  },
-  async created() {
-    this.getTypeOptions();
-    this.getFieldOptionLabel();
-  },
-  methods: {
-    async getTypeOptions() {
+    });
+
+    const getTypeOptions = async () => {
       const typeOptions = [];
-      for (let i = 0; i < Object.keys(this.ctx.FieldComponents).length; i += 1) {
-        const fk = Object.keys(this.ctx.FieldComponents)[i];
-        let fc = this.ctx.FieldComponents[fk];
+      for (let i = 0; i < Object.keys(vm.ctx.FieldComponents).length; i += 1) {
+        const fk = Object.keys(vm.ctx.FieldComponents)[i];
+        let fc = vm.ctx.FieldComponents[fk];
 
         if (typeof fc === 'function') {
-        // eslint-disable-next-line no-await-in-loop
           fc = await fc();
           fc = fc.default || fc;
         }
@@ -193,26 +163,26 @@ export default defineComponent({
         if (fc && fc.fieldInfo) {
           typeOptions.push(fc.fieldInfo);
 
-          if (fc.fieldInfo.Value === this.fieldData) {
-            this.optionLabel = fc.fieldInfo.Label;
+          if (fc.fieldInfo.Value === fieldData.value) {
+            optionLabel.value = fc.fieldInfo.Label;
           }
 
           // category
           const info = fc.fieldInfo;
           if (info.Category) {
-            if (this.fieldCategory.findIndex((cl) => cl.Name === info.Category) < 0) {
-              this.fieldCategory.push({ Name: info.Category, Fields: [info] });
+            if (fieldCategory.value.findIndex((cl) => cl.Name === info.Category) < 0) {
+              fieldCategory.value.push({ Name: info.Category, Fields: [info] });
             } else {
-              const c = this.fieldCategory.find((cat) => cat.Name === info.Category);
+              const c = fieldCategory.value.find((cat) => cat.Name === info.Category);
               if (c) {
                 c.Fields = c.Fields || [];
                 c.Fields.push(info);
               }
             }
-          } else if (this.fieldCategory.findIndex((cl) => cl.Name === 'Others') < 0) {
-            this.fieldCategory.push({ Name: 'Others', Fields: [info] });
+          } else if (fieldCategory.value.findIndex((cl) => cl.Name === 'Others') < 0) {
+            fieldCategory.value.push({ Name: 'Others', Fields: [info] });
           } else {
-            const c = this.fieldCategory.find((cat) => cat.Name === 'Others');
+            const c = fieldCategory.value.find((cat) => cat.Name === 'Others');
             if (c) {
               c.Fields = c.Fields || [];
               c.Fields.push(info);
@@ -221,19 +191,43 @@ export default defineComponent({
         }
       }
 
-      this.$emit('updateOptions', { Name: this.Field.Name, Options: typeOptions });
-    },
-    getFieldOptionLabel() {
-      const opt = this.Field.Options.find((op) => op.Value === this.fieldData);
-      if (opt) this.optionLabel = opt.Label;
-    },
-    typeChanged(option) {
-      this.fieldData = option.Value;
-      if (option.DataType) this.data.DataType = option.DataType;
+      emit('updateOptions', { Name: props.Field.Name, Options: typeOptions });
+    };
+    const getFieldOptionLabel = () => {
+      const opt = props.Field.Options.find((op) => op.Value === fieldData.value);
+      if (opt) optionLabel.value = opt.Label;
+    };
 
-      this.$emit('input');
-      this.getFieldOptionLabel();
-    },
+    const typeChanged = (option) =>{
+      if (option.DataType) {
+        Object.setValue(props.values, 'DataType', option.DataType);
+      }
+
+      setFieldData(option.Value, emit);
+
+      getFieldOptionLabel();
+    };
+
+    return {
+      fieldData,
+      leftTab,
+      splitter,
+      optionLabel,
+      fieldCategory,
+
+      demoField,
+      demoData,
+      categoryList,
+      categoryFields,
+
+      getTypeOptions,
+      getFieldOptionLabel,
+      typeChanged,
+    };
+  },
+  async created() {
+    this.getTypeOptions();
+    this.getFieldOptionLabel();
   },
 });
 </script>

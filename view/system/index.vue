@@ -4,6 +4,8 @@
       class="step-left flow-step system-config-wrapper"
       v-if="data && data.StepsDefinition && data.StepsDefinition.length"
       v-model="currentStep"
+      flat
+      bordered
       animated
       header-nav
     >

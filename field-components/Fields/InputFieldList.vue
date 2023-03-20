@@ -2,7 +2,7 @@
   <div class="input-field-list">
     <dynamic-list
       :Field="localField"
-      :values="data"
+      :values="values"
       readonly
       ref="fieldList"
       selection="multiple"
@@ -24,7 +24,7 @@
           <q-btn
             icon="update"
             @click="batch"
-            v-if="$refs.fieldList && $refs.fieldList.selected.length > 0"
+            v-if="fieldListLength > 1"
           >
             <q-tooltip>批量修改</q-tooltip>
           </q-btn>
@@ -43,7 +43,7 @@
           flat
           round
           icon="edit"
-          @click="editingField=props.row"
+          @click="editField(props.row)"
         ></q-btn>
         <q-btn
           flat
@@ -60,17 +60,17 @@
     <free-field
       :Field="editingFieldField"
       :values="editingField"
-      @cancel="editingField = undefined; $emit('cancel')"
+      @cancel="editorCancelled"
       @save="saveField"
-      @input="$emit('input')"
+      @input="editorInput"
       @update:field="editingFieldChanged"
     ></free-field>
   </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref, unref, computed, watchEffect } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 import DynamicList from './DynamicList';
 
 const clipBoardStore = {
@@ -78,24 +78,8 @@ const clipBoardStore = {
   items: [],
 };
 
-// const DynamicList = { ...DList };
-// DynamicList.mixins = (DynamicList.mixins || []).concat(InputFieldMixin.mixins);
-// DynamicList.props = { ...InputFieldMixin.props, ...DynamicList.props };
-// DynamicList.computed = {
-
-//   ...InputFieldMixin.computed,
-//   ...DynamicList.computed,
-// };
-// DynamicList.methods = {
-
-//   ...InputFieldMixin.methods,
-//   ...DynamicList.methods,
-// };
-// DynamicList.created = DynamicList.created || InputFieldMixin.created;
-
 export default defineComponent({
   name: 'InputFieldList',
-  mixins: [mixins.InputFieldMixin],
   emits:['save', 'delete', 'cancel','paste:fields', 'batch:fields'],
   fieldInfo: {
     Category: 'Advanced',
@@ -103,97 +87,103 @@ export default defineComponent({
     Value: 'FieldList',
     Description: '',
   },
+  props: {
+    ...freeFieldProps,
+  },
   components: {
     DynamicList,
   },
-  data() {
-    return {
-      editingField: undefined,
-      changedFields: [],
-    };
-  },
-  computed: {
-    editingFieldField() {
-      return {
+  setup(props, { emit }) {
+    if (!props.Field) return {};
+
+    const { fieldData, getFieldData, setData } = useFreeField(props);
+
+    const showEditor = ref(false);
+    const editingField = ref({});
+    const changedFields = ref([]);
+    const fieldList  = ref(null);
+
+    const editingFieldField = ref(undefined);
+
+    watchEffect(() => {
+      editingFieldField.value = {
         Type: 'FieldEditor',
-        Name: '',
-        show: !!this.editingField,
+        Name: '.',
+        show: showEditor.value,
       };
-    },
-    localField() {
-      return {
-        Type: 'DynamicList',
-        showTop: true,
-        Name: this.Field && this.Field.Name ? this.Field.Name : 'Fields',
-        Options: {
-          Columns:
-            this.Field && this.Field.Options && this.Field.Options.Columns
-              ? this.Field.Options.Columns
-              : [
-                {
-                  Label: '#',
-                  Name: 'Index',
-                  sortable: true,
-                  style: 'max-width: 100px;',
-                },
-                // {
-                //   Label: '日期',
-                //   Name: 'LastUpdateDate',
-                //   style: 'max-width: 160px;',
-                //   sortable: true,
-                //   Options: {
-                //     Filters: 'normalDate',
-                //   },
-                // },
-                {
-                  Label: '名称',
-                  Name: 'Name',
-                  style: 'max-width: 300px; overflow: hidden',
-                  sortable: true,
-                },
-                {
-                  Label: '标题',
-                  Name: 'Label',
-                  style: 'max-width: 300px; min-width: 100px',
-                  sortable: true,
-                },
-                {
-                  Label: '类型',
-                  Name: 'Type',
-                  style: 'max-width: 200px; min-width: 100px',
-                  sortable: true,
-                },
-              ],
-        },
-      };
-    },
-  },
-  methods: {
-    addField() {
+    });
+
+    const localField = computed(() => ({
+      Type: 'DynamicList',
+      showTop: true,
+      Name: props.Field.Name || 'Fields',
+      Options: {
+        Columns:
+          props.Field.Options?.Columns
+          || [
+              {
+                Label: '#',
+                Name: 'Index',
+                sortable: true,
+                style: 'max-width: 100px;',
+              },
+              // {
+              //   Label: '日期',
+              //   Name: 'LastUpdateDate',
+              //   style: 'max-width: 160px;',
+              //   sortable: true,
+              //   Options: {
+              //     Filters: 'normalDate',
+              //   },
+              // },
+              {
+                Label: '名称',
+                Name: 'Name',
+                style: 'max-width: 300px; overflow: hidden',
+                sortable: true,
+              },
+              {
+                Label: '标题',
+                Name: 'Label',
+                style: 'max-width: 300px; min-width: 100px',
+                sortable: true,
+              },
+              {
+                Label: '类型',
+                Name: 'Type',
+                style: 'max-width: 200px; min-width: 100px',
+                sortable: true,
+              },
+            ],
+      },
+    }));
+
+
+    const addField = () => {
       let newIndex = 1;
 
-      if (this.data) {
-        const fName = this.Field && this.Field.Name ? this.Field.Name : 'Fields';
-        const fData = this.data[fName];
+      const fData = props.Field.Name ? fieldData.value : getFieldData('Fields');
 
-        if (fData && fData.length) {
-          newIndex = fData[fData.length - 1].Index + 1;
-        }
+      if (fData?.length) {
+        newIndex = fData.map((fd) => fd.Index).sort((a,b) => a.Index-b.Index).filter((fd) => !!fd).pop();
+        newIndex = (newIndex || 0) + 1;
       }
 
-      this.editingField = {
+      editingField.value = {
         Index: newIndex,
       };
-    },
-    saveField() {
-      if (!this.editingField) return;
-      const theField = { ...this.editingField };
+
+      showEditor.value = true;
+    };
+    const saveField = () => {
+      if (!editingField.value) return;
+      const theField = { ...editingField.value };
 
       if (theField.isBatchEditing) {
-        if (this.$refs.fieldList.selected.length > 0) {
+        if (fieldList.value.selected.length > 0) {
           const items = [];
-          for (let i = 0; i < this.$refs.fieldList.selected.length; i += 1) {
-            const item = this.$refs.fieldList.selected[i];
+          for (let i = 0; i < fieldList.value.selected.length; i += 1) {
+            const item = fieldList.value.selected[i];
 
             if (item && item.id) {
               items.push(item.id);
@@ -201,14 +191,14 @@ export default defineComponent({
           }
 
           const newFld = {};
-          for (let i = 0; i < this.changedFields.length; i += 1) {
-            const fld = this.changedFields[i];
-            if (fld && typeof theField[fld] !== 'undefined') {
+          for (let i = 0; i < changedFields.value.length; i += 1) {
+            const fld = changedFields.value[i];
+            if (fld && theField[fld] !== void 0) {
               newFld[fld] = theField[fld];
             }
           }
-          this.editingField = undefined;
-          this.$emit(
+          editingField.value = undefined;
+          emit(
             'batch:fields',
             { ...newFld, ids: items.join(',') },
           );
@@ -216,53 +206,56 @@ export default defineComponent({
       } else {
         if (typeof theField.auto__index === 'undefined') {
           // adding new
-          this.$refs.fieldList.addRow(theField);
+          fieldList.value.addRow(theField);
         }
 
-        this.editingField = undefined;
+        editingField.value = undefined;
 
-        this.$emit('save', theField);
+        emit('save', theField);
       }
-    },
-    deleteField(p) {
-      this.$refs.fieldList.deleteRow(p);
-      this.$emit('delete', p.row);
-    },
-    copy() {
+
+      showEditor.value = false;
+    };
+    const deleteField = (p) => {
+      fieldList.value.deleteRow(p);
+      emit('delete', p.row);
+    };
+    const copy = () => {
       clipBoardStore.items = [];
 
       if (
-        !this.$refs.fieldList
-        || !this.$refs.fieldList.selected
-        || this.$refs.fieldList.selected.length <= 0
+        !fieldList.value
+        || !fieldList.value.selected
+        || fieldList.value.selected.length <= 0
       ) {
         return;
       }
 
       const items = [];
-      for (let i = 0; i < this.$refs.fieldList.selected.length; i += 1) {
-        const item = this.$refs.fieldList.selected[i];
+      for (let i = 0; i < fieldList.value.selected.length; i += 1) {
+        const item = fieldList.value.selected[i];
 
         if (item) {
           items.push(item.id);
         }
-        clipBoardStore.items.push(item);
+        clipBoardStore.items.push({...unref(item)});
       }
 
       if (items.length <= 0) return;
 
       clipBoardStore.content = `EIS_FLOW_FIELD_COPY:${items.join(',')}`;
-    },
-    paste() {
+    };
+    const paste = () => {
       // local paste
       if (clipBoardStore.items && clipBoardStore.items.length > 0) {
-        const fName = (this.Field && this.Field.Name) ? this.Field.Name : 'Fields';
-        this.data[fName] = this.data[fName] || [];
-        this.data[fName] = this.data[fName].concat(clipBoardStore.items.map((i) => {
+        const fName = props.Field.Name || 'Fields';
+        const fData = props.Field.Name ? fieldData.value : getFieldData('Fields');
+
+        setData(fName, fData.concat(clipBoardStore.items.map((i) => {
           delete i.id;
           delete i.auto__index;
           return i;
-        })).sort((a, b) => a.Index - b.Index);
+        })).sort((a, b) => a.Index - b.Index))
       }
 
       // emit to parent
@@ -270,30 +263,62 @@ export default defineComponent({
         clipBoardStore.content
         && clipBoardStore.content.startsWith('EIS_FLOW_FIELD_COPY:')
       ) {
-        this.$emit(
+        emit(
           'paste:fields',
-          clipBoardStore.content.substr('EIS_FLOW_FIELD_COPY:'.length),
+          clipBoardStore.content.substring('EIS_FLOW_FIELD_COPY:'.length),
           clipBoardStore.items,
         );
       }
-    },
-    editingFieldChanged(f) {
+
+      fieldList.value.selected = [];
+    };
+    const editingFieldChanged = (f) => {
       if (!f) return;
-      this.changedFields.push(f);
-    },
-    batch() {
+      changedFields.value.push(f);
+    };
+    const batch = () => {
       if (
-        !this.$refs.fieldList
-        || !this.$refs.fieldList.selected
-        || this.$refs.fieldList.selected.length <= 0
+        !fieldList.value
+        || !fieldList.value.selected
+        || fieldList.value.selected.length <= 0
       ) {
         return;
       }
 
-      this.editingField = {
+      editingField.value = {
         isBatchEditing: true,
       };
-    },
+    };
+
+    return {
+      fieldData,
+      editingField,
+      changedFields,
+      editingFieldField,
+      localField,
+      fieldList,
+      fieldListLength: computed(() => fieldList.value?.selected?.length),
+      addField,
+      saveField,
+      deleteField,
+      copy,
+      paste,
+      editingFieldChanged,
+      batch,
+
+      editField: (row) => {
+        editingField.value = row || {};
+        showEditor.value = true;
+      },
+      editorCancelled: () => {
+        editingField.value = undefined;
+        emit('cancel');
+        showEditor.value = false;
+      },
+      editorInput: () => {
+        emit('input');
+      },
+    };
   },
 });
 </script>

@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'"
+      v-if="Field.Label !== void 0"
     >
       <q-tooltip
         v-if="Field.Description"
@@ -51,9 +51,8 @@
               <free-field
                 v-for="(f,fIndex) in r[rk].List"
                 :key="fIndex"
-                :Field="cellField(f)"
-                v-bind="cellField(f)"
-                :values="fieldData"
+                :Field="{...f, ReadOnly: Field.ReadOnly || f.ReadOnly}"
+                :values="fieldData.value"
                 @input="cellChanged(f)"
                 :ref="`input_field_validator_${index}`"
               ></free-field>
@@ -63,10 +62,9 @@
               class="full-width full-height"
             >
               <free-field
-                :Field="cellField(r[rk].List[0])"
-                :values="fieldData"
+                :Field="{...r[rk].List[0], ReadOnly: Field.ReadOnly || r[rk].List[0].ReadOnly}"
+                :values="fieldData.value"
                 @input="cellChanged(r[rk].List[0])"
-                v-bind="cellField(r[rk].List[0])"
                 borderless
                 :ref="`input_field_validator_extra_${index}`"
               ></free-field>
@@ -91,12 +89,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { computed, defineComponent } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldMixedTable',
-  mixins: [mixins.InputFieldMixin],
   emits:['input'],
   fieldInfo: {
     Category: 'Table',
@@ -271,34 +268,31 @@ export default defineComponent({
       }
     },
   },
-  computed: {
-    rowCells() {
-      return (r) => {
-        if (!r) return [];
-        return Object.keys(r).filter(
-          (rkk) => {
-            if (!rkk) return false;
+  props: {
+    ...freeFieldProps,
+  },
+  setup(props, { emit }) {
+    if (!props.Field) return () => null;
 
-            // eslint-disable-next-line no-restricted-globals
-            return !isNaN(Number(rkk)) && Number(rkk) < r.rowSize;
-          },
-        );
-      };
-    },
-    cellField() {
-      return (f) => {
-        if (!f) return {};
-        f.ReadOnly = this.Field.ReadOnly || f.ReadOnly;
+    const { fieldData, setFieldData } = useFreeField(props);
 
-        return f;
-      };
-    },
-    columns() {
-      if (!this.Field.Options || !this.Field.Options.Rows) return [];
+    const rowCells = (r) => {
+      if (!r) return [];
+      return Object.keys(r).filter(
+        (rkk) => {
+          if (!rkk) return false;
+
+          return !isNaN(Number(rkk)) && Number(rkk) < r.rowSize;
+        },
+      );
+    };
+
+    const columns = computed(() => {
+      if (!props.Field.Options?.Rows) return [];
 
       let cols = 0;
-      for (let i = 0; i < this.Field.Options.Rows.length; i += 1) {
-        const r = this.Field.Options.Rows[i];
+      for (let i = 0; i < props.Field.Options.Rows.length; i += 1) {
+        const r = props.Field.Options.Rows[i];
 
         for (let j = 0; j < Object.keys(r).length; j += 1) {
           const rk = Number(Object.keys(r)[j]);
@@ -317,51 +311,49 @@ export default defineComponent({
       }
 
       return ret;
-    },
-    summaryContent() {
+    })
+
+    const summaryContent = computed(() => {
       if (
-        !this.fieldData
-        || !this.Field
-        || !this.Field.Options
-        || !this.Field.Options.Summary
-        || !this.Field.Options.Summary.Pattern
+        !fieldData.value
+        || !props.Field.Options?.Summary?.Pattern
       ) {
         return '';
       }
-      let summaryText = this.Field.Options.Summary.Pattern;
+      let summaryText = props.Field.Options.Summary.Pattern;
 
-      for (let i = 0; i < this.Field.Options.Summary.Fields.length; i += 1) {
-        const sf = this.Field.Options.Summary.Fields[i];
+      for (let i = 0; i < props.Field.Options.Summary.Fields.length; i += 1) {
+        const sf = props.Field.Options.Summary.Fields[i];
         const fList = (sf || '').Field.split(',');
         let vi = 0;
         for (let j = 0; j < fList.length; j += 1) {
           const ff = fList[j];
 
-          vi += Number(Object.nestValue(this.fieldData, ff.trim())) || 0;
+          vi += Number(Object.nestValue(fieldData.value, ff.trim())) || 0;
         }
 
         // round vi
         vi = vi.toFixed(
-          (this.Field
-          && this.Field.Options
-          && this.Field.Options.Summary
-          && this.Field.Options.Summary.Digits)
-          || 2,
+          props.Field.Options?.Summary?.Digits || 2,
         );
 
         summaryText = summaryText.replace(`$\{${i + 1}}`, vi);
       }
       return summaryText;
-    },
-  },
-  created() {
-    this.fieldData = this.fieldData || {};
-  },
-  methods: {
-    cellChanged(f) {
-      this.$emit('input', f);
-      this.$emit('input');
-    },
+    });
+
+    return {
+      fieldData,
+      setFieldData,
+
+      rowCells,
+      columns,
+      summaryContent,
+
+      cellChanged: (f) => {
+        emit('input', f);
+      },
+    }
   },
 });
 </script>

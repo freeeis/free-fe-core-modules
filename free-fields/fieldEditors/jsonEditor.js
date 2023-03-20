@@ -139,7 +139,7 @@ export default (isArray = false) =>
           }
         };
 
-        return (typeof localValue !== 'undefined') ? [{ ...calcNode(localValue), root: true, path: '' }] : [];
+        return (localValue !== void 0) ? [{ ...calcNode(localValue), root: true, path: '' }] : [];
       });
 
       return () =>

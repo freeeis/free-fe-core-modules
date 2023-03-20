@@ -58,15 +58,17 @@ export default defineComponent({
   watch: {
     theme(v) {
       if (v) {
-        const appEle = document.getElementById('q-app');
+        const appEle = document.getElementById('free-app');
 
-        let arr = appEle.className.split(' ');
+        let arr = appEle?.className.split(' ');
 
-        arr = arr.filter(cl => !cl.startsWith('theme-'));
+        if (arr) {
+          arr = arr.filter(cl => !cl.startsWith('theme-'));
 
-        arr.push(`theme-${v}`);
+          arr?.push(`theme-${v}`);
 
-        appEle.className = arr.join(' ');
+          appEle.className = arr.join(' ');
+        }
 
         const appStore = useAppStore();
         appStore.SET_THEME(v);

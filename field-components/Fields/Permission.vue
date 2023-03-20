@@ -3,10 +3,10 @@
     <slot name="warning"></slot>
     <div class="buttons relative-position" v-if="Field && Field.ShowButtons">
       <span class="q-ml-lg select-all-btn">
-        <q-btn round icon="check" @click="fieldData = Object.assign({},serviceList)"></q-btn>
+        <q-btn round icon="check" @click="setFieldData(Object.assign({},serviceList))"></q-btn>
       </span>
       <span class="q-ml-md clear-btn">
-        <q-btn round icon="clear" @click="fieldData = {}"></q-btn>
+        <q-btn round icon="clear" @click="setFieldData({})"></q-btn>
       </span>
     </div>
     <div class="roles relative-position row items-center">
@@ -17,12 +17,12 @@
         :key="idx"
         :val="r.Name"
         :label="r.Name || idx"
-        @input="fieldData = r.Permission || {};$emit('input')"/>
+        @input="setFieldData(r.Permission || {})"/>
     </div>
     <permission-editor
       v-if="Field && !Field.HideEditor"
       class="permission-editor"
-      :Permission="fieldData"
+      :Permission="fieldData.value"
       :Service="serviceList"
       :readonly="Field.ReadOnly"
       @changed="permissionChanged"
@@ -33,12 +33,14 @@
 
 <script>
 import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 import PermissionEditor from './PermissionEditor';
 
 export default defineComponent({
   name: 'InputFieldPermission',
-  mixins: [mixins.InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   emits:['input'],
   fieldInfo: {
     Category: 'Advanced',
@@ -53,6 +55,14 @@ export default defineComponent({
       currentRole: null
     };
   },
+  setup(props) {
+    const { fieldData, setFieldData } = useFreeField(props);
+
+    return {
+      fieldData,
+      setFieldData,
+    }
+  },
   created() {
     // get all service list
     if (this.Field.Type === 'Permission' && !!this.Field.ServiceList) {
@@ -65,13 +75,7 @@ export default defineComponent({
   },
   methods: {
     permissionChanged(v) {
-      if (!v && this.data) {
-        this.data[this.Field.Name] = {};
-      } else if (v) {
-        this.data[this.Field.Name] = v;
-      }
-
-      this.$emit('input');
+      this.setFieldData(v);
     },
   },
 });

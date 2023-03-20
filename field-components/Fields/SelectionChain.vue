@@ -3,7 +3,7 @@
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="typeof Field.Label !== 'undefined'"
+      v-if="Field.Label !== void 0"
     >
       <q-tooltip
         v-if="Field.Description"
@@ -33,7 +33,6 @@
           map-options
           :label="valuesList[index] ? '' : option.Placeholder"
           emit-value
-          v-bind="$attrs"
           @input="selectionChanged(index)"
           :ref="`input_field_validator_${index}`"
         ></q-select>
@@ -55,12 +54,14 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { defineComponent, ref, watch, getCurrentInstance, } from 'vue';
+import { useFreeField, freeFieldProps } from '../components/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldSelectChain',
-  mixins: [mixins.InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   emits:['input'],
   fieldInfo: {
     Category: 'Advanced',
@@ -76,6 +77,11 @@ export default defineComponent({
         Type: 'String',
         Label: '上级数据名',
         Name: 'Options.ParentName',
+      },
+      {
+        Type: 'String',
+        Label: '数据名',
+        Name: 'Options.DataName',
       },
       {
         Type: 'DynamicList',
@@ -107,92 +113,108 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
-    return {
-      optionsList: [],
-      valuesList: [],
-    };
-  },
-  watch: {
-    Field() {
-      this.initOptions();
-    },
-    fieldData(v) {
-      if(typeof v === 'undefined'){
-        this.valuesList = [];
-      }
-      this.initOptions();
-    },
-  },
-  created() {
-    this.fieldData = this.fieldData || {};
-    this.initOptions();
-  },
-  methods: {
-    initOptions() {
-      if (this.optionsList.length > 0) return;
+  setup(props, { emit }) {
+    if (!props.Field) return () => null;
 
-      if (this.Field && this.Field.Options && this.Field.Options.Fields) {
-        for (let i = 0; i < this.Field.Options.Fields.length; i += 1) {
-          const fld = this.Field.Options.Fields[i];
+    const { proxy:vm } = getCurrentInstance();
 
-          if (this.fieldData) this.fieldData[fld.Name] = this.fieldData[fld.Name] || fld.Default || '';
+    const { fieldData, setFieldData } = useFreeField(props);
 
-          this.valuesList[i] = this.fieldData[fld.Name];
-          if (i === 0 || this.valuesList[i - 1]) {
-            this.getOptions(i);
-          }
-        }
-      }
-    },
-    getOptions(index) {
-      if (!this.Field || !this.Field.Options || !this.Field.Options.Fields) {
+    const optionsList = ref([]);
+    const valuesList = ref([]);
+
+    const getOptions = (index) => {
+      if (!props.Field.Options?.Fields) {
         return;
       }
 
-      if (index > 0 && !this.valuesList[index - 1]) return;
+      if (index > 0 && !valuesList.value[index - 1]) return;
 
-      if(this.Field.Options.Url){
+      if(props.Field.Options?.Url){
         const obj = {};
-        obj[this.Field.Options.ParentName] = this.Field.Options.Fields[index - 1]
-          ? this.valuesList.slice(0, index).join('.')
+        obj[props.Field.Options.ParentName] = props.Field.Options.Fields[index - 1]
+          ? valuesList.value.slice(0, index).join('.')
           : '';
 
-        this.getRequest(this.Field.Options.Url, obj).then((d) => {
-          if (d && d.msg === 'OK' && Array.isArray(d.data)) {
-            //this.$set(this.optionsList, index, d.data);
-            this.optionsList[index] = d.data;
+        vm.getRequest(props.Field.Options.Url, obj).then((d) => {
+          if (d && d.msg === 'OK') {
+            const dd = props.Field.Options?.DataName ? Object.nestValue(d.data, props.Field.Options.DataName) : d.data;
+
+            if (Array.isArray(dd)) {
+              optionsList.value[index] = dd;
+            }
           }
         });
-      } else if(this.Field.Options.Data){
-        let parent = this.Field.Options.Fields[index - 1]
-          ? this.valuesList.slice(0, index).join('.')
+      } else if(props.Field.Options.Data){
+        let parent = props.Field.Options.Fields[index - 1]
+          ? valuesList.value.slice(0, index).join('.')
           : '';
 
         parent = parent && parent.split('.');
         parent = parent && parent.pop();
         parent = parent || '';
 
-        //this.$set(this.optionsList, index, this.Field.Options.Data.filter(dd => dd[this.Field.Options.ParentName] === parent));
-        this.optionsList[index] = this.Field.Options.Data.filter(dd => dd[this.Field.Options.ParentName] === parent);
+        optionsList.value[index] = props.Field.Options.Data.filter(dd => dd[props.Field.Options.ParentName] === parent);
       }
-    },
-    selectionChanged(index) {
-      this.fieldData = this.fieldData || {};
-      if (index < this.Field.Options.Fields.length - 1) {
-        for (let i = index + 1; i < this.Field.Options.Fields.length; i += 1) {
-          delete this.valuesList[i];
-          delete this.optionsList[i];
-          this.fieldData[this.Field.Options.Fields[i].Name] = '';
+    };
+
+    const initOptions = () => {
+      if (optionsList.value.length > 0) return;
+
+      if (props.Field.Options?.Fields) {
+        for (let i = 0; i < props.Field.Options.Fields.length; i += 1) {
+          const fld = props.Field.Options.Fields[i];
+
+          if (fieldData.value) {
+            fieldData.value[fld.Name] = fieldData.value[fld.Name] || fld.Default || '';
+          }
+
+          valuesList.value[i] = fieldData.value && fieldData.value[fld.Name];
+          if (i === 0 || valuesList.value[i - 1]) {
+            getOptions(i);
+          }
         }
-        this.getOptions(index + 1);
+      }
+    };
+
+    const selectionChanged = (index) => {
+      setFieldData(fieldData.value || {});
+
+      if (index < props.Field.Options?.Fields?.length - 1) {
+        for (let i = index + 1; i < props.Field.Options.Fields.length; i += 1) {
+          delete valuesList.value[i];
+          delete optionsList.value[i];
+          fieldData.value[props.Field.Options.Fields[i].Name] = '';
+        }
+        getOptions(index + 1);
       }
 
-      this.fieldData[this.Field.Options.Fields[index].Name] = this.valuesList[
+      fieldData.value[props.Field.Options.Fields[index].Name] = valuesList.value[
         index
       ];
-      this.$emit('input');
-    },
+      emit('input');
+    };
+
+    watch(fieldData, () => {
+      if(typeof fieldData.value === 'undefined'){
+        valuesList.value = [];
+      }
+      initOptions();
+    });
+
+    return {
+      fieldData,
+      setFieldData,
+      initOptions,
+
+      optionsList,
+      valuesList,
+
+      selectionChanged,
+    };
+  },
+  created() {
+    this.initOptions();
   },
 });
 </script>

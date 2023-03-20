@@ -85,8 +85,3 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass">
-.leveled-menu
-  .simple-expand-icon
-    display: none
-</style>

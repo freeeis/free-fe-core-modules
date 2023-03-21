@@ -1,4 +1,5 @@
 import { defineComponent, h } from 'vue';
+import { QTooltip } from 'quasar';
 
 export default defineComponent({
   name: 'FreeFieldLabel',
@@ -12,7 +13,7 @@ export default defineComponent({
     }, [
       props.Field.Description && h(QTooltip, {
         anchor: "top right",
-      }, props.Field.Description),
+      }, () => props.Field.Description),
       props.Field.Label || '',
       props.Field.Required && h('span', {
         class: 'required-mark',

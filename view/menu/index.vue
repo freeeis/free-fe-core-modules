@@ -56,7 +56,7 @@
             :key="fIndex"
             :values="editingMenu"
             :Field="field"
-            :ref="`input_field_validator_${field.Name || field.Label}`"
+            ref="refsToValid"
           ></free-field>
 
           <div class="action-btns full-width row justify-center q-gutter-md">
@@ -86,12 +86,12 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
+import { useFormValidator } from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'MenuPage',
-  // mixins: [mixins.InputFieldValidator],
   props: {
     ...objectDataProps,
     addMenu: { type: Function, default: () => { } },
@@ -99,24 +99,28 @@ export default defineComponent({
     deleteMenu: { type: Function, default: () => { } },
   },
   setup(props, ctx) {
+    const selectedMenuNode = ref({});
+    const editingMenu = ref({});
+    const menuFields = ref([]);
+
     const {
       data,
       refreshData,
     } = useObjectData(props, ctx);
 
+    const {
+      validate,
+    } = useFormValidator('refsToValid');
+
     return {
+      selectedMenuNode,
+      editingMenu,
+      menuFields,
       data, 
       refreshData,
+      validate,
     };
   },
-  data() {
-    return {
-      selectedMenuNode: {},
-      editingMenu: {},
-      menuFields: [],
-    };
-  },
-  watch: {},
   created() {
     this.menuFields = this.getModule('core-modules').config.menuFields;
 

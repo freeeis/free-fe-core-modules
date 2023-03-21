@@ -45,8 +45,7 @@
               :Field="columnField(col, true, props.col)"
               :values="props.row"
               @input="cellChanged()"
-              :ref="`input_field_validator_${
-                columnField(col, true, props.col).Name}-${index}-${props.row.auto__index}`"
+              ref="fieldsToValid"
             ></free-field>
           </span>
           <span v-else class="full-width full-height">
@@ -55,8 +54,7 @@
               :values="props.row"
               @input="cellChanged()"
               borderless
-              :ref="`input_field_validator_${
-                columnField(props.col, false).Name}-${props.row.auto__index}`"
+              ref="fieldToValid"
             ></free-field>
           </span>
         </q-td>
@@ -74,6 +72,7 @@
 <script>
 import { defineComponent, watchEffect, ref, computed } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldFixedList',
@@ -205,7 +204,7 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -340,6 +339,11 @@ export default defineComponent({
     const cellChanged = () => {
       setFieldData(tableData.value, emit);
     };
+
+    const { validate } = useFormValidator('fieldsToValid', 'fieldToValid')
+    expose({
+      validate,
+    })
 
     return {
       fieldData,

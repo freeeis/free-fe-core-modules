@@ -1,6 +1,6 @@
 import { defineComponent, h, ref, getCurrentInstance } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QCheckbox } from 'quasar';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldAgreementCheck',
@@ -21,7 +21,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit }){
+  setup(props, { emit, expose }){
     if (!props.Field) return {};
 
     const { proxy:vm } = getCurrentInstance();
@@ -105,6 +105,10 @@ export default defineComponent({
       hasError.value = !isValid;
       return isValid;
     };
+
+    defineExpose({
+      validate,
+    })
 
     const checkboxNode = () => h(QCheckbox, {
       disable: props.Field?.ReadOnly,

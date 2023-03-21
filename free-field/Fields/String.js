@@ -1,8 +1,9 @@
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, computed } from 'vue';
 import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import { QInput } from 'quasar';
 import ReadonlyContent from '../composible/readonlyContent';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldString',
@@ -51,7 +52,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -73,7 +74,7 @@ export default defineComponent({
       class: 'postfix',
     }, props.Field.Options?.Postfix));
 
-    const inputNode = () => h(QInput, {
+    const inputNode = computed(() => h(QInput, {
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: 'off',
       // bottomSlots: true,
@@ -93,12 +94,17 @@ export default defineComponent({
       before,
       prepend,
       append,
-    });
+    }));
+
+    const { validate } = useFormValidator(inputNode);
+    expose({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-string row items-center no-wrap',
     }, [
-      props.Field.ReadOnly ? readonlyNode() : inputNode(),
+      props.Field.ReadOnly ? readonlyNode() : inputNode.value,
       slots.warning && slots.warning(),
     ]);
   },

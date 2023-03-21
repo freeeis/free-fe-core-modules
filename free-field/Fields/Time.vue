@@ -14,7 +14,7 @@
     <q-input v-else v-model="fieldData.value" hide-bottom-space
       :readonly="Field.ReadOnly"
       @input="$emit('input')"
-      :ref="`input_field_validator_${Field.Name || Field.Label}`">
+      ref="fieldToValid">
       <template v-slot:before v-if="Field.Label !== void 0">
         <span
           :class="`field-label ${(Field.Label && Field.Label.trim().length)
@@ -56,6 +56,7 @@
 <script>
 import { computed, defineComponent, getCurrentInstance } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldTime',
@@ -91,7 +92,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits:['input'],
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
 
     const { proxy:vm } = getCurrentInstance();
@@ -157,6 +158,11 @@ export default defineComponent({
         return true;
       };
     });
+
+    const { validate } = useFormValidator('fieldToValid');
+    expose ({
+      validate,
+    })
 
     return {
       fieldData,

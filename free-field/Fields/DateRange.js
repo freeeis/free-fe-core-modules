@@ -1,7 +1,8 @@
 import { ref, defineComponent, getCurrentInstance, h, computed, watch, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import { QInput, QIcon, QPopupProxy, QDate } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldDateRange',
@@ -40,7 +41,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { proxy: vm } = getCurrentInstance();
@@ -119,7 +120,7 @@ export default defineComponent({
     const showMaxPopup = ref(false);
 
 
-    const minDateNode = () => h(QInput, {
+    const minDateNode = computed(() => h(QInput, {
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
 
@@ -162,9 +163,9 @@ export default defineComponent({
         class: 'cursor-pointer',
         name: 'event'
       }),
-    });
+    }));
 
-    const maxDateNode = () => h(QInput, {
+    const maxDateNode = computed(() => h(QInput, {
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
 
@@ -206,7 +207,12 @@ export default defineComponent({
         class: 'cursor-pointer',
         name: 'event'
       }),
-    });
+    }));
+
+    const { validate } = useFormValidator(minDateNode, maxDateNode);
+    expose({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-date row items-center no-wrap',
@@ -214,11 +220,11 @@ export default defineComponent({
       props.Field.ReadOnly ? readonlyNode() : h('div', {
         class: 'row items-center no-wrap'
       }, [
-        minDateNode(),
+        minDateNode.value,
         h('span', {
           class: 'input-field-range-separator'
         },props.Field.Separator || '~'),
-        maxDateNode(),
+        maxDateNode.value,
       ]),
       slots.warning && slots.warning(),
     ]);

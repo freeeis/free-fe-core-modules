@@ -87,6 +87,7 @@
 <script>
 import { defineComponent } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldLabels',
@@ -114,8 +115,13 @@ export default defineComponent({
       newLabel: '',
     };
   },
-  setup(props) {
+  setup(props, { expose }) {
     const { fieldData, setFieldData } = useFreeField(props);
+
+    const { validate } = useFormValidator('input_field_validator_label');
+    expose({
+      validate,
+    });
 
     return {
       fieldData,

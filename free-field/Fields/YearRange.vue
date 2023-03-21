@@ -19,7 +19,7 @@
         :options="minYearOptions"
         :readonly="Field.ReadOnly"
         @input="rangeChanged"
-        :ref="`input_field_validator_first`"
+        ref="input_field_validator_first"
       >
         <template v-slot:before v-if="Field.Label !== void 0">
           <span
@@ -39,7 +39,7 @@
         :options="maxYearOptions"
         :readonly="Field.ReadOnly"
         @input="rangeChanged"
-        :ref="`input_field_validator_second`"
+        ref="input_field_validator_second"
       />
     </span>
 
@@ -48,8 +48,9 @@
 </template>
 
 <script>
-import { defineComponent, ref, getCurrentInstance } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldYearRange',
@@ -85,10 +86,8 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits:['input'],
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
-
-    const { proxy:vm } = getCurrentInstance();
 
     const { fieldData, setFieldData } = useFreeField(props);
 
@@ -163,6 +162,10 @@ export default defineComponent({
       return options;
     });
 
+    const { validate } = useFormValidator('input_field_validator_first', 'input_field_validator_second');
+    expose ({
+      validate,
+    })
 
     return {
       fieldData,

@@ -1,8 +1,9 @@
 import { ref, defineComponent, getCurrentInstance, h, computed, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import { QTable, QTh, QTd, QTr, QIcon } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
 import FreeField from '../composible/fieldWrapper';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldDynamicList',
@@ -424,10 +425,16 @@ export default defineComponent({
       }
     };
 
+    const fieldsToValidate = ref([]);
+    const {
+      validate
+    } = useFormValidator(fieldsToValidate);
+
     expose({
       selected,
       addRow,
       deleteRow,
+      validate,
     })
 
     watchEffect(() => {
@@ -456,6 +463,22 @@ export default defineComponent({
     );
 
     const bodyCell = (slotProps) => {
+      fieldsToValidate.value = slotProps.col?.List?.length > 1 ? slotProps.col.List.map((col) =>
+        h(FreeField, {
+          Field: columnField(col, true, slotProps.col),
+          values: slotProps.row,
+          style: "margin: 4px auto",
+          onInput: cellChanged,
+        })
+      ) : [
+        h(FreeField, {
+          Field: columnField(slotProps.col),
+          values: slotProps.row,
+          borderless: true,
+          onInput: cellChanged,
+        }),
+      ];
+      
       if (slotProps.col.name === "listActions") {
         return h(QTd, null, {
           default: () =>
@@ -480,38 +503,15 @@ export default defineComponent({
             rowspan: slotProps.value ? slotProps.value.rowspan || "1" : "1",
             class: "items-center justify-center",
           },
-          {
-            default: () =>
-              slotProps.col.List?.length > 1
-                ? h(
-                    "span",
-                    {
-                      class: "full-height full-width abcClass",
-                    },
-                    slotProps.col.List.map((col) =>
-                      h(FreeField, {
-                        Field: columnField(col, true, slotProps.col),
-                        values: slotProps.row,
-                        style: "margin: 4px auto",
-                        onInput: cellChanged,
-                      })
-                    )
-                  )
-                : h(
-                    "span",
-                    {
-                      class: "full-height full-width defClass",
-                    },
-                    [
-                      h(FreeField, {
-                        Field: columnField(slotProps.col),
-                        values: slotProps.row,
-                        borderless: true,
-                        onInput: cellChanged,
-                      }),
-                    ]
-                  ),
-          }
+          [
+            h(
+              "span",
+              {
+                class: "full-height full-width",
+              },
+              fieldsToValidate.value,
+            )
+          ]
         );
       }
     };

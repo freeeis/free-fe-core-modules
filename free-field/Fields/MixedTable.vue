@@ -54,7 +54,7 @@
                 :Field="{...f, ReadOnly: Field.ReadOnly || f.ReadOnly}"
                 :values="fieldData.value"
                 @input="cellChanged(f)"
-                :ref="`input_field_validator_${index}`"
+                ref="fieldsToValid"
               ></free-field>
             </span>
             <span
@@ -66,7 +66,7 @@
                 :values="fieldData.value"
                 @input="cellChanged(r[rk].List[0])"
                 borderless
-                :ref="`input_field_validator_extra_${index}`"
+                ref="fieldToValid"
               ></free-field>
             </span>
           </q-td>
@@ -91,6 +91,7 @@
 <script>
 import { computed, defineComponent } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldMixedTable',
@@ -271,7 +272,7 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -340,6 +341,11 @@ export default defineComponent({
         summaryText = summaryText.replace(`$\{${i + 1}}`, vi);
       }
       return summaryText;
+    });
+
+    const { validate } = useFormValidator('fieldsToValid', 'fieldToValid');
+    expose({
+      validate,
     });
 
     return {

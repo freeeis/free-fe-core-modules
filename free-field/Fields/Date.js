@@ -1,7 +1,8 @@
 import { ref, defineComponent, getCurrentInstance, h, computed } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import { QInput, QIcon, QPopupProxy, QDate } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldDate',
@@ -40,7 +41,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { proxy: vm } = getCurrentInstance();
@@ -80,7 +81,7 @@ export default defineComponent({
 
     const showPopup = ref(false);
 
-    const DateNode = () => h(QInput, {
+    const DateNode = computed(() => h(QInput, {
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
 
@@ -121,12 +122,19 @@ export default defineComponent({
         class: 'cursor-pointer',
         name: 'event'
       }),
-    });
+    }));
+
+    const {
+      validate,
+    } = useFormValidator(DateNode);
+    expose({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-date row items-center no-wrap',
     }, [
-      props.Field.ReadOnly ? readonlyNode() : DateNode(),
+      props.Field.ReadOnly ? readonlyNode() : DateNode.value,
       slots.warning && slots.warning(),
     ]);
   },

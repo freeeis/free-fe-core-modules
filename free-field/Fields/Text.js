@@ -1,8 +1,9 @@
-import { defineComponent, h, ref, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { defineComponent, h, ref, watchEffect, computed } from 'vue';
 import { QInput } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import ReadonlyContent from '../composible/readonlyContent';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldText',
@@ -26,7 +27,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -48,7 +49,7 @@ export default defineComponent({
       Field: props.Field,
     });
 
-    const inputNode = () => h(QInput, {
+    const inputNode = computed(() => h(QInput, {
       type: 'textarea',
       maxlength: props.Field.Options?.MaxLength,
       hideBottomSpace: true,
@@ -66,7 +67,12 @@ export default defineComponent({
       },
     }, {
       before,
-    });
+    }));
+
+    const { validate } = useFormValidator(inputNode);
+    expose ({
+      validate,
+    })
 
     return () => h('div', {
       class: 'input-field-text',
@@ -74,7 +80,7 @@ export default defineComponent({
       slots.warning && h('div', {
         class: props.Field.Label ? 'warning-with-label' : 'warning-without-label',
       }, slots.warning()),
-      props.Field.ReadOnly ? readonlyNode() : inputNode(),
+      props.Field.ReadOnly ? readonlyNode() : inputNode.value,
     ]);
   },
 });

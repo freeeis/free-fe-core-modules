@@ -34,7 +34,7 @@
           :label="valuesList[index] ? '' : option.Placeholder"
           emit-value
           @input="selectionChanged(index)"
-          :ref="`input_field_validator_${index}`"
+          ref="fieldsToValid"
         ></q-select>
       </span>
       <span v-if="Field && Field.ReadOnly">
@@ -56,6 +56,7 @@
 <script>
 import { defineComponent, ref, watch, getCurrentInstance, } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldSelectChain',
@@ -113,7 +114,7 @@ export default defineComponent({
     ],
     Description: '',
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
 
     const { proxy:vm } = getCurrentInstance();
@@ -201,6 +202,11 @@ export default defineComponent({
       }
       initOptions();
     });
+
+    const { validate } = useFormValidator('fieldsToValid');
+    expose ({
+      validate,
+    })
 
     return {
       fieldData,

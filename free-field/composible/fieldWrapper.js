@@ -3,7 +3,7 @@ import {
   getCurrentInstance,
   h,
   ref,
-  reactive,
+  shallowRef,
   watchEffect,
   computed,
   onMounted,
@@ -11,6 +11,8 @@ import {
   isRef,
 } from "vue";
 import { freeFieldProps } from "./useFreeField";
+import { useFormValidator } from '../../composible/useFormValidator';
+
 
 export default defineComponent({
   name: "FreeFieldWrapper",
@@ -111,7 +113,7 @@ export default defineComponent({
       return props.Field.Hidden;
     });
 
-    let realComponent = reactive({});
+    let realComponent = shallowRef(null);
 
     watchEffect(() => {
       const fComponents = vm.ctx.FieldComponents || {};
@@ -131,7 +133,7 @@ export default defineComponent({
         }
       }
 
-      realComponent = field;
+      realComponent.value = field;
     });
 
     if (props.Field && props.Field.Info && props.Field.Info.KeepChanged) {
@@ -153,20 +155,23 @@ export default defineComponent({
     const warningSlot = (!props.noWarning && localField.value.Warning)
       && h('span', {
         class: 'input-field-warning no-wrap',
-      },[
+      },
+      [
         h('span', { class: 'input-field-warning-icon' }),
         h('span', { class: 'input-field-warning-icon-sign-top' }),
         h('span', { class: 'input-field-warning-icon-sign-dot' }),
         h('span', { class: 'input-field-warning-text ellipsis' }, localField.value.Warning),
-      ]);
+      ]
+    );
 
-    if (realComponent) {
-      const compEmits = {};
-      (realComponent.emits || []).forEach((em) => {
+
+    const compEmits = ref({});
+    watchEffect(() => {
+      (realComponent?.value?.emits || []).forEach((em) => {
         if (!em || em === 'input') return;
-
+  
         const captEm = `${em[0].toUpperCase()}${em.substring(1)}`;
-        compEmits[`on${captEm}`] = (...args) => {
+        compEmits.value[`on${captEm}`] = (...args) => {
           // should not emit event directly as we were not inlucde these events in the emits list
           // but we could get any matched handller from the parent component and then call that
           // handller directly
@@ -176,46 +181,49 @@ export default defineComponent({
             outerHandller(...args);
           }
         };
-      })
+      });
+    })
 
-      const emitsRef = ref(realComponent.emits);
+    const readComp = computed(() => realComponent.value && h(
+      realComponent.value,
+      {
+        Field: localField.value,
+        values: props.values,
+        style: shouldHide.value ? "display:none;" : "",
+        class: [
+          props.Field.ReadOnly ? "free-field--readonly" : "",
+          !shouldHide.value && hasError.value ? "hasError" : "",
+        ],
+        onInput: () => {
+          emit("input", props.Field);
+        },
+        ...compEmits,
+      },
+      {
+        ...slots,
+        warning: slots.warning ? slots.warning : () => warningSlot,
+      }
+    ));
+    
+    // const emitsRef = computed(() => realComponent?.value?.emits);
 
-      expose ({
-        emits: emitsRef,
-      })
+    const {
+      validate,
+    } = useFormValidator(readComp);
 
+    expose ({
+      // emits: emitsRef.value,
+      validate: () => validate.value(props.Field.Name),
+    })
 
-      return () =>
-        h(
-          "div",
-          {
-            class: wrapperClass,
-          },
-          [
-            h(
-              realComponent,
-              {
-                Field: localField.value,
-                values: props.values,
-                style: shouldHide.value ? "display:none;" : "",
-                class: [
-                  props.Field.ReadOnly ? "free-field--readonly" : "",
-                  !shouldHide.value && hasError.value ? "hasError" : "",
-                ],
-                onInput: () => {
-                  emit("input", props.Field);
-                },
-                ...compEmits,
-              },
-              {
-                ...slots,
-                warning: slots.warning ? slots.warning : () => warningSlot,
-              }
-            ),
-          ]
-        );
-    } else {
-      return () => null;
-    }
+    return realComponent.value ? () => h(
+      "div",
+      {
+        class: wrapperClass,
+      },
+      [
+        readComp.value,
+      ]
+    ) : () => null;
   },
 });

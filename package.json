@@ -1,6 +1,6 @@
 {
   "name": "free-fe-core-modules",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "main": "index.js",
   "repository": "git@gitlab.com:eis-base/modules/free-fe-core-modules.git",
   "author": "zhiquan",

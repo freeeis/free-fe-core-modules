@@ -1,8 +1,9 @@
-import { defineComponent, h, watch } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { defineComponent, h, watch, computed } from 'vue';
 import { QInput } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import ReadonlyContent from '../composible/readonlyContent';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldNumber',
@@ -95,7 +96,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots , expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -134,7 +135,7 @@ export default defineComponent({
       class: 'postfix',
     }, props.Field.Options?.Postfix));
 
-    const inputNode = () => h(QInput, {
+    const inputNode = computed(() => h(QInput, {
       type: 'number',
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: 'off',
@@ -155,12 +156,17 @@ export default defineComponent({
       before,
       prepend,
       append,
-    });
+    }));
+
+    const { validate } = useFormValidator(inputNode);
+    expose({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-number row items-center no-wrap',
     }, [
-      props.Field.ReadOnly ? readonlyNode() : inputNode(),
+      props.Field.ReadOnly ? readonlyNode() : inputNode.value,
       slots.warning && slots.warning(),
     ]);
   },

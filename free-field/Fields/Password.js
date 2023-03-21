@@ -1,7 +1,8 @@
-import { defineComponent, h, ref } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { defineComponent, h, ref, computed } from 'vue';
 import { QInput, QIcon } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldPassword',
@@ -31,7 +32,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -49,7 +50,7 @@ export default defineComponent({
       },
     });
 
-    const inputNode = () => h(QInput, {
+    const inputNode = () => computed(h(QInput, {
       type: isPwd.value ?  'password' : 'text',
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: props.Field.Options?.autocomplete ? '' : 'new-password',
@@ -69,12 +70,17 @@ export default defineComponent({
     }, {
       before,
       append,
-    });
+    }));
+
+    const { validate } = useFormValidator(inputNode);
+    expose({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-password row items-center no-wrap',
     }, [
-      inputNode(),
+      inputNode.value,
       slots.warning && slots.warning(),
     ]);
   },

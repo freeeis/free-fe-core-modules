@@ -55,7 +55,7 @@
         emit-value
         :multiple="Field.Multiple"
         :readonly="Field.ReadOnly"
-        :ref="`input_field_validator_${Field.Name || Field.Label}`"
+        ref="fieldToValid"
         :use-input="Field && Field.UseInput"
         :use-chip="Field && Field.UseChip"
       >
@@ -156,6 +156,7 @@
 <script>
 import { ref, computed, defineComponent, getCurrentInstance, watch, watchEffect } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldSelect',
@@ -304,8 +305,10 @@ export default defineComponent({
       return true;
     };
 
+    const { validate } = useFormValidator('fieldToValid');
     expose ({
       selfValidate,
+      validate,
     })
 
     const checkChanged = (v) => {

@@ -1,7 +1,8 @@
-import { ref, defineComponent, getCurrentInstance, h, computed } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { defineComponent, h, computed } from 'vue';
 import { QSelect } from 'quasar';
+import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldYear',
@@ -74,7 +75,7 @@ export default defineComponent({
   methods: {
     ...useFreeFieldMethods,
   },
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -107,7 +108,7 @@ export default defineComponent({
       return options;
     });
 
-    const selectNode = () => h(QSelect, {
+    const selectNode = computed(() => h(QSelect, {
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
       'map-options': true,
@@ -125,12 +126,17 @@ export default defineComponent({
       },
     }, {
       before,
-    });
+    }));
+
+    const { validate } = useFormValidator(selectNode);
+    expose ({
+      validate,
+    })
 
     return () => h('div', {
       class: 'simple-field input-field-year row items-center no-wrap',
     }, [
-      selectNode(),
+      selectNode.value,
       slots.warning && slots.warning(),
     ]);
   },

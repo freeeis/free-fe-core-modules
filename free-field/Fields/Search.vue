@@ -127,7 +127,7 @@
       readonly
       :class="`${Field && Field.Multiple
         ? '' : 'simple-field'} ${searchDisplay ? 'has-data' : 'empty'}`"
-      :ref="`input_field_validator_${Field.Name || Field.Label}`"
+      ref="fieldToValid"
       @click="searchKey = '';searchData = {}; showSearch = true"
     >
       <template v-slot:prepend>
@@ -175,6 +175,7 @@
 <script>
 import { defineComponent } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldSearch',
@@ -286,10 +287,15 @@ export default defineComponent({
     ],
     Description: '',
   },
-  setup(props) {
+  setup(props, { expose }) {
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
+
+    const { validate } = useFormValidator('fieldToValid');
+    expose({
+      validate,
+    })
 
     return {
       fieldData,

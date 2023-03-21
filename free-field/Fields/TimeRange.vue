@@ -27,7 +27,7 @@
         v-model="min"
         hide-bottom-space
         :readonly="Field.ReadOnly"
-        :ref="`input_field_validator_first`"
+        ref="input_field_validator_first"
       >
         <q-popup-proxy
           v-if="!Field.ReadOnly"
@@ -62,7 +62,7 @@
         v-model="max"
         hide-bottom-space
         :readonly="Field.ReadOnly"
-        :ref="`input_field_validator_second`"
+        ref="input_field_validator_second"
       >
         <q-popup-proxy
           v-if="!Field.ReadOnly"
@@ -98,6 +98,7 @@
 <script>
 import { defineComponent, ref, getCurrentInstance } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldTimeRange',
@@ -155,7 +156,7 @@ export default defineComponent({
     ],
     Description: '',
   },
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
 
     const { proxy:vm } = getCurrentInstance();
@@ -341,6 +342,11 @@ export default defineComponent({
         return true;
       };
     });
+
+    const { validate } = useFormValidator('input_field_validator_first', 'input_field_validator_second');
+    expose ({
+      validate,
+    })
 
     return {
       fieldData,

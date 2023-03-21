@@ -65,7 +65,7 @@
             :key="index"
             :Field="field"
             :values="fieldsData"
-            :ref="`input_field_validator_${index}`"
+            ref="fieldsToValid"
             @input="onInputFieldInput(field)"
           ></free-field>
         </div>
@@ -101,6 +101,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useFormValidator } from '../../composible/useFormValidator';
 import FreeField from '../../free-field/composible/fieldWrapper';
 import EIcon from '../Basic/EIcon.vue';
 
@@ -152,6 +153,14 @@ export default defineComponent({
   components: {
     FreeField,
     EIcon,
+  },
+  setup(props, { expose }) {
+    const { validate } = useFormValidator('fieldsToValid');
+    expose({
+      validate,
+    })
+
+    return {};
   },
   data() {
     return {

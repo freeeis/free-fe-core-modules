@@ -82,13 +82,13 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'DictionaryPage',
-  mixins: [mixins.ObjectDataMixin],
   props: {
+    ...objectDataProps,
     addDict: { type: Function, default: () => {} },
     editDict: { type: Function, default: () => {} },
     deleteDict: { type: Function, default: () => {} },
@@ -98,6 +98,17 @@ export default defineComponent({
       selectedDictNode: {},
       editingDict: {},
       dictFields: [],
+    };
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
     };
   },
   watch: {

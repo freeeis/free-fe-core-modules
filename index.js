@@ -15,8 +15,7 @@ import ThemeSwitch from './components/ThemeSwitch/index.vue';
 
 import Mourning from './view/mourning/mourning.vue';
 
-import FieldComponents from './field-components';
-import FreeFields from './free-fields';
+import FieldComponents from './free-field';
 import routers from './router';
 
 // global filters
@@ -277,7 +276,6 @@ export default (app, root) => {
       BreadCrumbs,
       ThemeSwitch,
       ...FieldComponents.components,
-      ...FreeFields,
       Mourning,
     },
     fieldComponents: FieldComponents.fieldComponents,

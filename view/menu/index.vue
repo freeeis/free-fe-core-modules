@@ -86,16 +86,28 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'MenuPage',
-  mixins: [mixins.ObjectDataMixin, mixins.InputFieldValidator],
+  mixins: [mixins.InputFieldValidator],
   props: {
+    ...objectDataProps,
     addMenu: { type: Function, default: () => { } },
     editMenu: { type: Function, default: () => { } },
     deleteMenu: { type: Function, default: () => { } },
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   data() {
     return {

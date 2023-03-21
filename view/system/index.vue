@@ -79,15 +79,26 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
 import { updateConfig } from '../../router/system/api';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SystemConfigPage',
-  mixins: [mixins.ObjectDataMixin],
   props: {
+    ...objectDataProps,
     buttonsVisible: { type: Function, default: () => true },
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   data() {
     return {

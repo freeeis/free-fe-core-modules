@@ -89,15 +89,26 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
-import { updateErrorCode, updateDescription } from '../../router/error/api';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
+import { updateErrorCode, updateDescription } from '../../router/error/api';
 
 export default defineComponent({
   name: 'ErrorCodeList',
-  mixins: [mixins.ObjectDataMixin],
   props: {
+    ...objectDataProps,
     pagination: { type: Boolean, default: true },
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   data() {
     return {

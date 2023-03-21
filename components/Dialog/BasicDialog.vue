@@ -102,7 +102,7 @@
 <script>
 import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
-import FreeField from '../../field-components/components/FieldComponents.vue';
+import FreeField from '../../free-field/composible/fieldWrapper';
 import EIcon from '../Basic/EIcon.vue';
 
 export default defineComponent({

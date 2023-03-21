@@ -65,13 +65,13 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SlidingNews',
-  mixins: [mixins.ArrayDataMixin],
   props: {
+    ...objectDataProps,
     interval: { type: Number, default: 3000 },
     height: { type: String, default: '40px' },
     width: { type: String, default: '100%' },
@@ -82,6 +82,17 @@ export default defineComponent({
     url: { type: String, default: '' },
     transitionPrev: { type: String, default: 'slide-up' },
     transitionNext: { type: String, default: 'slide-down' },
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   data() {
     return {

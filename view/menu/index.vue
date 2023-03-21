@@ -91,7 +91,7 @@ import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'MenuPage',
-  mixins: [mixins.InputFieldValidator],
+  // mixins: [mixins.InputFieldValidator],
   props: {
     ...objectDataProps,
     addMenu: { type: Function, default: () => { } },

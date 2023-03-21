@@ -26,13 +26,13 @@
 </template>
 
 <script>
-import mixins from 'free-fe-mixins';
 import { defineComponent } from 'vue';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SlidingCarousel',
-  mixins: [mixins.ArrayDataMixin],
   props: {
+    ...objectDataProps,
     interval: { type: Number, default: 3000 },
     height: { type: String, default: '220px' },
     width: { type: String, default: '100%' },
@@ -41,6 +41,17 @@ export default defineComponent({
     transitionNext: { type: String, default: 'slide-left' },
     swipeable: { type: Boolean, default: true },
     thumbnails: { type: Boolean, default: true },
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   data() {
     return {

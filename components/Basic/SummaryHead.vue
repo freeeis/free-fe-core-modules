@@ -76,14 +76,25 @@
 
 <script>
 import { defineComponent } from 'vue';
-import mixins from 'free-fe-mixins';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SummaryHead',
-  mixins: [mixins.ArrayDataMixin],
   props: {
+    ...objectDataProps,
     has_multiple_head: { type: Boolean, default: false },
     values: {type: Object, default: () => ({})},
+  },
+  setup(props, ctx) {
+    const {
+      data,
+      refreshData,
+    } = useObjectData(props, ctx);
+
+    return {
+      data, 
+      refreshData,
+    };
   },
   created() {
     if (this.values) {

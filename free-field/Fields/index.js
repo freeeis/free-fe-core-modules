@@ -17,10 +17,10 @@ import fYear from './Year.js';
 import fYearRange from './YearRange.vue';
 import fRadioList from './RadioList.vue';
 import fBoolean from './Boolean.js';
-import fFile from './File.vue';
-import fFileList from './FileList.vue';
-import fImage from './Image.vue';
-import fImageList from './ImageList.vue';
+// import fFile from './File.vue';
+// import fFileList from './FileList.vue';
+// import fImage from './Image.vue';
+// import fImageList from './ImageList.vue';
 import fFixedList from './FixedList.vue';
 import fDynamicList from './DynamicList.js';
 import fSingleList from './SingleList.vue';
@@ -32,8 +32,8 @@ import fCustomize from './Customize.js';
 import fAgreementCheck from './AgreementCheck.js';
 import fSeparator from './Separator.js';
 import fQueryFilters from './QueryFilters.vue';
-import fFileListCombined from './FileListCombined.vue';
-import fImageListCombined from './ImageListCombined.vue';
+// import fFileListCombined from './FileListCombined.vue';
+// import fImageListCombined from './ImageListCombined.vue';
 import fApiCall from './ApiCall.js';
 
 export default {
@@ -56,10 +56,10 @@ export default {
   YearRange: fYearRange,
   RadioList: fRadioList,
   Boolean: fBoolean,
-  File: fFile,
-  FileList: fFileList,
-  Image: fImage,
-  ImageList: fImageList,
+  // File: fFile,
+  // FileList: fFileList,
+  // Image: fImage,
+  // ImageList: fImageList,
   FixedList: fFixedList,
   DynamicList: fDynamicList,
   SingleList: fSingleList,
@@ -71,8 +71,8 @@ export default {
   AgreementCheck: fAgreementCheck,
   Separator: fSeparator,
   QueryFilters: fQueryFilters,
-  FileListCombined: fFileListCombined,
-  ImageListCombined: fImageListCombined,
+  // FileListCombined: fFileListCombined,
+  // ImageListCombined: fImageListCombined,
   ApiCall: fApiCall,
   // Static: () => import('./Static.vue'),
   // Select: () => import('./Select.vue'),

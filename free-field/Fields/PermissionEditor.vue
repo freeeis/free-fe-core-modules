@@ -137,7 +137,6 @@ export default defineComponent({
     })
 
     watch(hasThis, (v) => {
-      console.log('hasThis changed', v)
       if (v) {
         // checked from unchecked
         fieldData.value = fieldData.value || {};

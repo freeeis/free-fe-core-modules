@@ -16,7 +16,7 @@
           style="border-bottom: solid 1px grey;"
         >
           <div>
-            {{ prop.node.Label }}
+            {{ dictLabel(prop.node) }}
             <span
               v-if="prop.node.level === 1 && prop.node.Name"
               class="dictionary-data-name"
@@ -78,11 +78,29 @@
         </div>
       </template>
     </q-tree>
+
+    <div class="row items-center justify-center q-my-md" v-if="canImport">
+      <q-btn flat @click="exportTranslates" class="btn-primary q-mr-md">导出翻译</q-btn>
+      <q-btn flat @click="importTranslates" class="btn-primary">导入翻译</q-btn>
+
+      <div class="row full-width q-mt-md">
+        <q-input v-if="showImportTextArea"
+          class="full-width"
+          type="textarea"
+          autogrow
+          v-model="importText"
+          placeholder="请输入要导入的内容(tab键分割)，如：
+    xxx类型 类型一  en-us Type One
+    xxx类型 类型二  en-us Type Two"></q-input>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
+import { copyToClipboard } from 'quasar';
+import { requests } from '@/boot/axios';
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
@@ -98,6 +116,9 @@ export default defineComponent({
       selectedDictNode: {},
       editingDict: {},
       dictFields: [],
+      canImport: false,
+      importText: '',
+      showImportTextArea: false,
     };
   },
   setup(props, ctx) {
@@ -124,8 +145,25 @@ export default defineComponent({
       }
     },
   },
+  beforeCreate() {
+    requests.canI('dict/import').then((r) => {
+      if (r) {
+        this.canImport = true;
+      }
+    });
+  },
   created() {
     this.dictFields = this.getModule('core-modules').config.dictFields;
+  },
+  computed: {
+    dictLabel() {
+      return (d) => {
+        if (!d || !d.Labels) return '';
+
+        const lb = d.Labels.find((l) => l.Locale === this.$i18n.locale );
+        return lb && lb.Label;
+      }
+    }
   },
   methods: {
     loadSubDicts({ key, done, node /* , fail */ }) {
@@ -153,6 +191,27 @@ export default defineComponent({
       }
     },
     editNode(n) {
+      if (!n) return;
+
+      n.Labels = n.Labels || [];
+      // check labels according to the locales
+      const locales = this.ctx.config.locales || [];
+      for(let i = 0; i < locales.length; i += 1) {
+        const locale = locales[i];
+        const existsLabel = n.Labels.find((l) => l.Locale === locale.locale);
+
+        if (!existsLabel) {
+          n.Labels.push({
+            Label: '',
+            Locale: locale.locale,
+            Description: '',
+            Name: locale.name,
+          });
+        } else {
+          existsLabel.Name = locale.name;
+        }
+      }
+
       if (this.selectedDictNode && this.selectedDictNode.id === n.id) {
         this.selectedDictNode = {};
         this.editingDict = {};
@@ -275,6 +334,31 @@ export default defineComponent({
       } else if (a.Action === 'cancel') {
         this.onCancelClick();
       }
+    },
+    importTranslates() {
+      if (!this.showImportTextArea) {
+        this.showImportTextArea = true;
+        this.importText = '';
+      } else {
+        // do the i
+        this.postRequest('/dict/import/trans', {c: this.importText}).then((d) => {
+          const data = d && d.data;
+          if (d && d.msg === 'OK') {
+            this.$q.notify('导入成功！');
+          }
+        });
+      }
+    },
+    exportTranslates() {
+      this.showImportTextArea = false;
+      this.getRequest('/dict/export/trans').then((d) => {
+        const data = (d && d.data) || {};
+
+        if (d.data.c) {
+          copyToClipboard(d.data.c);
+          this.$q.notify('已拷贝到剪切板，可直接粘贴至excel等工具！');
+        }
+      });
     },
   },
 });

@@ -15,6 +15,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'FloatingWindow',
@@ -23,6 +24,13 @@ export default defineComponent({
     img: { type: String, default: '' },
     onlyIn: { type: Array, default: () => [] },
     top: { type: Number, default: 0 },
+  },
+  setup() {
+    const router = useRouter();
+
+    return {
+      router,
+    };
   },
   data() {
     return {
@@ -53,7 +61,7 @@ export default defineComponent({
         if (/^(http|https):\/\/.*/.test(this.url)) {
           window.open(this.url);
         } else {
-          this.$router.push(this.url);
+          this.router.push(this.url);
         }
       }
     },

@@ -76,6 +76,7 @@ export default defineComponent({
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
+    fieldData.value = fieldData.value || false;
 
     const before = (props.Field.showLabel && !props.Field.dense && props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
       Field: props.Field,

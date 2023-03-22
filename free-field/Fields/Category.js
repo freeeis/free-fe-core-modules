@@ -1,4 +1,5 @@
 import { defineComponent, h } from 'vue';
+import { freeFieldProps } from '../composible/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldCategory',
@@ -9,7 +10,7 @@ export default defineComponent({
     Description: '',
   },
   props: {
-    Field: { type: Object },
+    ...freeFieldProps,
   },
   methods: {
   },

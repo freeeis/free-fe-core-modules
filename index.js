@@ -1,5 +1,7 @@
-import { date } from 'quasar';
+
+import { date as quasarDate } from 'quasar';
 import config from '@/config';
+import useAppStore from '@/stores/app';
 import MsgDialog from './components/Dialog/index';
 
 import EIcon from './components/Basic/EIcon.vue';
@@ -20,12 +22,29 @@ import routers from './router';
 
 // global filters
 const filters = {
-  serverImage: url => (url ? `${config.imageUrlBase}${url}` : ''),
-  serverVideo: url => (url ? `${config.videoUrlBase}${url}` : ''),
-  serverThumb: url => (url ? `${config.thumbUrlBase}${url}` : ''),
-  serverDocument: url => (url ? `${config.documentUrlBase}${url}` : ''),
+  serverImage: (url) => {
+    if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
+
+    return url ? `${config.imageUrlBase}${url}` : '';
+  },
+  serverVideo: (url)  => {
+    if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
+
+    return url ? `${config.videoUrlBase}${url}` : '';
+  },
+  serverThumb: (url)  => {
+    if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
+
+    return url ? `${config.thumbUrlBase}${url}` : '';
+  },
+  serverDocument: (url)  => {
+    if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
+
+    return url ? `${config.documentUrlBase}${url}` : '';
+  },
   serverPath: (url) => {
     if (!url) return '';
+    if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
 
     const dotIndex = url.lastIndexOf('.');
     const ext = url.substring(dotIndex, url.length).toLowerCase();
@@ -100,117 +119,143 @@ const filters = {
     return filters.padding((date.getDate()));
   },
   ago: (d) => {
-    let date1 = new Date();
-    let date2 = new Date(d);
+    const date1 = new Date();
+    const date2 = new Date(d);
 
-    let diff = date.getDateDiff(date1, date2, 'seconds');
+    let diff = quasarDate.getDateDiff(date1, date2, 'seconds');
     if (diff < 1) {
-      return diff + this.$t('justNow');
-    } else if (diff < 60) {
-      return diff + this.$t('secondsAgo');
+      return diff + Vue.prototype.$t('justNow');
+    } if (diff < 60) {
+      return diff + Vue.prototype.$t('secondsAgo');
     }
 
-    diff = date.getDateDiff(date1, date2, 'minutes');
+    diff = quasarDate.getDateDiff(date1, date2, 'minutes');
     if (diff < 60) {
-      return diff + this.$t('minutesAgo');
+      return diff + Vue.prototype.$t('minutesAgo');
     }
 
     if (diff < 24) {
-      return diff + this.$t('hoursAgo');
+      return diff + Vue.prototype.$t('hoursAgo');
     }
 
-    diff = date.getDateDiff(date1, date2, 'days');
+    diff = quasarDate.getDateDiff(date1, date2, 'days');
     if (diff < 31) {
-      return diff + this.$t('daysAgo');
+      return diff + Vue.prototype.$t('daysAgo');
     }
 
-    diff = date.getDateDiff(date1, date2, 'months');
+    diff = quasarDate.getDateDiff(date1, date2, 'months');
     if (diff < 13) {
-      return diff + this.$t('monthsAgo');
+      return diff + Vue.prototype.$t('monthsAgo');
     }
 
-    diff = date.getDateDiff(date1, date2, 'years');
-    return diff + this.$t('yearsAgo');
+    diff = quasarDate.getDateDiff(date1, date2, 'years');
+    return diff + Vue.prototype.$t('yearsAgo');
   },
 };
 
 export default (app, root) => {
   root.use(MsgDialog);
 
+  const appStore = useAppStore();
+
   return {
     config: {
       backendDependencies: ["core-modules"],
       dictFields: [
         {
-          Type: "Category",
-          Label: "字典数据信息",
+          Type: 'Category',
+          Label: '字典数据信息',
         },
         {
-          Name: "Index",
-          Label: "排序号",
-          Type: "Number",
+          Name: 'Index',
+          Label: '排序号',
+          Type: 'Number',
         },
         {
-          Name: "Name",
-          Label: "数据名称",
-          Type: "String",
+          Name: 'Name',
+          Label: '数据名称',
+          Type: 'String',
         },
+        // {
+        //   Name: 'Label',
+        //   Label: '显示名称',
+        //   Type: 'String',
+        // },
+        // {
+        //   Name: 'Description',
+        //   Label: '说明',
+        //   Type: 'Text',
+        // },
         {
-          Name: "Label",
-          Label: "显示名称",
-          Type: "String",
-        },
-        {
-          Name: "Description",
-          Label: "说明",
-          Type: "Text",
-        },
-        {
-          Name: "Type",
-          Label: "类型",
-          Type: "Select",
-          Options: [
+          Name: 'Labels',
+          Type: 'Tabs',
+          Label: '显示内容',
+          DataType: 'Array',
+          Default: [
             {
-              Label: "普通类型",
-              Value: "String",
-            },
-            {
-              Label: "文件",
-              Value: "File",
+              Locale: appStore.locale || app.config.defaultLocale,
             },
           ],
-        },
-        {
-          Name: "Value",
-          Label: "值",
-          Type: "String",
-        },
-        {
-          Name: "Image",
-          Label: "图片/图标/文件",
-          Type: "File",
-          MaxValue: "100m",
           Options: {
-            Dense: false,
-            AsLink: false,
-            Ext: "jpg,png,pdf,doc,docx,zip",
+            Dense: true,
+            LabelField: 'Name',
+            ValueField: 'Locale',
+            List: [
+              {
+                Name: 'Locale',
+                Label: '语言',
+                Type: 'String',
+                ReadOnly: true,
+              },
+              {
+                Name: 'Label',
+                Label: '显示名称',
+                Type: 'String',
+              },
+              {
+                Name: 'Description',
+                Label: '说明',
+                Type: 'Text',
+              },
+            ],
           },
-          Tips: [
-            {
-              Text: "文件不可超过100M。格式支持：PNG、JPG、PDF、DOC、DOCX、ZIP。",
-            },
-          ],
         },
         {
-          Type: "Category",
-          Label: "高级设置",
+          Name: 'Type',
+          Label: '类型',
+          Type: 'Select',
+          Options: [{
+            Label: '普通类型',
+            Value: 'String',
+          }, {
+            Label: '文件',
+            Value: 'File',
+          }],
         },
         {
-          Name: "Info",
-          Label: "附加信息",
-          Type: "Text",
+          Name: 'Value',
+          Label: '值',
+          Type: 'String',
         },
-      ],
+        {
+          Name: 'Image',
+          Label: '图片/图标/文件',
+          Type: 'File',
+          MaxValue: '100m',
+          Options: { Dense: false, AsLink: false, Ext: 'jpg,png,pdf,doc,docx,zip' },
+          Tips: [{
+            Text: '文件不可超过100M。格式支持：PNG、JPG、PDF、DOC、DOCX、ZIP。',
+          }],
+        },
+        {
+          Type: 'Category',
+          Label: '高级设置',
+        },
+        {
+          Name: 'Info',
+          Label: '附加信息',
+          Type: 'Text',
+        }],
       menuFields: [
         {
           Type: "Category",
@@ -275,29 +320,29 @@ export default (app, root) => {
       LeveledMenus,
       BreadCrumbs,
       ThemeSwitch,
-      ...FieldComponents.components,
       Mourning,
+      ...FieldComponents.components,
     },
     fieldComponents: FieldComponents.fieldComponents,
 
     validators: {
       validatorNotEmpty: (d) =>
-        d !== undefined && d.length > 0 && d.trim().length > 0,
+        d && d.length > 0 && d.trim().length > 0,
       validatorMobilePhone: (d) =>
-        /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(
+        !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(
           d
         ),
       validatorEmail: (d) =>
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
           d
         ),
       validatorPhoneOrEmail: (d) =>
-        d !== undefined &&
+        d !== void 0 &&
         d.length > 0 &&
-        (this.validatorPhone(d) || this.validatorEmail(d)),
+        (this.validatorMobilePhone(d) || this.validatorEmail(d)),
       // validatorMinLength: (d, len = 0) => d !== undefined && d.length >= len,
       validatorChinaIDNumber: (d) =>
-        /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
+        !d || /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
           d
         ),
       // validatorSame: (d, to) => d === to,

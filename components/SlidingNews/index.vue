@@ -2,7 +2,7 @@
   <div
     v-if="visible"
     class="row full-width sliding-news justify-center"
-    :class="(data && data.length) ? '' : 'empty'"
+    :class="(localData.length) ? '' : 'empty'"
   >
     <span class="sliding-news-label row items-center">
       <e-icon
@@ -26,23 +26,19 @@
       vertical
     >
       <q-carousel-slide
-        v-for="(carouse, index) in data"
+        v-for="(carouse, index) in localData"
         :key="index"
         :name="index"
         @click="newsClicked(carouse)"
         style="cursor: pointer; padding: 0; margin: 0;"
       >
-        <div class="row items-center justify-center full-height">
-          <span class="sliding-news-title">{{carouse.Title}}</span>
+        <div class="row no-wrap items-center justify-center full-height">
+          <div class="sliding-news-title col ellipsis">{{carouse.title}}</div>
           <q-space />
-          <span class="float-right sliding-news-right">
-            <span
-              class="sliding-news-date"
-              :style="`line-height: ${heightString}`"
-            >
+          <div class="sliding-news-right"
+            :style="`line-height: ${heightString}`">
               {{filter('normalDate',(carouse.PublishDate || carouse.LastUpdateDate))}}
-            </span>
-          </span>
+          </div>
         </div>
       </q-carousel-slide>
     </q-carousel>
@@ -65,6 +61,7 @@
 </template>
 
 <script>
+import { useRouter, useRoute } from 'vue-router'
 import { defineComponent } from 'vue';
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
@@ -72,6 +69,13 @@ export default defineComponent({
   name: 'SlidingNews',
   props: {
     ...objectDataProps,
+    fields: {
+      type: Object,
+      default: () => ({
+        title: 'Title',
+        date: 'LastUpdateDate'
+      }),
+    },
     interval: { type: Number, default: 3000 },
     height: { type: String, default: '40px' },
     width: { type: String, default: '100%' },
@@ -88,10 +92,13 @@ export default defineComponent({
       data,
       refreshData,
     } = useObjectData(props, ctx);
+    const router = useRouter();
 
     return {
-      data, 
+      data,
       refreshData,
+      router,
+      route: useRoute(),
     };
   },
   data() {
@@ -113,24 +120,26 @@ export default defineComponent({
       return this.height;
     },
   },
-  // watch: {
-  //   visible() {
-  //     if (!this.visible) {
-  //       clearInterval(this.timer);
-  //     }
-  //   },
-  // },
-  // created() {
-  //   this.timer = setInterval(this.carouselNext, this.interval);
-  // },
+  localData() {
+    const fks = Object.keys(this.fields || {});
+    return (this.data || []).map((dd) => {
+      const ret = {};
+      for (let i = 0; i < fks.length; i += 1) {
+        const fk = fks[i];
+        ret[fk] = dd[this.fields[fk]];
+      }
+
+      return { ...dd, ...ret };
+    });
+  },
   methods: {
     newsClicked(news) {
       let url = '';
       if (news.url) url += news.url;
       else if (this.url) url += `${this.url}${news.id || ''}`;
 
-      if (url && this.$route.fullPath !== url) {
-        this.$router.push({ path: url });
+      if (url && this.route.fullPath !== url) {
+        this.router.push({ path: url });
       }
     },
     // carouselNext() {

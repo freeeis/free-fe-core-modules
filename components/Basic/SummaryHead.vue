@@ -76,6 +76,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router'
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
@@ -90,10 +91,12 @@ export default defineComponent({
       data,
       refreshData,
     } = useObjectData(props, ctx);
+    const router = useRouter();
 
     return {
-      data, 
+      data,
       refreshData,
+      router,
     };
   },
   created() {
@@ -150,7 +153,7 @@ export default defineComponent({
           // if (item.route_query) rParams.query = item.route_query;
           // if (item.route_params) rParams.params = item.route_params;
 
-          this.$router.push(item.route);
+          this.router.push(item.route);
         }
       });
     },

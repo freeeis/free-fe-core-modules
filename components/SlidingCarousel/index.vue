@@ -27,6 +27,7 @@
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router'
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
@@ -48,9 +49,11 @@ export default defineComponent({
       refreshData,
     } = useObjectData(props, ctx);
 
+    const router = useRouter();
     return {
-      data, 
+      data,
       refreshData,
+      router,
     };
   },
   data() {
@@ -77,7 +80,7 @@ export default defineComponent({
         // window.location.href = l;
           window.open(carouse.url);
         } else {
-          this.$router.push(carouse.url);
+          this.router.push(carouse.url);
         }
       }
     },

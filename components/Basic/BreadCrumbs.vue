@@ -9,12 +9,13 @@
     />
     <q-space></q-space>
     <q-btn v-if="meta.length > 0 && canBack"
-      flat icon="keyboard_arrow_left" @click="back">{{backText}}</q-btn>
+      flat icon="keyboard_arrow_left" @click="back">{{$t(backText)}}</q-btn>
   </q-breadcrumbs>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
+import { useRouter, useRoute } from 'vue-router'
 import { mapWritableState } from 'pinia';
 import useAppStore from '@/stores/app';
 
@@ -23,6 +24,14 @@ export default defineComponent({
   props: {
     canBack: { type: Boolean, default: true },
     backText: { type: String, default: '返回' },
+  },
+  setup() {
+    const router = useRouter();
+
+    return {
+      router,
+      route: useRoute(),
+    };
   },
   data() {
     return {
@@ -37,11 +46,11 @@ export default defineComponent({
       let mt = [];
       if (this.crumbs && this.crumbs.length) {
         mt = this.crumbs;
-      } else if (this.$route.meta && this.$route.meta.length) {
-        mt = this.$route.meta;
+      } else if (this.route.meta && this.route.meta.length) {
+        mt = this.route.meta;
       } else {
-        for (let i = 0; i < this.$route.matched.length; i += 1) {
-          const rm = this.$route.matched[i];
+        for (let i = 0; i < this.route.matched.length; i += 1) {
+          const rm = this.route.matched[i];
           if (rm.meta && rm.meta.length) mt = rm.meta;
         }
       }
@@ -65,14 +74,14 @@ export default defineComponent({
         return;
       }
 
-      this.$router.push(this.meta[index].route);
+      this.router.push(this.meta[index].route);
       // const backIndex = this.meta.length - 1 - index;
       // window.history.go(-backIndex);
     },
     back() {
-      const URL = this.$route.fullPath.indexOf('?') === -1
-        ? this.$route.fullPath
-        : this.$route.fullPath.split('?')[0];
+      const URL = this.route.fullPath.indexOf('?') === -1
+        ? this.route.fullPath
+        : this.route.fullPath.split('?')[0];
       if (this.whiteList.indexOf(URL) === -1) {
         window.history.go(-1);
       } else {

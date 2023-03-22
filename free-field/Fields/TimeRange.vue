@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, getCurrentInstance } from 'vue';
+import { defineComponent, ref, getCurrentInstance, watch, watchEffect, computed } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
 
@@ -300,7 +300,7 @@ export default defineComponent({
     const objOptions = computed(() => props.Field.Options || undefined);
 
     const timeOptions = computed(() => {
-      if (objOptions.values) return undefined;
+      if (objOptions.value) return undefined;
 
       if (!props.Field.MinValue && !props.Field.MaxValue) {
         return undefined;
@@ -349,6 +349,8 @@ export default defineComponent({
     })
 
     return {
+      min,
+      max,
       fieldData,
       locale,
 

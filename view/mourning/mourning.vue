@@ -8,6 +8,9 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: 'mourningNode',
+  setup() {
+    return {};
+  },
   mounted() {
     const mourningStore = useMourningStore();
 
@@ -18,8 +21,9 @@ export default defineComponent({
       }
       mourningStore.mourning = inMourning;
 
-      let classes = this.$root.$el.className.split(' ').filter((c) => !!c);
-
+      let bodyElem = document.getElementsByTagName('html')[0];
+      let classes = bodyElem.className.split(' ').filter((c) => !!c);
+    
       if (inMourning) {
         classes.push('mourning-site');
       } else {
@@ -27,19 +31,20 @@ export default defineComponent({
         classes = classes.filter((c) => c.trim() !== 'mourning-site');
       }
 
-      this.$root.$el.className = classes.join(' ');
+      bodyElem.className = classes.join(' ');
     });
   },
 });
 </script>
 
-<style lang="sass">
-.mourning-site
-  -webkit-filter: grayscale(100%)
-  -moz-filter: grayscale(100%)
-  -ms-filter: grayscale(100%)
-  -o-filter: grayscale(100%)
-  filter: grayscale(100%)
-  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)
-  filter: gray
+<style lang="scss">
+.mourning-site {
+  -webkit-filter: grayscale(100%);
+  -moz-filter: grayscale(100%);
+  -ms-filter: grayscale(100%);
+  -o-filter: grayscale(100%);
+  filter: grayscale(100%);
+  filter: progid:DXImageTransform.Microsoft.BasicImage(grayscale=1);
+  filter: gray;
+}
 </style>

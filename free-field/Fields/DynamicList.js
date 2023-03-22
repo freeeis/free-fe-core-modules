@@ -463,7 +463,8 @@ export default defineComponent({
     );
 
     const bodyCell = (slotProps) => {
-      fieldsToValidate.value = slotProps.col?.List?.length > 1 ? slotProps.col.List.map((col) =>
+      const fields = ref([]);
+      fields.value = slotProps.col?.List?.length > 1 ? slotProps.col.List.map((col) =>
         h(FreeField, {
           Field: columnField(col, true, slotProps.col),
           values: slotProps.row,
@@ -478,7 +479,11 @@ export default defineComponent({
           onInput: cellChanged,
         }),
       ];
-      
+
+      // add fields from the current cell to validate list
+      fieldsToValidate.value.push(...fields.value);
+
+
       if (slotProps.col.name === "listActions") {
         return h(QTd, null, {
           default: () =>
@@ -503,15 +508,13 @@ export default defineComponent({
             rowspan: slotProps.value ? slotProps.value.rowspan || "1" : "1",
             class: "items-center justify-center",
           },
-          [
-            h(
-              "span",
-              {
-                class: "full-height full-width",
-              },
-              fieldsToValidate.value,
-            )
-          ]
+          () => h(
+            "span",
+            {
+              class: "full-height full-width",
+            },
+            fields.value,
+          )
         );
       }
     };

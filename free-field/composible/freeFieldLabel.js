@@ -7,9 +7,15 @@ export default defineComponent({
     Field: { type: Object },
   },
   setup(props){
+    if (!props.Field) return () => null;
+
     return () => (props.Field?.Label === void 0) ? null : h('span', {
-      class:`field-label field-label-readonly ${(props.Field.Label && props.Field.Label.trim().length)
-          ? '' : 'field-label-empty'} ${props.Field.Required ? 'required' : ''}`,
+      class: {
+        'field-label': true,
+        'field-label-readonly': props.Field.ReadOnly,
+        'field-label-empty': props.Field.Label?.trim().length <= 0,
+        required: props.Field.Required,
+      },
     }, [
       props.Field.Description && h(QTooltip, {
         anchor: "top right",

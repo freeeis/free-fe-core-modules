@@ -66,6 +66,8 @@
             :Field="field"
             :values="fieldsData"
             ref="fieldsToValid"
+            @cancel="btnCancel"
+            @ok="onOKClick"
             @input="onInputFieldInput(field)"
           ></free-field>
         </div>
@@ -75,7 +77,7 @@
       <q-card-actions
         align="center"
         class="action-buttons full-width absolute"
-        v-if="canOK || canCancel"
+        v-if="(canOK || canCancel) && !hideActions"
       >
         <q-btn
           :label="cancelText"
@@ -126,6 +128,7 @@ export default defineComponent({
     needText: { type: Boolean, default: false },
     text_label: { type: String, default: '' },
     max_text_length: { type: Number, default: 100 },
+    hideActions: { type: Boolean, default: false },
     canOK: { type: Boolean, default: true },
     canCancel: { type: Boolean, default: false },
     canClose: { type: Boolean, default: false },
@@ -205,7 +208,6 @@ export default defineComponent({
     // following method is REQUIRED
     // (don't change its name --> "show")
     show() {
-      // debugger
       this.$refs.dialog.show();
       this.timeout_counter();
 

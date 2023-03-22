@@ -6,7 +6,7 @@
         v-if="!m.Sub || m.Sub.length <= 0"
         clickable
         class="simple"
-        :class="group"
+        :class="`${group} level_${level || 0}`"
         :to="m.Route"
         expand-icon-class="simple-expand-icon"
         :ref="`menuItem_${group}_index`"
@@ -17,7 +17,7 @@
               <q-icon class="leaf-icon" :name="m.Icon"></q-icon>
             </q-item-section>
             <q-item-section>
-              <div class="q-item__label leaf-label">{{$t(m.Label)}}</div>
+              <div class="q-item__label leaf-label">{{translate ? $t(m.Label) : m.Label}}</div>
             </q-item-section>
             <q-item-section side
               class="leaf-expand-icon">
@@ -32,10 +32,10 @@
 
       <q-expansion-item
         v-if="m.Sub && m.Sub.length > 0"
-        :value="m.Sub.filter(s => $route.fullPath.startsWith(s.Route)).length > 0"
+        :modelValue="m.Sub.filter(s => $route.fullPath.startsWith(s.Route)).length > 0"
         exact
         class="expansion"
-        :class="group"
+        :class="`${group} level_${level || 0}`"
         :dense-toggle="dense"
         expand-icon-class="expansion-icon"
         :expand-icon="expandIcon"
@@ -44,13 +44,14 @@
         :content-inset-level="inset ? insetLevel || (showIcon ? 0.6 : 0.4) : undefined"
         expand-separator
         :icon="(showIcon && m.Icon) ? m.Icon : undefined"
-        :label="$t(m.Label)"
+        :label="translate ? $t(m.Label) : m.Label"
         :to="m.Route"
         :ref="`menuItem_${group}_index`"
       >
         <leveled-menus
           :menus="m.Sub"
           :group="`${group}_${index}`"
+          :level="level + 1"
           :showIcon="showIcon"
           :insetLevel="insetLevel"
           :dense="dense"
@@ -71,6 +72,7 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   name: 'LeveledMenus',
   props: {
+    level: { type: Number, default: 0 },
     group: { type: String, default: 'DEFAULT' },
     menus: { type: Array },
     showIcon: { type: Boolean, default: true },
@@ -81,7 +83,13 @@ export default defineComponent({
     leafExpandedIcon: { type: String, default: undefined },
     expandIcon: { type: String, default: undefined },
     expandedIcon: { type: String, default: undefined },
+    translate: { type: Boolean, default: false },
   },
 });
 </script>
 
+<style lang="sass">
+.leveled-menu
+  .simple-expand-icon
+    display: none
+</style>

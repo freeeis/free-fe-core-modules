@@ -17,7 +17,7 @@
   </q-btn>
 </template>
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, getCurrentInstance, computed } from 'vue';
 import useAppStore from '@/stores/app';
 
 export default defineComponent({
@@ -25,22 +25,25 @@ export default defineComponent({
   props: {
     icon: { type: String, default: 'translate' },
   },
-  computed: {
-    locales() {
-      return (this.ctx && this.ctx.config.locales) || [];
-    },
-  },
-  created() {
-    const appStore = useAppStore();
-    this.$i18n.locale = appStore.locale || (this.locales && (this.locales.length > 0) && this.locales[0]);
-  },
-  methods: {
-    localeChanged(l){
-      const store = useAppStore();
+  setup() {
+    const { proxy:vm } = getCurrentInstance();
 
-      this.$i18n.locale = l;
-      store.SET_LOCALE(l);
+    const appStore = useAppStore();
+
+    const localeChanged = (l) => {
+      vm.$i18n.locale = l;
+      appStore.SET_LOCALE(l);
     }
-  }
+
+    const locales = computed(() => (vm.ctx.config.locales) || []);
+    const locale = appStore.locale || vm.ctx.config.defaultLocale || (locales.value && (locales.value.length > 0) && locales.value[0].locale) || 'zh-cn';
+
+    localeChanged(locale);
+
+    return {
+      locales,
+      localeChanged,
+    };
+  },
 });
 </script>

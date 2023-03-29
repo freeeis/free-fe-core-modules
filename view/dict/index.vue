@@ -53,6 +53,7 @@
               v-if="field.Name !== 'Name' || !selectedDictNode.Parent"
               :values="editingDict"
               :Field="field"
+              ref="fieldsToValidate"
             ></free-field>
           </div>
 
@@ -98,10 +99,11 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, watch } from 'vue';
 import { copyToClipboard } from 'quasar';
 import { requests } from '@/boot/axios';
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'DictionaryPage',
@@ -127,9 +129,16 @@ export default defineComponent({
       refreshData,
     } = useObjectData(props, ctx);
 
+    const { validate } = useFormValidator('fieldsToValidate');
+
+    watch(() => data, () => {
+      console.log(data)
+    })
+
     return {
-      data, 
+      data,
       refreshData,
+      validate,
     };
   },
   watch: {
@@ -243,6 +252,11 @@ export default defineComponent({
     },
     onSaveClick() {
       if (Object.keys(this.editingDict) <= 0) return;
+
+      console.log(this.editingDict)
+
+      if (!this.validate()) return;
+
       // if is adding new
       if (this.selectedDictNode.addingNew) {
         this.editingDict = {

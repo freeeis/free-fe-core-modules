@@ -1,6 +1,6 @@
 import { defineComponent, h, computed } from 'vue';
 import { QSelect } from 'quasar';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
 import { useFormValidator} from '../../composible/useFormValidator';
 
@@ -72,9 +72,6 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  methods: {
-    ...useFreeFieldMethods,
-  },
   setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 

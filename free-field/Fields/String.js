@@ -1,5 +1,5 @@
 import { defineComponent, h, computed } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QInput } from 'quasar';
 import ReadonlyContent from '../composible/readonlyContent';
 import freeFieldLabel from '../composible/freeFieldLabel';
@@ -49,9 +49,6 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  methods: {
-    ...useFreeFieldMethods,
-  },
   setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 

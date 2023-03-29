@@ -1,6 +1,6 @@
 import { ref, defineComponent, getCurrentInstance, h, computed, watch, watchEffect } from 'vue';
 import { QInput, QIcon, QPopupProxy, QDate } from 'quasar';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
 import { useFormValidator} from '../../composible/useFormValidator';
 
@@ -38,9 +38,6 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  methods: {
-    ...useFreeFieldMethods,
-  },
   setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 

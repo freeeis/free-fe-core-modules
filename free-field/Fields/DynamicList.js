@@ -1,6 +1,6 @@
 import { ref, defineComponent, getCurrentInstance, h, computed, watchEffect } from 'vue';
 import { QTable, QTh, QTd, QTr, QIcon } from 'quasar';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
 import FreeField from '../composible/fieldWrapper';
 import { useFormValidator} from '../../composible/useFormValidator';
@@ -177,9 +177,6 @@ export default defineComponent({
     selection: { type: String, default: 'none' },
   },
   emits: ['input', 'add', 'delete'],
-  methods: {
-    ...useFreeFieldMethods,
-  },
   setup(props, { emit, slots, expose }){
     if (!props.Field) {
       return () => null;

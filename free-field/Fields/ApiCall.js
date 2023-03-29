@@ -1,5 +1,5 @@
 import { defineComponent, getCurrentInstance, h, ref, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import ReadonlyContent from '../composible/readonlyContent';
 
 export default defineComponent({
@@ -53,9 +53,6 @@ export default defineComponent({
   },
   props: {
     ...freeFieldProps,
-  },
-  methods: {
-    ...useFreeFieldMethods,
   },
   setup(props, { slots }){
     if (!props.Field) return {};

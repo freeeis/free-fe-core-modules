@@ -1,5 +1,5 @@
 import { defineComponent, h, ref } from 'vue';
-import { useFreeField, freeFieldProps, useFreeFieldMethods } from '../composible/useFreeField';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QToggle } from 'quasar';
 import freeFieldLabel from '../composible/freeFieldLabel';
 
@@ -69,9 +69,6 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  methods: {
-    ...useFreeFieldMethods,
-  },
   setup(props, { emit, slots }){
     if (!props.Field) return {};
 

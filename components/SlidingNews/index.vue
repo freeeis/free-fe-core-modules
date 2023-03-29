@@ -37,7 +37,7 @@
           <q-space />
           <div class="sliding-news-right"
             :style="`line-height: ${heightString}`">
-              {{filter('normalDate',(carouse.PublishDate || carouse.LastUpdateDate))}}
+              {{$filter('normalDate',(carouse.PublishDate || carouse.LastUpdateDate))}}
           </div>
         </div>
       </q-carousel-slide>
@@ -105,7 +105,6 @@ export default defineComponent({
     return {
       visible: true,
       slide: 0,
-      timer: undefined,
     };
   },
   computed: {
@@ -119,18 +118,18 @@ export default defineComponent({
 
       return this.height;
     },
-  },
-  localData() {
-    const fks = Object.keys(this.fields || {});
-    return (this.data || []).map((dd) => {
-      const ret = {};
-      for (let i = 0; i < fks.length; i += 1) {
-        const fk = fks[i];
-        ret[fk] = dd[this.fields[fk]];
-      }
+    localData() {
+      const fks = Object.keys(this.fields || {});
+      return (this.data || []).map((dd) => {
+        const ret = {};
+        for (let i = 0; i < fks.length; i += 1) {
+          const fk = fks[i];
+          ret[fk] = dd[this.fields[fk]];
+        }
 
-      return { ...dd, ...ret };
-    });
+        return { ...dd, ...ret };
+      });
+    },
   },
   methods: {
     newsClicked(news) {
@@ -142,16 +141,6 @@ export default defineComponent({
         this.router.push({ path: url });
       }
     },
-    // carouselNext() {
-    //   if (!this.data || this.data.length < 2 || !this.$refs.carousel) {
-    //     return;
-    //   }
-
-    //   this.$refs.carousel.next();
-    // },
   },
-  // beforeUnmount() {
-  //   clearInterval(this.timer);
-  // },
 });
 </script>

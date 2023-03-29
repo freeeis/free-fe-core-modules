@@ -242,7 +242,7 @@ export default defineComponent({
       //   this.textValid = this.validateFunc(this.textContent);
       //   if (!this.textValid) return;
       // }
-      if (!this.validate()) {
+      if (!this.canOK || !this.validate()) {
         return;
       }
 
@@ -265,6 +265,8 @@ export default defineComponent({
       }
     },
     btnCancel() {
+      if (!this.canCancel) return;
+
       this.$emit('cancel');
 
       if (this.timer) {

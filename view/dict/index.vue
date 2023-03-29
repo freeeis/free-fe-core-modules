@@ -253,8 +253,6 @@ export default defineComponent({
     onSaveClick() {
       if (Object.keys(this.editingDict) <= 0) return;
 
-      console.log(this.editingDict)
-
       if (!this.validate()) return;
 
       // if is adding new

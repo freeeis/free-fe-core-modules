@@ -1,7 +1,7 @@
-// import Vue from 'vue';
 import { getConfig } from './api';
+import { i18n } from '@/boot/i18n';
 
-// const bus = new Vue();
+const {global:{t}} = i18n;
 
 export default {
   systemConfig: () => ({
@@ -28,7 +28,7 @@ export default {
             Index: i + 1,
             Actions: [
               {
-                Label: '保存',
+                Label: t('保存'),
                 Action: 'save',
               },
             ],
@@ -41,6 +41,5 @@ export default {
 
       return data;
     }),
-    // Bus: bus,
   }),
 };

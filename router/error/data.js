@@ -1,10 +1,7 @@
-// import Vue from 'vue';
 import { getErrorCode } from './api';
 
 import { i18n } from '@/boot/i18n';
 const {global:{t}} = i18n;
-
-// const bus = new Vue();
 
 export default {
   list: (app) => () => ({
@@ -31,6 +28,5 @@ export default {
 
       return d;
     }),
-    // Bus: bus,
   }),
 };

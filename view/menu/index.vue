@@ -338,9 +338,6 @@ export default defineComponent({
         this.onCancelClick();
       }
     },
-    fieldInput(e) {
-      console.log(e)
-    }
   },
 });
 </script>

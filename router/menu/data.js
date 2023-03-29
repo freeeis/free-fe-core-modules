@@ -1,10 +1,7 @@
-// import Vue from 'vue';
 import {
   getMenus,
   createMenu, updateMenu, deleteMenu,
 } from './api';
-
-// const bus = new Vue();
 
 const CHINA_NUMBERS = ' 一二三四五六七八九十';
 
@@ -80,6 +77,5 @@ export default {
     addMenu: (d) => createMenu(d),
     editMenu: (d) => updateMenu(d),
     deleteMenu: (d) => deleteMenu(d),
-    // Bus: bus,
   }),
 };

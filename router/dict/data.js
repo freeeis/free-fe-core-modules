@@ -1,10 +1,7 @@
-// import Vue from 'vue';
 import {
   getDict,
   createDict, updateDict, deleteDict,
 } from './api';
-
-// const bus = new Vue();
 
 const CHINA_NUMBERS = ' 一二三四五六七八九十';
 
@@ -43,6 +40,5 @@ export default {
     addDict: (d) => createDict(d),
     editDict: (d) => updateDict(d),
     deleteDict: (d) => deleteDict(d),
-    // Bus: bus,
   }),
 };

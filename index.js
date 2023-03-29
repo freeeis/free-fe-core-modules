@@ -27,17 +27,17 @@ const filters = {
 
     return url ? `${config.imageUrlBase}${url}` : '';
   },
-  serverVideo: (url)  => {
+  serverVideo: (url) => {
     if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
 
     return url ? `${config.videoUrlBase}${url}` : '';
   },
-  serverThumb: (url)  => {
+  serverThumb: (url) => {
     if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
 
     return url ? `${config.thumbUrlBase}${url}` : '';
   },
-  serverDocument: (url)  => {
+  serverDocument: (url) => {
     if (typeof url === 'string' && url.startsWith('@')) return url.substring(1);
 
     return url ? `${config.documentUrlBase}${url}` : '';
@@ -125,7 +125,8 @@ const filters = {
     let diff = quasarDate.getDateDiff(date1, date2, 'seconds');
     if (diff < 1) {
       return diff + Vue.prototype.$t('justNow');
-    } if (diff < 60) {
+    }
+    if (diff < 60) {
       return diff + Vue.prototype.$t('secondsAgo');
     }
 
@@ -161,8 +162,7 @@ export default (app, root) => {
   return {
     config: {
       backendDependencies: ["core-modules"],
-      dictFields: [
-        {
+      dictFields: [{
           Type: 'Category',
           Label: '字典数据信息',
         },
@@ -191,17 +191,14 @@ export default (app, root) => {
           Type: 'Tabs',
           Label: '显示内容',
           DataType: 'Array',
-          Default: [
-            {
-              Locale: appStore.locale || app.config.defaultLocale,
-            },
-          ],
+          Default: [{
+            Locale: appStore.locale || app.config.defaultLocale,
+          }, ],
           Options: {
             Dense: true,
             LabelField: 'Name',
             ValueField: 'Locale',
-            List: [
-              {
+            List: [{
                 Name: 'Locale',
                 Label: '语言',
                 Type: 'String',
@@ -242,7 +239,11 @@ export default (app, root) => {
           Label: '图片/图标/文件',
           Type: 'File',
           MaxValue: '100m',
-          Options: { Dense: false, AsLink: false, Ext: 'jpg,png,pdf,doc,docx,zip' },
+          Options: {
+            Dense: false,
+            AsLink: false,
+            Ext: 'jpg,png,pdf,doc,docx,zip'
+          },
           Tips: [{
             Text: '文件不可超过100M。格式支持：PNG、JPG、PDF、DOC、DOCX、ZIP。',
           }],
@@ -255,9 +256,9 @@ export default (app, root) => {
           Name: 'Info',
           Label: '附加信息',
           Type: 'Text',
-        }],
-      menuFields: [
-        {
+        }
+      ],
+      menuFields: [{
           Type: "Category",
           Label: "菜单信息",
         },
@@ -306,6 +307,10 @@ export default (app, root) => {
           NoDataScope: true,
         },
       ],
+
+      defaultInputFieldPlaceholder: '',
+      defaultSelectFieldPlaceholder: '',
+      defaultSearchFieldPlaceholder: '',
     },
     routers,
     filters,
@@ -326,25 +331,12 @@ export default (app, root) => {
     fieldComponents: FieldComponents.fieldComponents,
 
     validators: {
-      validatorNotEmpty: (d) =>
-        d && d.length > 0 && d.trim().length > 0,
-      validatorMobilePhone: (d) =>
-        !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(
-          d
-        ),
-      validatorEmail: (d) =>
-        !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-          d
-        ),
-      validatorPhoneOrEmail: (d) =>
-        d !== void 0 &&
-        d.length > 0 &&
-        (this.validatorMobilePhone(d) || this.validatorEmail(d)),
+      validatorNotEmpty: (d) => d !== void 0 && d.length > 0 && d.trim().length > 0,
+      validatorMobilePhone: (d) => !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(d),
+      validatorEmail: (d) => !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(d),
+      validatorPhoneOrEmail: (d) => d !== void 0 && d.length > 0 && (this.validatorMobilePhone(d) || this.validatorEmail(d)),
       // validatorMinLength: (d, len = 0) => d !== undefined && d.length >= len,
-      validatorChinaIDNumber: (d) =>
-        !d || /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
-          d
-        ),
+      validatorChinaIDNumber: (d) => !d || /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(d),
       // validatorSame: (d, to) => d === to,
       // validatorDifferent: (d, to) => d !== to,
       // validatorGT: (d, to) => d > to,
@@ -369,26 +361,16 @@ export default (app, root) => {
       validatorOnlyNIZ: (d) => /^([0]|-[1-9][0-9]+)$/.test(d.toString()),
 
       //
-      validatorUrl: (d) =>
-        /^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?/.test(
-          d
-        ),
+      validatorUrl: (d) => /^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?/.test(d),
       validatorOfficePhone: (d) => /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{8}$/.test(d),
       validatorChinaZip: (d) => /^[1-9]{1}(\d+){5}$/.test(d),
 
       // password
       validatorPwd0: (d) => /^.*(?=.{6,16}).*$/.test(d),
       validatorPwd1: (d) => /^.{6,16}$/.test(d),
-      validatorPwd2: (d) =>
-        /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/.test(d),
-      validatorPwd3: (d) =>
-        /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*?\(\)]).*$/.test(
-          d
-        ),
-      validatorPwd4: (d) =>
-        /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,})(?=.*[!@#$%^&*?\(\)]).*$/.test(
-          d
-        ),
+      validatorPwd2: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/.test(d),
+      validatorPwd3: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*?\(\)]).*$/.test(d),
+      validatorPwd4: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,})(?=.*[!@#$%^&*?\(\)]).*$/.test(d),
     },
   }
 };

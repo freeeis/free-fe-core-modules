@@ -47,7 +47,7 @@ export default defineComponent({
       },
     });
 
-    const inputNode = () => computed(h(QInput, {
+    const inputNode = computed(() => h(QInput, {
       type: isPwd.value ?  'password' : 'text',
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: props.Field.Options?.autocomplete ? '' : 'new-password',

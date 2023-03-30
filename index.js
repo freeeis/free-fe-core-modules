@@ -152,6 +152,27 @@ const filters = {
     diff = quasarDate.getDateDiff(date1, date2, 'years');
     return diff + Vue.prototype.$t('yearsAgo');
   },
+  stepCaption: (step, status, data) => {
+    if (!step) return '';
+    if (step && typeof step.Description === 'string') return step.Description;
+
+    let desc = '';
+    if (step && Array.isArray(step.Description)) {
+      let stepStatus;
+      if (data && data.Steps) {
+        const rStep = data.Steps[step.Index];
+        if (rStep) {
+          stepStatus = rStep.Status;
+        }
+      }
+      desc = step.Description.find((s) => s.Status === (status || stepStatus || '').toString());
+      desc = desc ? desc.Description : '';
+      desc = desc;
+    }
+
+    desc = desc || '未知状态';
+    return desc;
+  },
 };
 
 export default (app, root) => {

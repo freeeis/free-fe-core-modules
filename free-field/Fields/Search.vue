@@ -350,9 +350,9 @@ export default defineComponent({
     },
   },
   watch: {
-    fieldData(n, o) {
+    'fieldData.value': function(n, o) {
       // init search data from exist id
-      if (typeof this.fieldData.value === 'undefined') {
+      if (this.fieldData.value === void 0) {
         this.searchSelected = [];
         this.searchData = {};
         this.searchDisplay = '';
@@ -406,14 +406,11 @@ export default defineComponent({
     },
   },
   created() {
-    // search, add filters to col
-    if (this.Field.Type === 'Search') {
-      this.searchColumns.forEach((col) => {
-        if (col.filters) {
-          col.format = this.ctx.filters[col.filters];
-        }
-      });
-    }
+    this.searchColumns.forEach((col) => {
+      if (col.filters) {
+        col.format = (d) => this.$filter(col.filters, d);
+      }
+    });
   },
   methods: {
     search(p) {

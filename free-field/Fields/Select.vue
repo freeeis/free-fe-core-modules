@@ -163,7 +163,7 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
   },
-  emits:['udpate:fieldData', 'input'],
+  emits:['input'],
   fieldInfo: {
     Category: 'Simple',
     Label: '选择',

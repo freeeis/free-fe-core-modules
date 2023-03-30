@@ -124,7 +124,7 @@ export default defineComponent({
     const tab = ref(0);
 
     if (!Array.isArray(fieldData.value)) {
-      setFieldData([{}])
+      setFieldData([{}], emit)
     }
 
     if (props.Field.Options?.ValueField && props.Field.Default) {
@@ -140,7 +140,6 @@ export default defineComponent({
       fieldData,
 
       fieldChanged: () => {
-        console.log('field changed', fieldData.value)
         emit('input');
       },
       validate,

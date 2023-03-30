@@ -1,82 +1,63 @@
-import { reactive, watch, watchEffect } from "vue";
+import { reactive, getCurrentInstance, watchEffect } from "vue";
 
 export const freeFieldProps = {
   values: { type: Object },
   Field: { type: Object },
 };
 
-export function useFreeField(props) {
+export function useFreeField(props, ctx) {
+  const { proxy:vm } = getCurrentInstance();
   const fieldData = reactive({});
 
   watchEffect(() => {
-    fieldData.value = Object.nestValue(props.values, props.Field?.Name);
+    let realData = void 0;
+    
+    if (!props.Field) {
+      return;
+    }
+    
+    if (!props.Field.Name) {
+      realData = props.Field.Value || props.Field.Default || undefined;
+    } else {
+      if (props.Field.Info?.Dynamic && props.Field.Value) {
+        realData = props.Field.Value;
+      } else {
+        realData = Object.nestValue(props.values, props.Field?.Name);
+      }
+    }
 
-    // TODO:following is from the old mixins, should we add more logic here accordingly?
-    // let realData;
-    // if (!this.Field) {
-    //   // return undefined;
-    // } else if (!this.Field.Name) {
-    //   // this.fieldData = this.Field.Value || this.Field.Default || undefined;
-    //   realData = this.Field.Value || this.Field.Default || undefined;
-    // } else {
-    //   let isnull = false;
-    //   if (this.Field && this.Field.Info && this.Field.Info.Dynamic && this.Field.Value) {
-    //     realData = this.Field.Value;
-    //     isnull = typeof realData === 'undefined';
-    //   } else {
-    //     realData = this.data;
+    // set to default if still undefined
+    if ((realData === void 0 || realData === null) && (props.Field.Value || props.Field.Default)) {
+      realData = props.Field.Value || props.Field.Default;
 
-    //     if (this.Field.Name !== '.') {
-    //       const nameList = this.Field.Name.split('.');
+      // for non-dynamic field, which have refer data, we should save this data into the field
+      if (props.Field.ReferTo && !props.Field.Info?.Dynamic) {
+        ctx.emit('input');
+      }
+    }
 
-    //       for (let i = 0; i < nameList.length; i += 1) {
-    //         const name = nameList[i];
+    // filter data
+    if (props.Field.Options && props.Field.Options.Filters) {
+      let filters = [];
+      if (typeof props.Field.Options.Filters === 'string') {
+        // only one filter
+        filters.push(props.Field.Options.Filters);
+      } else if (Array.isArray(props.Field.Options.Filters)) {
+        filters = filters.concat(props.Field.Options.Filters);
+      }
 
-    //         // if (!realData) return undefined;
-    //         if (typeof realData === 'undefined' || realData === null) {
-    //           isnull = true;
-    //           break;
-    //         } else {
-    //           realData = name ? realData[name] : realData;
-    //         }
-    //       }
-    //     }
-    //   }
+      for (let i = 0; i < filters.length; i += 1) {
+        const f = filters[i];
+        realData = vm.$filter(f, realData)
+      }
+    }
 
-    //   if (!isnull) {
-    //     // for non-dynamic field, which have refer data, we should save this data into the field
-    //     if ((typeof realData === 'undefined') && (this.Field.Value || this.Field.Default)) {
-    //       realData = this.Field.Value || this.Field.Default;
+    // show NaN placeholder
+    if ((realData === void 0 || realData === null || realData === '') && props.Field?.Info?.ShowNaN) {
+      return vm.ctx.config.nanPlaceholder || '';
+    }
 
-    //       if (this.Field && this.Field.ReferTo && (!this.Field.Info || !this.Field.Info.Dynamic)) {
-    //         this.$emit('input');
-    //       }
-    //     }
-
-    //     // realData = (typeof realData === 'undefined') ? (this.Field.Value || this.Field.Default) : realData;
-
-    //     if (this.Field.Options && this.Field.Options.Filters) {
-    //       let filters = [];
-    //       if (typeof this.Field.Options.Filters === 'string') {
-    //         // only one filter
-    //         filters.push(this.Field.Options.Filters);
-    //       } else if (Array.isArray(this.Field.Options.Filters)) {
-    //         filters = filters.concat(this.Field.Options.Filters);
-    //       }
-
-    //       for (let i = 0; i < filters.length; i += 1) {
-    //         const f = filters[i];
-    //         realData = this.$filter(f, realData);
-    //       }
-    //     }
-    //   }
-    // }
-
-    // if ((typeof realData === 'undefined' || realData === null || !realData) && this.Field.Info && this.Field.Info.ShowNaN) {
-    //   return this.ctx.config.nanPlaceholder || '';
-    // }
-
-    // return realData;
+    fieldData.value = realData;
   });
 
   return {

@@ -197,7 +197,7 @@ export default defineComponent({
         onInput: () => {
           emit("input", props.Field);
         },
-        ...compEmits,
+        ...compEmits.value,
       },
       {
         ...slots,

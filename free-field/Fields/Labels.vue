@@ -172,6 +172,7 @@ export default defineComponent({
 
       if (changed) {
         this.setFieldData(currentList);
+        this.$emit('input');
       }
 
       this.newLabel = '';

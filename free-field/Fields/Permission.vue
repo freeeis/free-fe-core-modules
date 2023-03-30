@@ -76,6 +76,7 @@ export default defineComponent({
   methods: {
     permissionChanged(v) {
       this.setFieldData(v);
+      this.$emit('input');
     },
   },
 });

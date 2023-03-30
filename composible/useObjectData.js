@@ -44,12 +44,12 @@ export function useObjectData(props, ctx) {
 
       if (typeof getData === 'function') {
         Promise.resolve(getData(...args)).then((d) => {
-          Object.assign(data.value, d);
+          Object.assign(data.value, d.value ||  d);
         }).finally(() => {
           callsLeft.value --;
         });
       } else {
-        Object.assign(data.value, getData);
+        Object.assign(data.value, getData.value || getData);
         callsLeft.value --;
       }
     }

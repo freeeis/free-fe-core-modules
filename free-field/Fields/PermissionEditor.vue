@@ -71,7 +71,6 @@ import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 export default defineComponent({
   name: 'PermissionEditor',
   emits:['changed'],
-  components: {},
   props: {
     ...freeFieldProps,
     Code: { type: String, default: '' },

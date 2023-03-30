@@ -123,12 +123,7 @@ export default defineComponent({
         for (let j = 0; j < filters.length; j += 1) {
           const f = filters[j];
 
-          const filterFunc = this.$options.filters[f];
-          if (filterFunc) {
-            item.number = filterFunc(
-              item.number,
-            );
-          }
+          item.number = this.$filter(f, item.number);
         }
 
         // remove the filter to avoid filter multiple times

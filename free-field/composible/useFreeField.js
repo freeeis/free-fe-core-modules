@@ -66,10 +66,7 @@ export function useFreeField(props) {
 
     //       for (let i = 0; i < filters.length; i += 1) {
     //         const f = filters[i];
-    //         const filter = this.$options.filters[f];
-    //         if (filter) {
-    //           realData = filter(realData);
-    //         }
+    //         realData = this.$filter(f, realData);
     //       }
     //     }
     //   }

@@ -102,7 +102,7 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useFormValidator } from '../../composible/useFormValidator';
 import FreeField from '../../free-field/composible/fieldWrapper';
 import EIcon from '../Basic/EIcon.vue';
@@ -157,170 +157,180 @@ export default defineComponent({
     FreeField,
     EIcon,
   },
-  setup(props, { expose }) {
+  setup(props, { expose, emit }) {
     const { validate } = useFormValidator('fieldsToValid');
-    expose({
-      validate,
-    })
 
-    return {};
-  },
-  data() {
-    return {
-      timeLeft: 0,
-      textContent: '',
-      textValid: true,
-      timer: undefined,
-      promise: '',
-      resolve: '',
-      reject: '',
-    };
-  },
-  watch: {
-    visible() {
-      if (this.visible) {
-        this.timeout_counter();
-        this.show();
-      } else {
-        this.hide();
-      }
-    },
-  },
-  computed: {
-    disabled() {
-      if (typeof this.okDisabled === 'object') {
-        return this.okDisabled.value;
-      }
+    const dialog  = ref(null);
 
-      return this.okDisabled;
-    },
-    warningMsg() {
-      // 设置默认warning
-      if (!this.showWarning) return '';
+    const timeLeft = ref(0),
+      textContent = ref(''),
+      textValid = ref(true),
+      timer = ref(undefined),
+      promise = ref(null),
+      resolve = ref(null),
+      reject = ref(null);
 
-      if (!this.warning) {
-        return '';
-      }
-      return this.warning;
-    },
-  },
-  methods: {
-    // following method is REQUIRED
-    // (don't change its name --> "show")
-    show() {
-      this.$refs.dialog.show();
-      this.timeout_counter();
-
-      this.promise = new Promise((resolve, reject) => {
-        this.resolve = resolve;
-        this.reject = reject;
-      });
-
-      return this.promise;
-    },
-
-    // following method is REQUIRED
-    // (don't change its name --> "hide")
-    hide() {
-      this.$refs.dialog.hide();
-    },
-    onDialogHide() {
-      // required to be emitted
-      // when QDialog emits "hide" event
-      this.$emit('hide');
-    },
-    onOKClick() {
-      // on OK, it is REQUIRED to
-      // emit "ok" event (with optional payload)
-      // before hiding the QDialog
-      // this.$emit('ok');
-      // or with payload: this.$emit('ok', { ... })
-
-      // // validate
-      // if (this.validateFunc && typeof this.validateFunc === 'function') {
-      //   // now we only have such content, but later we might will have more
-      //   this.textValid = this.validateFunc(this.textContent);
-      //   if (!this.textValid) return;
-      // }
-      if (!this.canOK || !this.validate()) {
+    const timeout_counter = () => {
+      if (!props.timeout) {
         return;
       }
 
-      this.$emit('ok');
-
-      if (this.timer) {
-        this.timeLeft = 0;
-        clearInterval(this.timer);
-      }
-
-      if (this.resolve) {
-        if (this.needText) {
-          this.resolve(this.textContent);
-        } else {
-          this.resolve('confirm');
-        }
-
-        this.hide();
-        this.remove();
-      }
-    },
-    btnCancel() {
-      if (!this.canCancel) return;
-
-      this.$emit('cancel');
-
-      if (this.timer) {
-        this.timeLeft = 0;
-        clearInterval(this.timer);
-      }
-
-      if (this.reject) {
-        this.reject('cancel');
-        this.remove();
-      }
-    },
-    btn_ok() {
-      if (!this.validate()) {
-        return;
-      }
-
-      this.$emit('ok');
-
-      if (this.timer) {
-        this.timeLeft = 0;
-        clearInterval(this.timer);
-      }
-
-      if (this.resolve) {
-        if (this.needText) {
-          this.resolve(this.textContent);
-        } else {
-          this.resolve('confirm');
-        }
-
-        this.hide();
-        this.remove();
-      }
-    },
-    timeout_counter() {
-      if (!this.timeout) {
-        return;
-      }
-
-      this.timeLeft = this.timeout;
-      this.timer = setInterval(() => {
-        this.timeLeft -= 1;
-        if (this.timeLeft < 1) {
-          clearInterval(this.timer);
-          this.btn_ok();
+      timeLeft.value = props.timeout;
+      timer.value = setInterval(() => {
+        timeLeft.value -= 1;
+        if (timeLeft.value < 1) {
+          clearInterval(timer.value);
+          btn_ok();
         }
       }, 1000);
-    },
-    onInputFieldInput(field){
-      if(field.onInput) {
-        field.onInput(field);
+    };
+
+    const show = () => {
+      dialog.value.show();
+      timeout_counter();
+
+      promise.value = new Promise((resv, rej) => {
+        resolve.value = resv;
+        reject.value = rej;
+      });
+
+      return promise.value;
+    };
+
+    const hide = () => {
+      dialog.value.hide();
+    };
+
+    const onDialogHide = () => {
+      emit('hide');
+    };
+
+    const onOKClick = () => {
+      if (!props.canOK || !validate.value()) {
+        return;
       }
-    }
+
+      emit('ok');
+
+      if (timer.value) {
+        timeLeft.value = 0;
+        clearInterval(timer.value);
+      }
+
+      if (resolve.value) {
+        if (props.needText) {
+          resolve.value(textContent.value);
+        } else {
+          resolve.value('confirm');
+        }
+
+        hide();
+
+        if (typeof props.remove === 'function'){
+          props.remove();
+        }
+      }
+    };
+
+    const btnCancel = () => {
+      if (!props.canCancel) return;
+
+      emit('cancel');
+
+      if (timer.value) {
+        timeLeft.value = 0;
+        clearInterval(timer.value);
+      }
+
+      if (reject.value) {
+        reject.value('cancel');
+
+        if (typeof props.remove === 'function'){
+          props.remove();
+        }
+      }
+    };
+
+    const btn_ok = () => {
+      if (!validate.value()) {
+        return;
+      }
+
+      emit('ok');
+
+      if (timer.value) {
+        timeLeft.value = 0;
+        clearInterval(timer.value);
+      }
+
+      if (resolve.value) {
+        if (props.needText) {
+          resolve.value(textContent.value);
+        } else {
+          resolve.value('confirm');
+        }
+
+        hide();
+
+        if (typeof props.remove === 'function'){
+          props.remove();
+        }
+      }
+    };
+
+    expose({
+      validate,
+      show,
+      hide,
+    });
+
+    watch(() => props.visible, (v) => {
+      if (v) {
+        timeout_counter();
+        show();
+      } else {
+        hide();
+      }
+    });
+
+
+    const disabled = computed(() => {
+      if (typeof props.okDisabled === 'object') {
+        return props.okDisabled.value;
+      }
+
+      return props.okDisabled;
+    });
+
+    const warningMsg = computed(() => {
+      // 设置默认warning
+      if (!props.showWarning) return '';
+
+      if (!props.warning) {
+        return '';
+      }
+      return props.warning;
+    });
+
+    return {
+      dialog,
+      timeLeft,
+      textContent,
+      textValid,
+
+      disabled,
+      warningMsg,
+
+      validate,
+
+      show,
+      hide,
+      onDialogHide,
+      onOKClick,
+      btnCancel,
+      btn_ok,
+      timeout_counter,
+    };
   },
 });
 </script>

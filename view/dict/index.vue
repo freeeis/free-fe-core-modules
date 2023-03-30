@@ -131,10 +131,6 @@ export default defineComponent({
 
     const { validate } = useFormValidator('fieldsToValidate');
 
-    watch(() => data, () => {
-      console.log(data)
-    })
-
     return {
       data,
       refreshData,
@@ -175,6 +171,26 @@ export default defineComponent({
     }
   },
   methods: {
+    makeLabelsName(n) {
+      n.Labels = n.Labels || [];
+      // check labels according to the locales
+      const locales = this.ctx.config.locales || [];
+      for(let i = 0; i < locales.length; i += 1) {
+        const locale = locales[i];
+        const existsLabel = n.Labels.find((l) => l.Locale === locale.locale);
+
+        if (!existsLabel) {
+          n.Labels.push({
+            Label: '',
+            Locale: locale.locale,
+            Description: '',
+            Name: locale.name,
+          });
+        } else {
+          existsLabel.Name = locale.name;
+        }
+      }
+    },
     loadSubDicts({ key, done, node /* , fail */ }) {
       this.GetData(key, node.level)
         .then((d) => {
@@ -198,28 +214,13 @@ export default defineComponent({
           Type: 'String',
         };
       }
+
+      this.makeLabelsName(this.editingDict);
     },
     editNode(n) {
       if (!n) return;
 
-      n.Labels = n.Labels || [];
-      // check labels according to the locales
-      const locales = this.ctx.config.locales || [];
-      for(let i = 0; i < locales.length; i += 1) {
-        const locale = locales[i];
-        const existsLabel = n.Labels.find((l) => l.Locale === locale.locale);
-
-        if (!existsLabel) {
-          n.Labels.push({
-            Label: '',
-            Locale: locale.locale,
-            Description: '',
-            Name: locale.name,
-          });
-        } else {
-          existsLabel.Name = locale.name;
-        }
-      }
+      this.makeLabelsName(n);
 
       if (this.selectedDictNode && this.selectedDictNode.id === n.id) {
         this.selectedDictNode = {};
@@ -255,6 +256,11 @@ export default defineComponent({
 
       if (!this.validate()) return;
 
+      // clear labels without label
+      this.editingDict.Labels = (this.editingDict.Labels || []).filter(
+        (l) => l.Label,
+      );
+
       // if is adding new
       if (this.selectedDictNode.addingNew) {
         this.editingDict = {
@@ -263,10 +269,6 @@ export default defineComponent({
           level: this.selectedDictNode.level,
           ...this.editingDict,
         };
-
-        // fix: the default content for number input will be string!!!!????
-        // convert to number
-        this.editingDict.Index = Number(this.editingDict.Index || '0');
 
         this.addDict(this.editingDict).then((r) => {
           if (r && r.msg === 'OK') {

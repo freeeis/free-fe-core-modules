@@ -112,7 +112,7 @@ export default defineComponent({
         v = Number(props.Field.MaxValue);
       }
 
-      setFieldData(v);
+      setFieldData(Number(v));
     })
 
     const readonlyNode = () => h(ReadonlyContent, {
@@ -147,7 +147,7 @@ export default defineComponent({
 
       modelValue: fieldData.value,
       'onUpdate:modelValue': (v) => {
-        setFieldData(v, emit);
+        setFieldData(Number(v), emit);
       },
     }, {
       before,

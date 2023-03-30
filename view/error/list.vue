@@ -1,6 +1,6 @@
 <template>
   <div class="flow-list">
-    <summary-head :values="data.summary" :Bus="Bus"></summary-head>
+    <summary-head :values="data.summary"></summary-head>
     <q-table
       flat
       bordered
@@ -23,26 +23,24 @@
             <span v-else>
               {{ valueFilters(col, col.value || Object.nestValue(props.row, col.field))}}
               <q-popup-edit
+                v-slot="scope"
                 v-model="props.row.Message"
                 v-if="col.name === 'message'"
-                buttons
-                persistent
                 label-set="保存"
                 label-cancel="取消"
-                @save="messageChanged(props.row.id, props.row.Message)"
               >
-                <q-input v-model="props.row.Message" hide-bottom-space autofocus />
+                <q-input v-model="props.row.Message" hide-bottom-space autofocus
+                  @keyup.enter="messageChanged(props.row.id, props.row.Message, scope)"/>
               </q-popup-edit>
               <q-popup-edit
-                v-model="props.row.Description"
+                v-slot="scope"
+                :model-value="props.row.Description"
                 v-if="col.name === 'description'"
-                buttons
-                persistent
-                label-set="保存"
-                label-cancel="取消"
-                @save="descriptionChanged(props.row.id, props.row.Description)"
+                :label-set="$t('保存')"
+                :label-cancel="$t('取消')"
               >
-                <q-input v-model="props.row.Description" hide-bottom-space autofocus />
+                <q-input v-model="props.row.Description" hide-bottom-space autofocus 
+                  @keyup.enter="descriptionChanged(props.row.id, props.row.Description, scope)"/>
               </q-popup-edit>
             </span>
           </q-td>
@@ -66,7 +64,7 @@
 
       <template v-slot:no-data>
         <div class="full-width full-height row flex-center q-gutter-sm">
-          <span>暂 无 数 据</span>
+          <span>{{$t('暂无数据')}}</span>
         </div>
       </template>
 
@@ -106,7 +104,7 @@ export default defineComponent({
     } = useObjectData(props, ctx);
 
     return {
-      data, 
+      data,
       refreshData,
     };
   },
@@ -165,7 +163,7 @@ export default defineComponent({
 
           for (let i = 0; i < filters.length; i += 1) {
             const f = filters[i];
-            val = this.$filterr(f, v || col.value);
+            val = this.$filter(f, v || col.value)
           }
         }
 
@@ -178,7 +176,8 @@ export default defineComponent({
     paginationChanged(p) {
       this.refreshData({ page: p });
     },
-    messageChanged(id, msg) {
+    messageChanged(id, msg, popup) {
+      popup.set();
       updateErrorCode(id, msg).then((d) => {
         if (d && d.msg === 'OK') {
           this.$q.notify(this.$t('notifySaved'));
@@ -187,7 +186,8 @@ export default defineComponent({
         }
       });
     },
-    descriptionChanged(id, desc) {
+    descriptionChanged(id, desc, popup) {
+      popup.set();
       updateDescription(id, desc).then((d) => {
         if (d && d.msg === 'OK') {
           this.$q.notify(this.$t('notifySaved'));

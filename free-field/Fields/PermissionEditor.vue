@@ -138,7 +138,7 @@ export default defineComponent({
     watch(hasThis, (v) => {
       if (v) {
         // checked from unchecked
-        fieldData.value = fieldData.value || {};
+        fieldData.value = fieldData.value || { has: true };
       } else {
         // unchecked from checked
         fieldData.value = undefined;

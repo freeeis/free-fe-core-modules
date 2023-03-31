@@ -1,6 +1,11 @@
 <template>
   <div>
-    <component v-if="theme" :is="themeComponents[theme]"></component>
+    <div class="theme-components-list" v-if="theme">
+      <component 
+        v-for="(tc, idx) in themeComponents[theme]" 
+        :key="idx" 
+        :is="tc"></component>
+    </div>
     <q-btn
       flat
       :icon="icon"
@@ -46,7 +51,12 @@ export default defineComponent({
       Object.keys(this.ctx.modules)
         .filter((m) => this.ctx.modules[m].IsTheme)
         .forEach((m) => {
-          Object.assign(components, this.ctx.modules[m].components || {});
+          // Object.assign(components, this.ctx.modules[m].components || {});
+          // can have same theme from diff modules
+          Object.keys(this.ctx.modules[m].components || {}).forEach((ck) => {
+            components[ck] = components[ck] || [];
+            components[ck].push(this.ctx.modules[m].components[ck]);
+          });
         });
 
       return components;

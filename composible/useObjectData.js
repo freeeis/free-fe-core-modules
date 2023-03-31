@@ -1,4 +1,4 @@
-import { ref, getCurrentInstance, watch, watchEffect, defineEmits } from "vue";
+import { ref, unref, getCurrentInstance, watch, watchEffect } from "vue";
 
 export const objectDataProps = {
   GetData: Function,
@@ -44,12 +44,12 @@ export function useObjectData(props, ctx) {
 
       if (typeof getData === 'function') {
         Promise.resolve(getData(...args)).then((d) => {
-          Object.assign(data.value, d.value ||  d);
+          Object.assign(data.value, unref(d));
         }).finally(() => {
           callsLeft.value --;
         });
       } else {
-        Object.assign(data.value, getData.value || getData);
+        Object.assign(data.value, unref(getData));
         callsLeft.value --;
       }
     }

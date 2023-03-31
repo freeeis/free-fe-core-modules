@@ -67,4 +67,8 @@ export default {
   validatorPwd3Description: "Passwords 6-16 characters in length, must contain numbers, uppercase letters, lowercase letters, special characters",
   validatorPwd4Name: "Password (strength four)",
   validatorPwd4Description: "A password of 6-16 digits in length must contain numbers, at least 2 uppercase letters, at least 2 lowercase letters, special characters",
+
+  删除确认: "Do you want to delete {type} '{name}'？",
+  菜单: 'menu',
+  字典项: 'dictionary',
 }

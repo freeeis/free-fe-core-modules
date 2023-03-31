@@ -237,7 +237,7 @@ export default defineComponent({
 
       this.$MsgDialog({
         type: '',
-        content: `确认要删除字典项 '${n.Name}' 吗?`,
+        content: this.$t('删除确认', { type: this.$t('字典项'), name: n.Name }),
         canCancel: true,
         okText: this.$t('okButtonText'),
         cancelText: this.$t('cancelButtonText'),

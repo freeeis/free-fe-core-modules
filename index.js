@@ -310,6 +310,7 @@ export default (app, root) => {
           Name: "Enabled",
           Label: "启用",
           Type: "Boolean",
+          showLabel: true,
         },
         {
           Name: "Description",

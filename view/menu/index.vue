@@ -116,7 +116,7 @@ export default defineComponent({
       selectedMenuNode,
       editingMenu,
       menuFields,
-      data, 
+      data,
       refreshData,
       validate,
     };
@@ -226,7 +226,7 @@ export default defineComponent({
 
       this.$MsgDialog({
         type: '',
-        content: `确认要删除菜单 '${n.Label}' 吗?`,
+        content: this.$t('删除确认', {type: this.$t('菜单'), name: n.Label}),
         canCancel: true,
         okText: this.$t('okButtonText'),
         cancelText: this.$t('cancelButtonText'),

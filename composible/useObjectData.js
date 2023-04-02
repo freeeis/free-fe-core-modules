@@ -1,7 +1,7 @@
 import { ref, unref, getCurrentInstance, watch, watchEffect } from "vue";
 
 export const objectDataProps = {
-  GetData: Function,
+  GetData: [Function, Object, Array],
   Bus: Object,
   modelValue: {},
   autoGet: { type: Boolean, default: true },
@@ -22,9 +22,9 @@ export function useObjectData(props, ctx) {
   })
 
   // call after refresh when all function got called
-  watchEffect(() => {
-    if (vm.afterRefresh && callsLeft.value <= 0) {
-      vm.afterRefresh(...args);
+  watch(() => callsLeft.value, () => {
+    if (typeof vm.afterRefresh === 'function' && callsLeft.value <= 0) {
+      vm.afterRefresh();
     }
   })
 

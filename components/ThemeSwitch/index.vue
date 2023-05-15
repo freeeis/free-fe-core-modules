@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div :style="{visibility: hide ? 'hidden' : 'visible'}">
     <div class="theme-components-list" v-if="theme">
-      <component 
-        v-for="(tc, idx) in themeComponents[theme]" 
-        :key="idx" 
+      <component
+        v-for="(tc, idx) in themeComponents[theme]"
+        :key="idx"
         :is="tc"></component>
     </div>
     <q-btn
@@ -38,6 +38,7 @@ export default defineComponent({
   props: {
     icon: { type: String, default: 'fas fa-palette' },
     dense: { type: Boolean, default: true },
+    hide: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -54,8 +55,9 @@ export default defineComponent({
           // Object.assign(components, this.ctx.modules[m].components || {});
           // can have same theme from diff modules
           Object.keys(this.ctx.modules[m].components || {}).forEach((ck) => {
+            const theComp = this.ctx.modules[m].components[ck];
             components[ck] = components[ck] || [];
-            components[ck].push(this.ctx.modules[m].components[ck]);
+            components[ck].push(typeof theComp === 'function' ? theComp() : theComp);
           });
         });
 
@@ -87,7 +89,7 @@ export default defineComponent({
   },
   created() {
     const appStore = useAppStore();
-    this.theme = appStore.theme || (this.themes && (this.themes.length > 0) && this.themes[0]);
+    this.theme = appStore.theme || this.ctx.config.defaultTheme || (this.themes && (this.themes.length > 0) && this.themes[0]);
   },
 });
 </script>

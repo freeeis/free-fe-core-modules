@@ -1,5 +1,5 @@
 <template>
-  <div :style="{visibility: hide ? 'hidden' : 'visible'}">
+  <div class="theme-switch-wrapper" :class="{ hide }">
     <div class="theme-components-list" v-if="theme">
       <component
         v-for="(tc, idx) in themeComponents[theme]"
@@ -93,3 +93,13 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.theme-switch-wrapper {
+  &.hide {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+  }
+}
+</style>

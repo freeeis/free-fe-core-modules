@@ -50,27 +50,38 @@ export default defineComponent({
       const components = {};
 
       Object.keys(this.ctx.modules)
-        .filter((m) => this.ctx.modules[m].IsTheme)
+        .filter((m) => this.ctx.modules[m].themeComponents)
         .forEach((m) => {
-          // Object.assign(components, this.ctx.modules[m].components || {});
           // can have same theme from diff modules
-          Object.keys(this.ctx.modules[m].components || {}).forEach((ck) => {
-            const theComp = this.ctx.modules[m].components[ck];
+          Object.keys(this.ctx.modules[m].themeComponents || {}).forEach((ck) => {
+            if (this.theme && this.theme !== ck) return;
+
+            const theComp = this.ctx.modules[m].themeComponents[ck];
             components[ck] = components[ck] || [];
-            components[ck].push(typeof theComp === 'function' ? theComp() : theComp);
+            components[ck].push(theComp);
           });
         });
 
       return components;
     },
     themes() {
-      return Object.keys(this.themeComponents);
+      const themeList = {};
+
+      Object.keys(this.ctx.modules)
+        .filter((m) => this.ctx.modules[m].themeComponents)
+        .forEach((m) => {
+          Object.keys(this.ctx.modules[m].themeComponents || {}).forEach((ck) => {
+            themeList[ck] = true;
+          });
+        });
+
+      return Object.keys(themeList);
     },
   },
   watch: {
     theme(v) {
       if (v) {
-        const appEle = document.getElementById('free-app');
+        const appEle = document.getElementsByTagName('body')[0];
 
         let arr = appEle?.className.split(' ');
 

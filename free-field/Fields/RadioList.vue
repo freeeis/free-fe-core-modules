@@ -1,6 +1,6 @@
 <template>
-  <div :class="`input-field-radio-list relative-position ${
-        this.hasError ? 'input-field--error' : ''}`">
+  <div :class="`free-field-radio-list relative-position ${
+        this.hasError ? 'free-field--error' : ''}`">
     <slot name="warning"></slot>
     <q-list>
       <q-item
@@ -45,7 +45,7 @@
       </q-item>
     </q-list>
     <div
-      class="input-field--error-tag"
+      class="free-field--error-tag"
       v-if="hasError"
     >
       <e-icon name="error"></e-icon>

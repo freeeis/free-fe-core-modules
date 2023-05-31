@@ -1,7 +1,7 @@
 <template>
-  <span class="input-field-search">
-    <q-dialog v-model="showSearch" class="input-field-search-dialog" persistent>
-      <q-card class="input-field-search-dialog-card">
+  <span class="free-field-search">
+    <q-dialog v-model="showSearch" class="free-field-search-dialog" persistent>
+      <q-card class="free-field-search-dialog-card">
         <q-toolbar>
           <div class="simple-field full-width">
             <q-input
@@ -9,24 +9,24 @@
               v-model="searchKey"
               hide-bottom-space
               :placeholder="Field &&
-              ((Field.Options && Field.Options.SearchPlaceholder) || Field.Placeholder)"
+              ((Field.Options?.SearchPlaceholder) || Field.Placeholder)"
               @keydown.enter="search()"
               class="full-width"
             >
               <template v-slot:append>
-                <q-btn :class="Field.Options.SearchBtnClasses" :flat="!Field.Options.SearchBtn3D" :round="!Field.Options.SearchBtnRect" icon="search" @click="search()" :disabled="Field.ReadOnly">{{Field.Options.SearchBtnText}}</q-btn>
+                <q-btn :class="Field.Options?.SearchBtnClasses" :flat="!Field.Options?.SearchBtn3D" :round="!Field.Options?.SearchBtnRect" icon="search" @click="search()" :disabled="Field.ReadOnly">{{Field.Options.SearchBtnText}}</q-btn>
               </template>
             </q-input>
           </div>
         </q-toolbar>
 
         <q-card-section :style="`
-          width: ${Field.Options.Width|| '800px'};
-          max-width: ${Field.Options.MaxWidth|| '80vw'};
+          width: ${Field.Options?.Width|| '800px'};
+          max-width: ${Field.Options?.MaxWidth|| '80vw'};
           overflow-y: scroll`">
           <q-table
-            :flat="Field.Options && Field.Options.Flat"
-            :bordered="Field.Options && Field.Options.Bordered"
+            :flat="Field.Options?.Flat"
+            :bordered="Field.Options?.Bordered"
             :rows="searchData ? searchData.docs : []"
             :columns="searchColumns"
             row-key="id"
@@ -37,7 +37,7 @@
           >
             <template v-slot:header="props">
               <q-tr :props="props">
-                <q-th auto-width v-if="!Field.Options || !Field.Options.checkOnRight"/>
+                <q-th auto-width v-if="!Field.Options?.checkOnRight"/>
                 <q-th
                   v-for="col in props.cols"
                   :key="col.name"
@@ -45,13 +45,13 @@
                 >
                   {{ col.label }}
                 </q-th>
-                <q-th auto-width v-if="Field.Options && Field.Options.checkOnRight"/>
+                <q-th auto-width v-if="Field.Options?.checkOnRight"/>
               </q-tr>
             </template>
             <template v-slot:body="props">
               <q-tr class="table-row">
-                <q-td auto-width v-if="!Field.Options || !Field.Options.checkOnRight">
-                   <q-toggle v-model="props.selected" v-if="Field.Options && Field.Options.useToggle"/>
+                <q-td auto-width v-if="!Field.Options?.checkOnRight">
+                   <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle"/>
                    <q-checkbox v-else v-model="props.selected"></q-checkbox>
                 </q-td>
                 <q-td
@@ -62,8 +62,8 @@
                 >
                 {{col.value}}
                 </q-td>
-                <q-td auto-width v-if="Field.Options && Field.Options.checkOnRight">
-                   <q-toggle v-model="props.selected" v-if="Field.Options && Field.Options.useToggle"/>
+                <q-td auto-width v-if="Field.Options?.checkOnRight">
+                   <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle"/>
                    <q-checkbox v-else v-model="props.selected"></q-checkbox>
                 </q-td>
               </q-tr>
@@ -92,12 +92,12 @@
         <q-card-actions>
           <div class="buttons row full-width justify-center q-ma-sm">
             <q-btn
-              :icon="(Field.Options && Field.Options.CancelIcon) || 'cancel'"
+              :icon="(Field.Options?.CancelIcon) || 'cancel'"
               class="cancel-btn q-mr-md"
               @click="showSearch = false; searchSelected=originalSelected; $emit('input')"
             >{{$t('cancelButtonText')}}</q-btn>
             <q-btn
-              :icon="(Field.Options && Field.Options.OkIcon) || 'check'"
+              :icon="(Field.Options?.OkIcon) || 'check'"
               class="ok-btn" @click="searchOK">{{$t('okButtonText')}}</q-btn>
           </div>
         </q-card-actions>
@@ -116,16 +116,16 @@
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
       <span class="readonly-content">
-        <span :style="(Field.Info && Field.Info.Style) ? Field.Info.Style : ''">{{searchDisplay}}</span>
+        <span :style="(Field.Info?.Style) ? Field.Info.Style : ''">{{searchDisplay}}</span>
       </span>
     </span>
     <q-input
       v-else
       modelValue=""
-      :type="`${Field && Field.Multiple ? 'textarea' : ''}`"
+      :type="`${Field?.Multiple ? 'textarea' : ''}`"
       hide-bottom-space
       readonly
-      :class="`${Field && Field.Multiple
+      :class="`${Field?.Multiple
         ? '' : 'simple-field'} ${searchDisplay ? 'has-data' : 'empty'}`"
       ref="fieldToValid"
       @click="searchKey = '';searchData = {}; showSearch = true"
@@ -142,13 +142,13 @@
         >
           <q-tooltip
             anchor="top right"
-          >{{selected[(Field.Options && Field.Options.SearchDisplayField) || 'id']}}</q-tooltip>
-          {{selected[(Field.Options && Field.Options.SearchDisplayField) || 'id']}}
+          >{{selected[(Field.Options?.SearchDisplayField) || 'id']}}</q-tooltip>
+          {{selected[(Field.Options?.SearchDisplayField) || 'id']}}
         </q-chip>
       </template>
       <template v-slot:before>
         <span
-          :class="`field-label ${(Field.Label && Field.Label.trim().length)
+          :class="`field-label ${(Field.Label?.trim().length)
             ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
           v-if="Field.Label !== void 0"
         >
@@ -501,11 +501,11 @@ export default defineComponent({
 </script>
 
 <style lang="sass" scoped>
-.input-field-search-dialog-card
+.free-field-search-dialog-card
   max-width: unset !important
   max-height: unset !important
 
-.input-field-search
+.free-field-search
   .simple-field
     display: flex
 </style>

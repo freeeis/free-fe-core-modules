@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-rich row no-wrap">
+  <div class="free-field-rich row no-wrap">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -15,10 +15,10 @@
         class="required-mark"
       >*</span>
     </span>
-    <span class="content relative-position fit" :class="isValid ? '' : 'input-field--error'">
+    <span class="content relative-position fit" :class="isValid ? '' : 'free-field--error'">
       <slot name="warning"></slot>
 
-      <div class="input-field--error-tag" v-if="!isValid">
+      <div class="free-field--error-tag" v-if="!isValid">
         <e-icon name="error"></e-icon>
       </div>
 
@@ -183,6 +183,7 @@ export default defineComponent({
         'aligncenter',
         'alignright',
         'alignjustify',
+        'indent2em',
         '|',
         'numlist',
         'bullist',
@@ -244,6 +245,28 @@ export default defineComponent({
     };
 
     const tinySetup = (editor) => {
+      // add button for indent 2ems
+      editor.on('init', () => {
+        editor.formatter.register('indent2em', {
+          block: 'p',
+          styles: { 'text-indent': '2em' }
+        });
+      })
+
+      editor.ui.registry.addToggleButton('indent2em', {
+        tooltip: '首行缩进两个字宽度',
+        icon: 'indent',
+        onAction: function () {
+          editor.execCommand('mceToggleFormat', false, 'indent2em');
+        },
+        onSetup: function (api) {
+          editor.formatter.formatChanged('indent2em', function (state) {
+            api.setActive(state);
+          });
+        }
+      });
+
+      // add button for insert field content
       if (props.enableField) {
         editor.ui.registry.addButton('insertFieldButton', {
           text: '数据字段',
@@ -345,7 +368,7 @@ export default defineComponent({
 // .tox-tinymce-aux
 //   z-index: 6001 !important
 
-.input-field-rich
+.free-field-rich
   .tox-statusbar__branding
     display: none
   .tox-tinymce

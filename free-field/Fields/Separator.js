@@ -14,7 +14,7 @@ export default defineComponent({
   },
   setup(props){
     return () => h(QSeparator, {
-      class: 'input-field-separator',
+      class: 'free-field-separator',
       inset: props.inset,
     });
   },

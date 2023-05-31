@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-single-list row" v-if="Field">
+  <div class="free-field-single-list row" v-if="Field">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"

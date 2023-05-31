@@ -75,7 +75,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-password row items-center no-wrap',
+      class: 'simple-field free-field-password row items-center no-wrap',
     }, [
       inputNode.value,
       slots.warning && slots.warning(),

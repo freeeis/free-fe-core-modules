@@ -131,7 +131,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-year row items-center no-wrap',
+      class: 'simple-field free-field-year row items-center no-wrap',
     }, [
       selectNode.value,
       slots.warning && slots.warning(),

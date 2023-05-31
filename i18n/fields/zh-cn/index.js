@@ -5,5 +5,6 @@ export default {
   fieldCategoryAdvanced: '高级',
   fieldCategoryTable: '表格',
   fieldCategoryUpload: '上传',
+  fieldCategoryContainer: '容器',
   fieldCategoryOthers: '其他',
 };

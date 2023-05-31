@@ -1,4 +1,7 @@
+import fields from '../fields/en-us';
+
 export default {
+  ...fields,
   justNow: 'just now',
   secondsAgo: 'seconds ago',
   minutesAgo: 'minutes ago',

@@ -307,6 +307,13 @@ export default (app, root) => {
           Options: [],
         },
         {
+          Name: 'CustomizeRoute',
+          Label: '自定义路径',
+          Info: {
+            ShowWhen: 'data.Route === "customize"',
+          },
+        },
+        {
           Name: "Enabled",
           Label: "启用",
           Type: "Boolean",

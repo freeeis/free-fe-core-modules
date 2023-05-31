@@ -129,7 +129,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-date row items-center no-wrap',
+      class: 'simple-field free-field-date row items-center no-wrap',
     }, [
       props.Field.ReadOnly ? readonlyNode() : DateNode.value,
       slots.warning && slots.warning(),

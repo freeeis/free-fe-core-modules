@@ -72,10 +72,11 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'input-field-text',
+      class: 'free-field-text',
     }, [
       slots.warning && h('div', {
         class: props.Field.Label ? 'warning-with-label' : 'warning-without-label',
+        style: props.Field.Label ? 'margin-left: var(--field-label-width)' : '',
       }, slots.warning()),
       props.Field.ReadOnly ? readonlyNode() : inputNode.value,
     ]);

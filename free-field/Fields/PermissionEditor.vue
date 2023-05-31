@@ -1,8 +1,8 @@
 <template>
-  <q-card dense flat v-if="Service" class="input-field-permission-editor">
+  <q-card dense flat v-if="Service" class="free-field-permission-editor">
     <q-card-section
       v-if="Service.Title"
-      class="input-field-permission-title q-pa-none no-wrap"
+      class="free-field-permission-title q-pa-none no-wrap"
       :class="!!Service.Scope && Service.Scope.length > 0 && !readonly
         ? 'with-scope' : 'without-scope'">
       <q-checkbox v-model="hasThis" :readonly="readonly">

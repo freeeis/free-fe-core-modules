@@ -18,7 +18,7 @@ export default defineComponent({
     const { fieldData } = useFreeField(props);
 
     return () => h('div', {
-      class: 'input-field-static',
+      class: 'free-field-static',
     }, [
       slots.warning && slots.warning(),
       fieldData.value,

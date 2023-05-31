@@ -1,6 +1,6 @@
 <template>
-  <span :class="(Field && Field.AsCheck) ? 'input-field-select' :
-    'input-field-select simple-field row'">
+  <span :class="(Field && Field.AsCheck) ? 'free-field-select' :
+    'free-field-select simple-field row'">
     <span
       v-if="!Field.AsCheck"
       class="row no-wrap items-center full-width inline-block"
@@ -43,10 +43,10 @@
 
       <q-select
         v-else
-        popup-content-class="input-field-select-control"
+        popup-content-class="free-field-select-control"
         hide-bottom-space
         :modelValue="fieldData.value"
-        @update:modelValue="setFieldData"
+        @update:modelValue="selectChanged"
         :options="Field.Options || []"
         option-value="Value"
         option-label="Label"
@@ -104,7 +104,7 @@
     </span>
     <span
       v-else
-      class="input-field-select-ascheck row items-start no-wrap"
+      class="free-field-select-ascheck row items-start no-wrap"
     >
       <span
         :class="`field-label ${(Field.Label && Field.Label.trim().length)
@@ -127,11 +127,11 @@
         </div>
         <div
           class="checkbox-list"
-          :class="hasError ? 'input-field--error' : ''"
+          :class="hasError ? 'free-field--error' : ''"
         >
 
           <div
-            class="input-field--error-tag"
+            class="free-field--error-tag"
             v-if="hasError"
           >
             <e-icon name="error"></e-icon>
@@ -311,14 +311,18 @@ export default defineComponent({
       validate,
     })
 
+    const selectChanged = (v) => {
+      selfValidate();
+      setFieldData(v, emit);
+    };
+
     const checkChanged = (v) => {
       selfValidate();
 
       if (!props.Field.Multiple) {
         checked.value = [v];
       }
-      setFieldData(checked.value.join(','));
-      emit('input');
+      setFieldData(checked.value.join(','), emit);
     };
 
     const apiCall = () => {
@@ -347,8 +351,7 @@ export default defineComponent({
           if (d.data && d.data.options) {
             selectOptions.value = d.data.options;
             if (d.data.options.findIndex((o) => o.Value === fieldData.value) < 0) {
-              setFieldData(undefined);
-              emit('input');
+              setFieldData(undefined, emit);
             }
           } else {
             selectOptions.value = [];
@@ -386,6 +389,7 @@ export default defineComponent({
 
       readonlyContent,
 
+      selectChanged,
       checkChanged,
     };
   },
@@ -393,7 +397,7 @@ export default defineComponent({
 </script>
 
 <style lang="sass">
-.input-field-select
+.free-field-select
   .q-field__native
     white-space: nowrap
     &>span
@@ -402,6 +406,6 @@ export default defineComponent({
   .checkbox-list
     position: relative
     margin-left: 12px
-    &.input-field--error
+    &.free-field--error
       padding-right: 24px
 </style>

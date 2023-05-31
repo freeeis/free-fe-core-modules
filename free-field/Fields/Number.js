@@ -161,7 +161,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-number row items-center no-wrap',
+      class: 'simple-field free-field-number row items-center no-wrap',
     }, [
       props.Field.ReadOnly ? readonlyNode() : inputNode.value,
       slots.warning && slots.warning(),

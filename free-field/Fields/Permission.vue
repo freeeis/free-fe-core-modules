@@ -1,5 +1,5 @@
 <template>
-  <span class="input-field-permission">
+  <span class="free-field-permission">
     <slot name="warning"></slot>
     <div class="buttons relative-position" v-if="Field && Field.ShowButtons">
       <span class="q-ml-lg select-all-btn">
@@ -82,7 +82,7 @@ export default defineComponent({
 });
 </script>
 <style lang="sass" scoped>
-.input-field-permission
+.free-field-permission
   .buttons
     height: 48px
 </style>

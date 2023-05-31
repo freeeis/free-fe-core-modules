@@ -1,5 +1,5 @@
 <template>
-  <span class="input-field-labels">
+  <span class="free-field-labels">
     <span
       v-if="Field.ReadOnly"
       class="full-width"
@@ -183,15 +183,13 @@ export default defineComponent({
 </script>
 
 <style lang="sass">
-@import '../style.sass'
-
-.input-field-labels
+.free-field-labels
   .q-field__prepend
     height: auto
     flex-wrap: wrap
   .q-field__control,.q-field__inner,.q-field__before
     flex-wrap: wrap !important
-  .input-field-warning
+  .free-field-warning
     display: block
     margin-left: $fieldLabelWidth
     left: 10px

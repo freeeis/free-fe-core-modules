@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-tabs row no-wrap" v-if="Field">
+  <div class="free-field-tabs row no-wrap" v-if="Field">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -16,20 +16,20 @@
       >*</span>
     </span>
 
-    <div class="col input-field-tabs-tabs-wrapper">
+    <div class="col free-field-tabs-tabs-wrapper">
       <q-tabs
         class="tabs"
         v-model="tab"
         :shrink="true"
         no-caps
-        :vertical="Field.Options.vertical || false"
-        :align="Field.Options.align || 'left'"
-        :dense="Field.Options && Field.Options.dense">
+        :vertical="Field.Options?.vertical || false"
+        :align="Field.Options?.align || 'left'"
+        :dense="Field.Options?.dense">
         <q-tab
           v-for="(t, idx) in fieldData.value" :key="idx"
           :name="idx"
-          :label="t[Field.Options.LabelField]"
-          :dense="Field.Options && Field.Options.dense">
+          :label="t[Field.Options?.LabelField]"
+          :dense="Field.Options?.dense">
         </q-tab>
       </q-tabs>
       <q-tab-panels v-model="tab">
@@ -37,7 +37,7 @@
           v-for="(t, idx) in fieldData.value" :key="idx"
           :name="idx">
           <free-field
-            v-for="(field, idx) in Field.Options.List"
+            v-for="(field, idx) in Field.Options?.List"
             :Field="field"
             :values="t"
             :key="idx"
@@ -149,7 +149,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.input-field-tabs {
+.free-field-tabs {
   &-tabs-wrapper {
     margin-left: 12px;
     border: 1px solid rgba($color: #000000, $alpha: 0.12);

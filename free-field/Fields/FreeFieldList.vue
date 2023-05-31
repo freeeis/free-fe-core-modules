@@ -1,6 +1,23 @@
 <template>
-  <div class="input-field-list">
+  <div class="free-field-list row full-width">
+    <span
+      :class="`field-label ${(Field.Label && Field.Label.trim().length)
+        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
+      v-if="Field.Label !== void 0"
+    >
+      <q-tooltip
+        v-if="Field.Description"
+        anchor="top right"
+      >{{Field.Description}}</q-tooltip>
+      {{Field.Label || ''}}
+      <span
+        v-if="Field.Required"
+        class="required-mark"
+      >*</span>
+    </span>
+
     <dynamic-list
+      class="col"
       :Field="localField"
       :values="values"
       readonly
@@ -79,9 +96,10 @@ const clipBoardStore = {
 };
 
 export default defineComponent({
-  name: 'InputFieldList',
+  name: 'FreeFieldList',
   emits:['save', 'delete', 'cancel','paste:fields', 'batch:fields'],
   fieldInfo: {
+    DataType: 'Array',
     Category: 'Advanced',
     Label: '字段列表',
     Value: 'FieldList',
@@ -103,15 +121,20 @@ export default defineComponent({
     const changedFields = ref([]);
     const fieldList  = ref(null);
 
-    const editingFieldField = ref(undefined);
+    const editingFieldField = computed(() => ({
+      Type: 'FieldEditor',
+      Name: '.',
+      show: showEditor.value,
+    }));
 
-    watchEffect(() => {
-      editingFieldField.value = {
-        Type: 'FieldEditor',
-        Name: '.',
-        show: showEditor.value,
-      };
-    });
+    // watchEffect(() => {
+    // });
+
+    // editingFieldField.value = {
+    //   Type: 'FieldEditor',
+    //   Name: '.',
+    //   show: showEditor.value,
+    // };
 
     const localField = computed(() => ({
       Type: 'DynamicList',
@@ -166,7 +189,7 @@ export default defineComponent({
 
       if (fData?.length) {
         newIndex = fData.map((fd) => fd.Index).sort((a,b) => a.Index-b.Index).filter((fd) => !!fd).pop();
-        newIndex = (newIndex || 0) + 1;
+        newIndex = (Number(newIndex) || 0) + 1;
       }
 
       editingField.value = {

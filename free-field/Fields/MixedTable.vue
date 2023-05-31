@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-mixed-table row">
+  <div class="free-field-mixed-table row">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -33,7 +33,7 @@
       </template>
       <template v-slot:body>
         <q-tr
-          v-for="(r,index) in Field.Options.Rows"
+          v-for="(r,index) in (Field.Options?.Rows || [])"
           :key="index"
           :class="((index || 0) % 2) ? 'row-zebra-odd' : 'row-zebra-even'"
         >

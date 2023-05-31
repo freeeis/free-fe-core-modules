@@ -13,6 +13,7 @@ import {
 import { freeFieldProps } from "./useFreeField";
 import { useFormValidator } from '../../composible/useFormValidator';
 
+import '../style.scss';
 
 export default defineComponent({
   name: "FreeFieldWrapper",
@@ -71,6 +72,7 @@ export default defineComponent({
         // eslint-disable-next-line no-eval
         return eval(funcStr);
       } catch (ex) {
+        console.error(ex)
         return undefined;
       }
     };
@@ -154,13 +156,13 @@ export default defineComponent({
 
     const warningSlot = (!props.noWarning && localField.value.Warning)
       && h('span', {
-        class: 'input-field-warning no-wrap',
+        class: 'free-field-warning no-wrap',
       },
       [
-        h('span', { class: 'input-field-warning-icon' }),
-        h('span', { class: 'input-field-warning-icon-sign-top' }),
-        h('span', { class: 'input-field-warning-icon-sign-dot' }),
-        h('span', { class: 'input-field-warning-text ellipsis' }, localField.value.Warning),
+        h('span', { class: 'free-field-warning-icon' }),
+        h('span', { class: 'free-field-warning-icon-sign-top' }),
+        h('span', { class: 'free-field-warning-icon-sign-dot' }),
+        h('span', { class: 'free-field-warning-text ellipsis' }, localField.value.Warning),
       ]
     );
 
@@ -169,7 +171,7 @@ export default defineComponent({
     watchEffect(() => {
       (realComponent?.value?.emits || []).forEach((em) => {
         if (!em || em === 'input') return;
-  
+
         const captEm = `${em[0].toUpperCase()}${em.substring(1)}`;
         compEmits.value[`on${captEm}`] = (...args) => {
           // should not emit event directly as we were not inlucde these events in the emits list
@@ -184,7 +186,7 @@ export default defineComponent({
       });
     })
 
-    const readComp = computed(() => realComponent.value && h(
+    const realComp = computed(() => realComponent.value && h(
       realComponent.value,
       {
         Field: localField.value,
@@ -204,17 +206,140 @@ export default defineComponent({
         warning: slots.warning ? slots.warning : () => warningSlot,
       }
     ));
-    
+
     // const emitsRef = computed(() => realComponent?.value?.emits);
 
     const {
       validate,
-    } = useFormValidator(readComp);
+    } = useFormValidator(realComp);
 
     expose ({
       // emits: emitsRef.value,
       validate: () => validate.value(props.Field.Name),
     })
+
+    const fieldTip = (tip) => {
+      if (!tip || !tip.Text) return '';
+      if (!tip.Links || !Array.isArray(tip.Links) || tip.Links.length <= 0) {
+        return [{ Text: tip.Text }];
+      }
+
+      // process tip with links
+      let linkPos = [];
+      tip.Links.forEach((tl) => {
+        if (!tl || !tl.Text) return;
+
+        const start = tip.Text.indexOf(tl.Text);
+        if (start >= 0) {
+          linkPos.push({
+            ...tl,
+            start,
+            end: start + tl.Text.length,
+          });
+        }
+      });
+
+      const textSplit = [];
+      let start = 0;
+      linkPos = linkPos.sort((a, b) => a.start - b.start);
+      for (let i = 0; i < linkPos.length; i += 1) {
+        const lp = linkPos[i];
+
+        const beforeText = tip.Text.substr(start, lp.start - start);
+        if (beforeText) {
+          textSplit.push({ Text: beforeText });
+        }
+
+        textSplit.push({
+          ...lp,
+          Text: tip.Text.substr(lp.start, lp.end - lp.start),
+          Link:
+            !!lp.File && lp.isFile
+              ? vm.$filter('serverDocument', lp.File)
+              : lp.Link,
+        });
+
+        start = lp.end;
+      }
+
+      const afterText = tip.Text.substr(start);
+      if (afterText) {
+        textSplit.push({
+          Text: afterText,
+        });
+      }
+
+      if (textSplit.length > 0) return textSplit;
+
+      return [{ Text: tip.Text }];
+    };
+
+    const tipsElem = !shouldHide.value && !props.noTips && (localField.value.Tips?.length > 0) && h(
+      "div",
+      {
+        class: "free-field-tips",
+      },
+      [
+        h("span", {
+          class: "free-field-tips-prefix",
+        }),
+        h("span", {
+          class: "tips-list",
+        },
+        [
+          localField.value.Tips.map((tip) => h("span", {
+            class: "free-field-tips-tip",
+          },
+          [
+            h("span", {
+              class: "free-field-tips-tip-prefix",
+            }),
+            fieldTip(tip).map(
+              (t) => h("span", null, [
+                t.Link ? h("span", {
+                  class: "tip-link",
+                  }, [
+                    h("span", {
+                      class: "tip-link-prefix",
+                    }),
+                    t.File ? h("a", {
+                      href: t.Link,
+                      target: t.target || '_blank',
+                      download: `${t.Text}${t.File && t.File.substr(t.File.lastIndexOf('.'))}`,
+                      }, t.Text) : h("a", {
+                        href: t.Link,
+                        target: t.target || '_blank',
+                        }, t.Text),
+                    h("span", {
+                      class: "tip-link-postfix",
+                    }),
+                  ]) : (t.File ? h("span", {
+                    class: "tip-text",
+                    }, [
+                      h("span", {
+                        class: "tip-link-prefix",
+                      }),
+                      t.File,
+                      h("span", {
+                        class: "tip-link-postfix",
+                      }),
+                    ]) : h("span", {
+                      class: "tip-text",
+                      }, t.Text))
+              ])
+            ),
+            h("span", {
+              class: "free-field-tips-tip-postfix",
+            }),
+          ]
+          )),
+        ]),
+        h('span', {
+          class: 'free-field-tips-postfix',
+        })
+      ]
+    );
+
 
     return realComponent.value ? () => h(
       "div",
@@ -222,7 +347,8 @@ export default defineComponent({
         class: wrapperClass,
       },
       [
-        readComp.value,
+        realComp.value,
+        tipsElem,
       ]
     ) : () => null;
   },

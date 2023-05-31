@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-fixed-list row">
+  <div class="free-field-fixed-list row">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
@@ -25,7 +25,7 @@
       <template v-slot:body-cell="props">
         <q-td
           :props="props"
-          style="text-align: center;"
+          style="text-align: center;padding:0;margin:0;height:auto;width:auto;"
           v-if="props.col.List &&
           (props.col.List.length === 1) &&
             props.row[props.col.List[0].Name] === 'NaN'"
@@ -37,6 +37,7 @@
           :colspan="props.value && props.value.colspan || 1"
           :rowspan="props.value && props.value.rowspan || 1"
           :class="`items-center justify-center ${tableTdClass(props.rowIndex)}`"
+          style="padding:0;margin:0;height:auto;width:auto;"
         >
           <span v-if="props.col.List && props.col.List.length > 1" class="full-width full-height">
             <free-field
@@ -359,7 +360,7 @@ export default defineComponent({
 });
 </script>
 <style lang="sass">
-.input-field-fixed-list
+.free-field-fixed-list
   .field-label
     margin-top: auto
     margin-bottom: auto

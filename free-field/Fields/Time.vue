@@ -1,5 +1,5 @@
 <template>
-  <span class="simple-field input-field-time row items-center no-wrap">
+  <span class="simple-field free-field-time row items-center no-wrap">
     <span v-if="Field.ReadOnly">
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)

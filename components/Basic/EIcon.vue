@@ -49,8 +49,11 @@ export default defineComponent({
 
       if (this.name.startsWith('https://')) return this.name;
 
+      if (this.name.startsWith('blob:')) return this.name;
+
       // TODO:默认使用二倍图？
       if (this.relative) return `images/${this.name}${this.defaultSize}.png`;
+
       return this.thumb
         ? this.$filter('serverThumb', this.name)
         : this.$filter('serverImage', this.name);

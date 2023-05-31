@@ -504,6 +504,7 @@ export default defineComponent({
             colspan: slotProps.value ? slotProps.value.colspan || "1" : "1",
             rowspan: slotProps.value ? slotProps.value.rowspan || "1" : "1",
             class: "items-center justify-center",
+            style: "padding:0;margin:0;height:auto;width:auto",
           },
           () => h(
             "span",
@@ -556,7 +557,7 @@ export default defineComponent({
 
 
     return () => h('div', {
-      class: 'input-field-dynamic-list row',
+      class: 'free-field-dynamic-list row',
     }, [
       before,
       tableNode(),

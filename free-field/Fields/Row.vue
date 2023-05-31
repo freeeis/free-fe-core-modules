@@ -1,20 +1,23 @@
 <template>
-  <div class="input-field-row row" :class="rowClasses">
-    <input-field
-      v-for="(field, idx) in Field.Options.List"
+  <div class="free-field-row row" :class="rowClasses" v-if="Field">
+    <free-field
+      v-for="(field, idx) in Field.Options?.List"
       :Field="field"
       :values="fieldData"
       :key="idx"
-      @input="$emit('input')"></input-field>
+      @input="$emit('input')"></free-field>
   </div>
 </template>
 
 <script>
-import { InputFieldMixin } from 'eis-admin-mixins';
+import { defineComponent } from 'vue';
+import { freeFieldProps } from '../composible/useFreeField';
 
-export default {
+export default defineComponent({
   name: 'InputFieldRow',
-  mixins: [InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   fieldInfo: {
     Category: 'Container',
     Label: '行',
@@ -23,7 +26,7 @@ export default {
       {
         Label: '不换行',
         Name: 'Options.NoWrap',
-        Type: 'Bollean',
+        Type: 'Boolean',
       },
       {
         Label: '竖向对齐',
@@ -116,10 +119,10 @@ export default {
   },
   computed: {
     rowClasses() {
-      return '';
+      return this.Field.Options?.NoWrap ? 'nowrap' : '' + this.Field.Options?.ItemsAlign + ' ' + this.Field.Options?.JustifyAlign;
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

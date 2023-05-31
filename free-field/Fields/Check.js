@@ -1,4 +1,4 @@
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, watchEffect } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QCheckbox } from 'quasar';
 import freeFieldLabel from '../composible/freeFieldLabel';
@@ -73,7 +73,12 @@ export default defineComponent({
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
-    fieldData.value = fieldData.value || false;
+
+    watchEffect(() => {
+      if (fieldData.value === void 0) {
+        setFieldData(props.Field.Default || false);
+      }
+    })
 
     const before = (props.Field.showLabel && !props.Field.dense && props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
       Field: props.Field,
@@ -94,7 +99,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-check row items-center no-wrap',
+      class: 'simple-field free-field-check row items-center no-wrap',
     }, [
       before(),
       checkboxNode(),

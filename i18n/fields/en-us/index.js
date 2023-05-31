@@ -5,5 +5,6 @@ export default {
   fieldCategoryAdvanced: 'Advanced',
   fieldCategoryTable: 'Table',
   fieldCategoryUpload: 'Upload',
+  fieldCategoryContainer: 'Container',
   fieldCategoryOthers: 'Others',
 };

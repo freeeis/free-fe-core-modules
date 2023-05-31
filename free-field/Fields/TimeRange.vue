@@ -1,5 +1,5 @@
 <template>
-  <span class="simple-field input-field-time-range row items-center no-wrap">
+  <span class="simple-field free-field-time-range row items-center no-wrap">
     <span v-if="Field.ReadOnly">
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
@@ -56,7 +56,7 @@
         </template>
       </q-input>
 
-      <span class="input-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
+      <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
 
       <q-input
         v-model="max"

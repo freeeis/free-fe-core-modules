@@ -18,7 +18,7 @@ export default defineComponent({
     if (!props.Field || (typeof props.Field.Label === 'undefined')) return;
 
     return () => h('div', {
-      class: 'simple-field input-field-category row items-center no-wrap',
+      class: 'simple-field free-field-category row items-center no-wrap',
     }, [
       h('span', {
         class: 'label'

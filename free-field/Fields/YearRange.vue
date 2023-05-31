@@ -1,5 +1,5 @@
 <template>
-  <span class="input-field-year-range simple-field">
+  <span class="free-field-year-range simple-field">
     <span v-if="Field.ReadOnly">
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
@@ -32,7 +32,7 @@
           </span>
         </template>
       </q-select>
-      <span class="input-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
+      <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
       <q-select
         v-model="range.max"
         hide-bottom-space

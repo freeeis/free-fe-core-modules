@@ -1,5 +1,5 @@
 <template>
-  <div :class="`input-field-query-filters columns full-width full-height ${dense ? 'dense' : ''}`">
+  <div :class="`free-field-query-filters columns full-width full-height ${dense ? 'dense' : ''}`">
     <div class="row col items-center justify-start full-width">
       <free-field
         v-for="(field, index) in localFields"

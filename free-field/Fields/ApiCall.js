@@ -111,7 +111,7 @@ export default defineComponent({
     });
 
     return () => h('div', {
-      class: 'simple-field input-field-apicall row items-center no-wrap',
+      class: 'simple-field free-field-apicall row items-center no-wrap',
     }, [
       readonlyNode(),
       slots.warning && slots.warning(),

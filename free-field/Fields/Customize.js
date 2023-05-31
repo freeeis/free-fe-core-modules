@@ -77,7 +77,7 @@ export default defineComponent({
     }, );
 
     return () => h('div', {
-      class: 'input-field-customize',
+      class: 'free-field-customize',
     }, [
       before(),
       contentNode(),

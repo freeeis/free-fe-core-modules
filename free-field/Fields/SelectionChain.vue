@@ -1,5 +1,5 @@
 <template>
-  <div class="input-field-select-chain row items-start no-wrap">
+  <div class="free-field-select-chain row items-start no-wrap">
     <span
       :class="`field-label ${(Field.Label && Field.Label.trim().length)
         ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"

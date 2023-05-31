@@ -1,5 +1,5 @@
 <template>
-  <span class="input-field-number-range simple-field">
+  <span class="free-field-number-range simple-field" v-if="Field">
     <span v-if="Field.ReadOnly">
       <span
         :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
@@ -17,7 +17,6 @@
         :readonly="Field.ReadOnly"
         v-bind="$attrs"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
-        v-on="$listeners"
         hide-bottom-space
         @input="rangeChanged"
         type="number"
@@ -39,12 +38,11 @@
           <span class="postfix">{{Field.Options.Postfix}}</span>
         </template>
       </q-input>
-      <span class="input-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
+      <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
       <q-input
         :readonly="Field.ReadOnly"
         v-bind="$attrs"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
-        v-on="$listeners"
         hide-bottom-space
         @input="rangeChanged"
         type="number"
@@ -73,11 +71,14 @@
 </template>
 
 <script>
-import { InputFieldMixin } from 'eis-admin-mixins';
+import { defineComponent } from 'vue';
+import { freeFieldProps } from '../composible/useFreeField';
 
-export default {
+export default defineComponent({
   name: 'InputFieldNumberRange',
-  mixins: [InputFieldMixin],
+  props: {
+    ...freeFieldProps,
+  },
   fieldInfo: {
     Category: 'Simple',
     Label: '数字范围',
@@ -141,5 +142,5 @@ export default {
       this.$emit('input');
     },
   },
-};
+});
 </script>

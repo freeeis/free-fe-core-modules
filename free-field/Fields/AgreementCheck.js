@@ -125,15 +125,15 @@ export default defineComponent({
 
     const tipsNode = () => h('div', {},[
       h('span', {
-        class: 'input-field-tips-prefix'
+        class: 'free-field-ips-prefix'
       }),
       h('span',{
         class: 'tips-list'
       }, (props.Field.Tips || []).map((tip) => h('span', {
-        class:'input-field-tips-tip',
+        class:'free-field-tips-tip',
       }, [
         h('span', {
-          class: 'input-field-tips-tip-prefix'
+          class: 'free-field-tips-tip-prefix'
         }),
         fieldTip(tip).map((t) => h('span', {}, [
           t.Link ? h('span', {
@@ -147,25 +147,25 @@ export default defineComponent({
           ]) : h('span',{class: 'tip-text'}, t.Text),
         ])),
         h('span', {
-          class: 'input-field-tips-tip-postfix'
+          class: 'free-field-tips-tip-postfix'
         })
       ]))),
       h('span',{
-        class: 'input-field-tips-postfix'
+        class: 'free-field-tips-postfix'
       })
     ]);
 
     return () => h('div', {
-      class: `input-field-agreement-check row items-center no-wrap\
+      class: `free-field-agreement-check row items-center no-wrap\
               ${props.Field.Options?.Center ? 'center full-width justify-center' : ''}`,
     }, h('div',{
-      class: `row no-wrap items-center relative-position ${hasError.value ? 'input-field--error' : ''}`,
+      class: `row no-wrap items-center relative-position ${hasError.value ? 'free-field--error' : ''}`,
     },[
       props.Field.Options?.Center || h('span', { class: 'field-label-empty', }),
       checkboxNode(),
       tipsNode(),
       hasError.value && h('div', {
-        class: 'input-field--error-tag',
+        class: 'free-field--error-tag',
       }, h(QIcon,{
         name: 'error',
       }))

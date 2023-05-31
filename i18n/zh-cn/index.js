@@ -1,4 +1,7 @@
+import fields from '../fields/zh-cn';
+
 export default {
+  ...fields,
   justNow: '刚刚',
   secondsAgo: '秒之前',
   minutesAgo: '分钟之前',

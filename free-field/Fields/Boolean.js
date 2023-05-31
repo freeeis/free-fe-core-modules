@@ -1,4 +1,4 @@
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, watchEffect } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QToggle } from 'quasar';
 import freeFieldLabel from '../composible/freeFieldLabel';
@@ -11,56 +11,17 @@ export default defineComponent({
     Value: 'Boolean',
     Extra: [
       {
-        Type: 'FixedList',
-        Label: '选项',
-        Name: 'Options',
+        Type: 'Boolean',
+        Label: '显示标签',
+        Name: 'Options.ShowLabel',
         Options: {
-          Columns: [
-            {
-              Label: 'Label',
-              Name: 'Label',
-              ReadOnly: true,
-            },
-            {
-              Label: 'Value',
-              Name: 'Value',
-              ReadOnly: true,
-            },
-            {
-              Label: 'Extra',
-              Name: 'Extra',
-              Type: 'FieldList',
-              Options: {
-                Columns: [
-                  {
-                    Label: '#',
-                    Name: 'Index',
-                  },
-                  {
-                    Label: '名称',
-                    Name: 'Name',
-                  },
-                  {
-                    Label: '标题',
-                    Name: 'Label',
-                  },
-                ],
-              },
-            },
-          ],
-          Default: [
-            {
-              Label: '开',
-              Value: true,
-              Extra: [],
-            },
-            {
-              Label: '关',
-              Value: false,
-              Extra: [],
-            },
-          ],
+          ShowLabel: true,
         },
+      },
+      {
+        Type: 'String',
+        Label: '右侧标签',
+        Name: 'Options.RightLabel',
       },
     ],
     Description: '',
@@ -74,7 +35,13 @@ export default defineComponent({
 
     const { fieldData, setFieldData } = useFreeField(props);
 
-    const before = (props.Field.showLabel && !props.Field.dense && props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
+    watchEffect(() => {
+      if (fieldData.value === void 0) {
+        setFieldData(props.Field.Default || false);
+      }
+    })
+
+    const before = (props.Field.Options?.showLabel && !props.Field.dense && props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
       Field: props.Field,
     }) : () => h('div', {
       class: 'field-label-empty'
@@ -82,7 +49,7 @@ export default defineComponent({
 
     const toggleNode = () => h(QToggle, {
       disable: props.Field?.ReadOnly,
-      label: props.Field?.showLabel ? props.Field?.Lable :  '',
+      label: props.Field?.Options?.RightLabel || (!props.Field?.Options?.showLabel && props.Field?.Label) ||  '',
 
       style: props.Field.Info?.Style,
 
@@ -93,7 +60,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-boolean row items-center no-wrap',
+      class: 'simple-field free-field-boolean row items-center no-wrap',
     }, [
       before(),
       toggleNode(),

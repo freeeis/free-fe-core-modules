@@ -212,14 +212,14 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-date row items-center no-wrap',
+      class: 'simple-field free-field-date row items-center no-wrap',
     }, [
       props.Field.ReadOnly ? readonlyNode() : h('div', {
         class: 'row items-center no-wrap'
       }, [
         minDateNode.value,
         h('span', {
-          class: 'input-field-range-separator'
+          class: 'free-field-range-separator'
         },props.Field.Separator || '~'),
         maxDateNode.value,
       ]),

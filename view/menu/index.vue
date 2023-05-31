@@ -172,12 +172,6 @@ export default defineComponent({
         m.Options.push({
           Label: this.$t('自定义'),
           Value: 'customize',
-          Extra: [
-            {
-              Name: 'CustomizeRoute',
-              Label: this.$t('自定义路径'),
-            },
-          ],
         });
 
         break;
@@ -341,3 +335,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.admin-menu-mgmt-wrapper {
+  background: $background;
+}
+</style>

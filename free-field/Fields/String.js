@@ -1,4 +1,4 @@
-import { defineComponent, h, computed } from 'vue';
+import { defineComponent, h, computed, getCurrentInstance } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { QInput } from 'quasar';
 import ReadonlyContent from '../composible/readonlyContent';
@@ -44,14 +44,25 @@ export default defineComponent({
       },
     ],
     Description: '',
+    demoField: [{
+      Type: 'Category',
+      Label: '测试一下字符串',
+    },{
+      Type: 'String',
+      Name: 'MyName',
+    }],
+    demoData: {
+      MyName: 'Tom'
+    },
   },
   props: {
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit, slots, expose }){
+  setup(props, { emit, slots, expose, attrs }){
     if (!props.Field) return {};
 
+    const { proxy:vm } = getCurrentInstance();
     const { fieldData, setFieldData } = useFreeField(props);
 
     const readonlyNode = () => h(ReadonlyContent, {
@@ -77,6 +88,7 @@ export default defineComponent({
       // bottomSlots: true,
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
+      placeholder: props.Field?.Placeholder || attrs.placeholder || vm.$t(vm.getModule('core-modules').config['defaultInputFieldPlaceholder']),
 
       class: 'full-width',
       style: props.Field.Info?.Style,
@@ -99,7 +111,7 @@ export default defineComponent({
     })
 
     return () => h('div', {
-      class: 'simple-field input-field-string row items-center no-wrap',
+      class: 'simple-field free-field-string row items-center no-wrap',
     }, [
       props.Field.ReadOnly ? readonlyNode() : inputNode.value,
       slots.warning && slots.warning(),

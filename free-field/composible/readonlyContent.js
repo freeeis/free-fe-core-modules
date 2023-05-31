@@ -11,7 +11,7 @@ export default defineComponent({
     if (!props.Field) return {};
 
     const readonlyNode = () => h('span', {
-      class: 'full-width',
+      class: 'full-width row no-wrap',
     }, [
       (props.Field.Label !== void 0) && h(FieldLabel, {
         Field: props.Field,

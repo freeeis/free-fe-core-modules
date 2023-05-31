@@ -19,6 +19,7 @@
         :options="minYearOptions"
         :readonly="Field.ReadOnly"
         @input="rangeChanged"
+        v-bind="inputControlSettings"
         ref="input_field_validator_first"
       >
         <template v-slot:before v-if="Field.Label !== void 0">
@@ -39,6 +40,7 @@
         :options="maxYearOptions"
         :readonly="Field.ReadOnly"
         @input="rangeChanged"
+        v-bind="inputControlSettings"
         ref="input_field_validator_second"
       />
     </span>
@@ -89,7 +91,7 @@ export default defineComponent({
   setup(props, { emit, expose }) {
     if (!props.Field) return () => null;
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const min = ref('');
     const max = ref('');
@@ -175,6 +177,7 @@ export default defineComponent({
       maxYearOptions,
 
       rangeChanged,
+      inputControlSettings,
     };
   },
 });

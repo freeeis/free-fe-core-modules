@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, watchEffect, computed } from 'vue';
+import { defineComponent, h, ref, watchEffect, computed, useAttrs } from 'vue';
 import { QInput } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import ReadonlyContent from '../composible/readonlyContent';
@@ -24,10 +24,10 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit, slots, expose }){
+  setup(props, { emit, slots, expose, attrs }){
     if (!props.Field) return {};
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const rows = ref(3);
 
@@ -52,6 +52,8 @@ export default defineComponent({
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
       rows: rows.value,
+
+      ...inputControlSettings.value,
 
       class: 'full-width',
       style: props.Field.Info?.Style,

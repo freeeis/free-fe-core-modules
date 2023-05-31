@@ -14,6 +14,7 @@
     <q-input v-else v-model="fieldData.value" hide-bottom-space
       :readonly="Field.ReadOnly"
       @input="$emit('input')"
+      v-bind="inputControlSettings"
       ref="fieldToValid">
       <template v-slot:before v-if="Field.Label !== void 0">
         <span
@@ -97,7 +98,7 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const locale = vm.ctx.config.locales.find(
       (l) => l.locale === (vm.ctx.config.locale || vm.ctx.config.defaultLocale),
@@ -175,7 +176,8 @@ export default defineComponent({
 
       changed: (v) => {
         setFieldData(v, emit);
-      }
+      },
+      inputControlSettings,
     };
   },
 });

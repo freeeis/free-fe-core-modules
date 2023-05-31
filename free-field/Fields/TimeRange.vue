@@ -27,6 +27,7 @@
         v-model="min"
         hide-bottom-space
         :readonly="Field.ReadOnly"
+        v-bind="inputControlSettings"
         ref="input_field_validator_first"
       >
         <q-popup-proxy
@@ -62,6 +63,7 @@
         v-model="max"
         hide-bottom-space
         :readonly="Field.ReadOnly"
+        v-bind="inputControlSettings"
         ref="input_field_validator_second"
       >
         <q-popup-proxy
@@ -161,7 +163,7 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const updateFieldDate = () => {
       setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
@@ -364,7 +366,8 @@ export default defineComponent({
 
       changed: (v) => {
         setFieldData(v, emit);
-      }
+      },
+      inputControlSettings,
     };
   },
 });

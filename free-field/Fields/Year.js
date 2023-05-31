@@ -75,7 +75,7 @@ export default defineComponent({
   setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const before = (props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
       Field: props.Field,
@@ -110,6 +110,8 @@ export default defineComponent({
       readonly: props.Field?.ReadOnly,
       'map-options': true,
       label: props.Field.Placeholder,
+
+      ...inputControlSettings.value,
 
       class: 'full-width',
       style: props.Field.Info?.Style,

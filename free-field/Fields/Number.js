@@ -89,6 +89,7 @@ export default defineComponent({
     ],
     Description: '',
   },
+  emits: ['input'],
   props: {
     ...freeFieldProps,
   },
@@ -96,7 +97,7 @@ export default defineComponent({
   setup(props, { emit, slots , expose }){
     if (!props.Field) return {};
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     // keep between the min and max value
     watch(fieldData, (d) => {
@@ -139,6 +140,8 @@ export default defineComponent({
       // bottomSlots: true,
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
+
+      ...inputControlSettings.value,
 
       class: 'full-width',
       style: props.Field.Info?.Style,

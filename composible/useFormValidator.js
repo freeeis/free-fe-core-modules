@@ -43,6 +43,10 @@ export function useFormValidator(...list) {
             hasErr = !validFun() || hasErr;
 
             if (hasErr) {
+              if (refi.el?.className) {
+                refi.el.className += ' hasError';
+              }
+
               console.error('got error', args)
               break;
             }

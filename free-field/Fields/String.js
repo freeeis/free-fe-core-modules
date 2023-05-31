@@ -63,7 +63,7 @@ export default defineComponent({
     if (!props.Field) return {};
 
     const { proxy:vm } = getCurrentInstance();
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const readonlyNode = () => h(ReadonlyContent, {
       Field: props.Field,
@@ -88,6 +88,9 @@ export default defineComponent({
       // bottomSlots: true,
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
+
+      ...inputControlSettings.value,
+
       placeholder: props.Field?.Placeholder || attrs.placeholder || vm.$t(vm.getModule('core-modules').config['defaultInputFieldPlaceholder']),
 
       class: 'full-width',
@@ -105,7 +108,7 @@ export default defineComponent({
       append,
     }));
 
-    const { validate } = useFormValidator(inputNode);
+    const { validate } = useFormValidator(inputNode.value);
     expose({
       validate,
     })

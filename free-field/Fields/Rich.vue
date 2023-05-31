@@ -109,6 +109,7 @@ export default defineComponent({
   components: {
     tiny,
   },
+  emits: ['input'],
   props: {
     ...freeFieldProps,
     enableField: { type: Boolean, default: false },

@@ -49,7 +49,7 @@ export default defineComponent({
         lField.Rules.push(
           (val) => {
             const pVal = isRef(val) ? val.value : val;
-            return typeof pVal !== "undefined" && pVal !== "";
+            return !!pVal;
           }
         );
       }

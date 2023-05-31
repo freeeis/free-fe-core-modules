@@ -68,6 +68,7 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
   },
+  emits: ['input'],
   setup(props, { expose, emit }) {
     if (!props.Field) return {};
 

@@ -1,4 +1,4 @@
-import { reactive, getCurrentInstance, watchEffect } from "vue";
+import { reactive, getCurrentInstance, watchEffect, computed } from "vue";
 
 export const freeFieldProps = {
   values: { type: Object },
@@ -12,11 +12,11 @@ export function useFreeField(props, ctx) {
   watchEffect(() => {
     let realData = void 0;
     let usingDft = false;
-    
+
     if (!props.Field) {
       return;
     }
-    
+
     if (!props.Field.Name) {
       realData = props.Field.Value || props.Field.Default || void 0;
       usingDft = true;
@@ -71,6 +71,10 @@ export function useFreeField(props, ctx) {
     fieldData.value = realData;
   });
 
+  const inputControlSettings = computed(() => {
+    return vm.ctx.config['core-modules']?.inputControlSettings || {};
+  });
+
   return {
     fieldData,
     getFieldData: (n) => Object.nestValue(props.values, n),
@@ -83,5 +87,6 @@ export function useFreeField(props, ctx) {
     setData: (n, v) => {
       Object.setValue(props.values, n, v);
     },
+    inputControlSettings,
   }
 };

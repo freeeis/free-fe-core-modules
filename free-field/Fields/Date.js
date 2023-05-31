@@ -2,6 +2,7 @@ import { ref, defineComponent, getCurrentInstance, h, computed } from 'vue';
 import { QInput, QIcon, QPopupProxy, QDate } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
+import ReadonlyContent from '../composible/readonlyContent';
 import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
@@ -43,7 +44,7 @@ export default defineComponent({
 
     const { proxy: vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const before = (props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
       Field: props.Field,
@@ -86,6 +87,9 @@ export default defineComponent({
 
       rules: props.Field.Rules,
 
+      ...inputControlSettings.value,
+
+      class: 'full-width',
       modelValue: localDate.value,
       'onUpdate:modelValue': (v) => {
         setFieldData(v, emit);
@@ -120,6 +124,11 @@ export default defineComponent({
         name: 'event'
       }),
     }));
+
+    const readonlyNode = () => h(ReadonlyContent, {
+      Field: props.Field,
+      Content: fieldData.value,
+    });
 
     const {
       validate,

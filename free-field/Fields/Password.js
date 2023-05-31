@@ -32,7 +32,7 @@ export default defineComponent({
   setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
     const isPwd = ref(true);
 
     const before = () => h(freeFieldLabel, {
@@ -54,6 +54,8 @@ export default defineComponent({
       // bottomSlots: true,
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
+
+      ...inputControlSettings.value,
 
       class: 'full-width',
       style: props.Field.Info?.Style,

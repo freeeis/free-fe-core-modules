@@ -15,7 +15,6 @@
     <span v-else class="row items-center no-wrap">
       <q-input
         :readonly="Field.ReadOnly"
-        v-bind="$attrs"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
         @input="rangeChanged"
@@ -23,6 +22,7 @@
         v-model.number="range.min"
         :ref="`input_field_validator_${Field.Name || Field.Label}`"
         :maxlength="maxlength"
+        v-bind="inputControlSettings"
       >
         <template
           v-slot:prepend
@@ -41,7 +41,6 @@
       <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
       <q-input
         :readonly="Field.ReadOnly"
-        v-bind="$attrs"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
         @input="rangeChanged"
@@ -49,6 +48,7 @@
         v-model.number="range.max"
         :ref="`input_field_validator_${Field.Name || Field.Label}2`"
         :maxlength="maxlength"
+        v-bind="inputControlSettings"
       >
         <template
           v-slot:prepend
@@ -71,14 +71,15 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { freeFieldProps } from '../composible/useFreeField';
+import { defineComponent, ref } from 'vue';
+import { freeFieldProps, useFreeField } from '../composible/useFreeField';
 
 export default defineComponent({
   name: 'InputFieldNumberRange',
   props: {
     ...freeFieldProps,
   },
+  emits: ['input'],
   fieldInfo: {
     Category: 'Simple',
     Label: '数字范围',
@@ -97,12 +98,19 @@ export default defineComponent({
     ],
     Description: '',
   },
-  data() {
+  setup(props){
+    if (!props.Field) return {};
+
+    const { fieldData, inputControlSettings } = useFreeField(props);
+    const range = ref({
+      min: 0,
+      max: 0,
+    });
+
     return {
-      range: {
-        min: 0,
-        max: 0,
-      },
+      range,
+      fieldData,
+      inputControlSettings,
     };
   },
   watch: {

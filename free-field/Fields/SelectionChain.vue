@@ -35,6 +35,7 @@
           emit-value
           @input="selectionChanged(index)"
           ref="fieldsToValid"
+          v-bind="inputControlSettings"
         ></q-select>
       </span>
       <span v-if="Field && Field.ReadOnly">
@@ -119,7 +120,7 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const optionsList = ref([]);
     const valuesList = ref([]);
@@ -217,6 +218,7 @@ export default defineComponent({
       valuesList,
 
       selectionChanged,
+      inputControlSettings,
     };
   },
   created() {

@@ -43,7 +43,7 @@ export default defineComponent({
 
     const { proxy: vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const updateFieldDate = () => {
       setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
@@ -125,6 +125,8 @@ export default defineComponent({
 
       rules: props.Field.Rules,
 
+      ...inputControlSettings.value,
+
       modelValue: min.value,
       'onUpdate:modelValue': (v) => {
         min.value = v;
@@ -169,6 +171,8 @@ export default defineComponent({
       style: props.Field.Info?.Style,
 
       rules: props.Field.Rules,
+
+      ...inputControlSettings.value,
 
       modelValue: max.value,
       'onUpdate:modelValue': (v) => {

@@ -58,6 +58,8 @@
         ref="fieldToValid"
         :use-input="Field && Field.UseInput"
         :use-chip="Field && Field.UseChip"
+        v-bind="inputControlSettings"
+        :rules="Field.Rules"
       >
         <template v-slot:before>
           <span
@@ -246,7 +248,7 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, getFieldData, setFieldData } = useFreeField(props);
+    const { fieldData, getFieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const hasError = ref(false);
     const checked = ref([]);
@@ -296,20 +298,21 @@ export default defineComponent({
     });
 
     const selfValidate = () => {
-      if (props.Field.AsCheck && props.Field.Required) {
-        const isValid = checked.value && checked.value.length > 0;
-        hasError.value = !isValid;
-        return isValid;
-      }
-
-      return true;
+      const isValid = checked.value && checked.value.length > 0;
+      hasError.value = !isValid;
+      return isValid;
     };
 
     const { validate } = useFormValidator('fieldToValid');
     expose ({
-      selfValidate,
       validate,
     })
+
+    if (props.Field.AsCheck && props.Field.Required) {
+      expose ({
+        selfValidate,
+      })
+    }
 
     const selectChanged = (v) => {
       selfValidate();
@@ -391,6 +394,7 @@ export default defineComponent({
 
       selectChanged,
       checkChanged,
+      inputControlSettings,
     };
   },
 });

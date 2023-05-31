@@ -12,6 +12,7 @@
               ((Field.Options?.SearchPlaceholder) || Field.Placeholder)"
               @keydown.enter="search()"
               class="full-width"
+              v-bind="inputControlSettings"
             >
               <template v-slot:append>
                 <q-btn :class="Field.Options?.SearchBtnClasses" :flat="!Field.Options?.SearchBtn3D" :round="!Field.Options?.SearchBtnRect" icon="search" @click="search()" :disabled="Field.ReadOnly">{{Field.Options.SearchBtnText}}</q-btn>
@@ -290,7 +291,7 @@ export default defineComponent({
   setup(props, { expose }) {
     if (!props.Field) return {};
 
-    const { fieldData, setFieldData } = useFreeField(props);
+    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const { validate } = useFormValidator('fieldToValid');
     expose({
@@ -300,6 +301,7 @@ export default defineComponent({
     return {
       fieldData,
       setFieldData,
+      inputControlSettings,
     };
   },
   data() {

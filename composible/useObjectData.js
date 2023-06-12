@@ -1,6 +1,7 @@
 import { ref, unref, getCurrentInstance, watch, watchEffect } from "vue";
 
 export const objectDataProps = {
+  DefaultData: {},
   GetData: [Function, Object, Array],
   Bus: Object,
   modelValue: {},

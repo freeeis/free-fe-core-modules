@@ -10,7 +10,7 @@ export const objectDataProps = {
 export function useObjectData(props, ctx) {
   const { proxy:vm } = getCurrentInstance();
 
-  const data = ref({});
+  const data = ref(props.DefaultData || {});
   const callsLeft = ref(100);
 
   watch(data, (v) => {

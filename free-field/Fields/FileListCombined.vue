@@ -18,7 +18,7 @@
     >
       <template v-slot:list>
         <div
-          v-if="fieldData.value?.length && Field.AsList"
+          v-if="Array.isArray(fieldData.value) && fieldData.value?.length && Field.AsList"
           class="file-list file-list-list"
         >
           <q-list>
@@ -45,7 +45,7 @@
         </div>
 
         <div
-          v-if="fieldData.value?.length && !Field.AsList"
+          v-if="Array.isArray(fieldData.value) && fieldData.value?.length && !Field.AsList"
           class="file-list file-list-card row items-start justify-start q-gutter-xl"
         >
           <q-card

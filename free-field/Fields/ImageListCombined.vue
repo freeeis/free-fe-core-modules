@@ -13,7 +13,7 @@
       ref="uploader"
     >
       <template v-slot:list="scope">
-        <div v-if="scope.files.length" class="file-list row items-start justify-start q-gutter-xl">
+        <div v-if="Array.isArray(scope.files) && scope.files.length" class="file-list row items-start justify-start q-gutter-xl">
           <q-card
             flat
             class="file-list-item"

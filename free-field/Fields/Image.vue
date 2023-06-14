@@ -103,7 +103,7 @@
           </q-item-section>
         </q-item>
 
-        <div v-else-if="fieldData.value?.length" class="file-list row items-start justify-start">
+        <div v-else-if="Array.isArray(fieldData.value) && fieldData.value?.length" class="file-list row items-start justify-start">
           <q-card
             flat
             class="file-list-item"

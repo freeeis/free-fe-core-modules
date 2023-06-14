@@ -60,7 +60,7 @@
           <slot name="warning"></slot>
         </div>
 
-        <div v-if="allFiles.length" class="file-list row items-start justify-start q-gutter-xl">
+        <div v-if="Array.isArray(allFiles) && allFiles.length" class="file-list row items-start justify-start q-gutter-xl">
           <q-card
             flat
             class="file-list-item"

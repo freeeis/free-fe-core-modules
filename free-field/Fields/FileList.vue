@@ -31,7 +31,7 @@
     >
       <template v-slot:list="scope">
         <div
-          v-if="Field.Options && Field.Options.AsLink && allFiles.length"
+          v-if="Field.Options && Field.Options.AsLink && Array.isArray(allFiles) && allFiles.length"
           class="file-link row full-width ellipsis items-center"
         >
           <div
@@ -135,7 +135,7 @@
           </div> -->
 
           <div
-            v-if="allFiles.length"
+            v-if="Array.isArray(allFiles) && allFiles.length"
             class="file-list file-list-card row items-start justify-start q-gutter-xl"
           >
             <q-card

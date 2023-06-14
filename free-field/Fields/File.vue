@@ -29,7 +29,7 @@
     >
       <template v-slot:list="scope">
         <div
-          v-if="Field.Options && Field.Options.AsLink && fieldData.value?.length"
+          v-if="Field.Options && Field.Options.AsLink && Array.isArray(fieldData.value) && fieldData.value?.length"
           class="file-link row full-width ellipsis items-center"
         >
           <div
@@ -108,7 +108,7 @@
           </q-item>
 
           <div
-            v-else-if="fieldData.value?.length"
+            v-else-if="Array.isArray(fieldData.value) && fieldData.value?.length"
             class="file-list row items-start justify-start"
           >
             <q-card

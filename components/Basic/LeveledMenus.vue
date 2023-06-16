@@ -14,7 +14,7 @@
         <template v-slot:header>
           <div class="header row full-width">
             <q-item-section v-if="showIcon && m.Icon" avatar>
-              <q-icon class="leaf-icon" :name="m.Icon"></q-icon>
+              <q-icon class="leaf-icon" :name="m.Icon" :class="{'svg-icon': m.Icon && m.Icon.endsWith('.svg')}"></q-icon>
             </q-item-section>
             <q-item-section>
               <div class="q-item__label leaf-label">{{translate ? $t(m.Label) : m.Label}}</div>
@@ -88,8 +88,13 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass">
+<style lang="sass" scoped>
 .leveled-menu
-  .simple-expand-icon
+  :deep(.simple-expand-icon)
     display: none
+  .svg-icon
+    overflow: hidden
+    :deep(img)
+      filter: drop-shadow(1000px 0 0 currentColor)
+      transform: translateX(-1000px)
 </style>

@@ -335,9 +335,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.admin-menu-mgmt-wrapper {
-  background: $background;
-}
-</style>

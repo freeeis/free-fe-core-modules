@@ -87,7 +87,8 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { defineComponent, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 import { updateErrorCode, updateDescription } from '../../router/error/api';
 
@@ -102,6 +103,11 @@ export default defineComponent({
       data,
       refreshData,
     } = useObjectData(props, ctx);
+
+    const i18n = useI18n();
+    watch(i18n.locale, () => {
+      refreshData();
+    });
 
     return {
       data,

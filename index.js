@@ -65,11 +65,9 @@ const filters = {
   padding: (d, p = 2, c = '0') => {
     if (!d) d = '';
 
-    for (let i = 0; i < (p - d.toString().length); i += 1) {
-      d = `${c}${d}`;
-    }
+    const fullStr = `${Array.from({length: p}, () => c).join('')}${d.toString()}`;
 
-    return d;
+    return fullStr.substring(fullStr.length - p, fullStr.length);
   },
   normalDate: (d) => {
     if (!d) return '';

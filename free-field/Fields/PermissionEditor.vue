@@ -26,6 +26,7 @@
             Label: scope.Label,
             Name: `Scope.${scope.Field}`,
             Options: scope.Options || [],
+            Multiple: scope.Multiple || false,
           }"
           :values="fieldData"
           @input="scopeChanged"

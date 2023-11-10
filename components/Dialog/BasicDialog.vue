@@ -330,6 +330,12 @@ export default defineComponent({
       btnCancel,
       btn_ok,
       timeout_counter,
+
+      onInputFieldInput: (field) => {
+        if(field.onInput) {
+          field.onInput(field);
+        }
+      }
     };
   },
 });

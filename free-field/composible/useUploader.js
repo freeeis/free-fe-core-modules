@@ -184,16 +184,19 @@ export function useUploader(props, ctx) {
         switch (fExt) {
           case 'doc':
           case 'docx':
+          case 'msword':
           case 'vnd.openxmlformats-officedocument.wordprocessingml.document':
             type = 'far fa-file-word';
             break;
           case 'xls':
           case 'xlsx':
+          case 'vnd.ms-excel':
           case 'vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             type = 'far fa-file-excel';
             break;
           case 'ppt':
           case 'pptx':
+          case 'vnd.ms-powerpoint':
           case 'vnd.openxmlformats-officedocument.presentationml.presentation':
             type = 'far fa-file-powerpoint';
             break;

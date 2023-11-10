@@ -17,7 +17,7 @@
         :readonly="Field.ReadOnly"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
-        @input="rangeChanged"
+        @update:modelValue="rangeChanged"
         type="number"
         v-model.number="range.min"
         :ref="`input_field_validator_${Field.Name || Field.Label}`"
@@ -43,7 +43,7 @@
         :readonly="Field.ReadOnly"
         :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
-        @input="rangeChanged"
+        @update:modelValue="rangeChanged"
         type="number"
         v-model.number="range.max"
         :ref="`input_field_validator_${Field.Name || Field.Label}2`"

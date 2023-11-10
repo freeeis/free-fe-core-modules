@@ -13,7 +13,7 @@
     </span>
     <q-input v-else v-model="fieldData.value" hide-bottom-space
       :readonly="Field.ReadOnly"
-      @input="$emit('input')"
+      @update:modelValue="$emit('input')"
       v-bind="inputControlSettings"
       ref="fieldToValid">
       <template v-slot:before v-if="Field.Label !== void 0">

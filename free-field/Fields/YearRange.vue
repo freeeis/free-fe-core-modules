@@ -18,7 +18,7 @@
         hide-bottom-space
         :options="minYearOptions"
         :readonly="Field.ReadOnly"
-        @input="rangeChanged"
+        @update:modelValue="rangeChanged"
         v-bind="inputControlSettings"
         ref="input_field_validator_first"
       >
@@ -39,7 +39,7 @@
         hide-bottom-space
         :options="maxYearOptions"
         :readonly="Field.ReadOnly"
-        @input="rangeChanged"
+        @update:modelValue="rangeChanged"
         v-bind="inputControlSettings"
         ref="input_field_validator_second"
       />

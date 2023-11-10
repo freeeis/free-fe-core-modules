@@ -74,7 +74,7 @@
           <q-pagination
             v-model="data.page"
             :max="data.pages"
-            @input="paginationChanged"
+            @update:modelValue="paginationChanged"
             boundary-links
             boundary-numbers
             direction-links

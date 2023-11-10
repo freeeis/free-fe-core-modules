@@ -147,7 +147,7 @@
             v-model="checked"
             :val="option.Value"
             :disable="Field.ReadOnly"
-            @input="checkChanged(option.Value)"
+            @update:modelValue="checkChanged(option.Value)"
           ></q-checkbox>
         </div>
       </span>

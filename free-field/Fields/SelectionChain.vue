@@ -33,7 +33,7 @@
           map-options
           :label="valuesList[index] ? '' : option.Placeholder"
           emit-value
-          @input="selectionChanged(index)"
+          @update:modelValue="selectionChanged(index)"
           ref="fieldsToValid"
           v-bind="inputControlSettings"
         ></q-select>

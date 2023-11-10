@@ -81,7 +81,7 @@
                 <q-pagination
                   v-model="searchData.page"
                   :max="searchData.pages"
-                  @input="searchPaginationChanged"
+                  @update:modelValue="searchPaginationChanged"
                   boundary-numbers
                   direction-links
                   :max-pages="2"

@@ -17,7 +17,7 @@
         :key="idx"
         :val="r.Name"
         :label="r.Name || idx"
-        @input="setFieldData(r.Permission || {})"/>
+        @update:modelValue="setFieldData(r.Permission || {})"/>
     </div>
     <permission-editor
       v-if="Field && !Field.HideEditor"

@@ -156,7 +156,7 @@
 </template>
 
 <script>
-import { ref, computed, defineComponent, getCurrentInstance, watch, watchEffect } from 'vue';
+import { ref, computed, defineComponent, getCurrentInstance, watchEffect } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
 
@@ -287,7 +287,7 @@ export default defineComponent({
     });
 
 
-    watch(fieldData, () => {
+    watchEffect(() => {
       if (props.Field.AsCheck) {
         if (fieldData.value) {
           checked.value = `${fieldData.value}`.split(',');

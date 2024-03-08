@@ -53,10 +53,23 @@ const filters = {
       case '.png':
       case '.jpeg':
       case '.bmp':
+      case '.gif':
         return `${config.imageUrlBase}${url}`;
       case '.zip':
+      case '.rar':
+      case '.7z':
+      case '.tar':
+      case '.gz':
+      case '.bz2':
+      case '.xz':
+      case '.tgz':
         return `${config.zipUrlBase}${url}`;
       case '.mp4':
+      case '.avi':
+      case '.mov':
+      case '.wmv':
+      case '.flv':
+      case '.mkv':
         return `${config.videoUrlBase}${url}`;
       default:
         return `${config.documentUrlBase}${url}`;

@@ -38,6 +38,17 @@ export default defineComponent({
         Name: 'Options.MaxLength',
       },
       {
+        Type: 'Number',
+        Label: '基数',
+        Name: 'Options.BaseNum',
+      },
+      {
+        Type: 'Boolean',
+        Label: '只允许整数',
+        Name: 'Options.IntegerOnly',
+        Default: false,
+      },
+      {
         Type: 'DynamicList',
         Label: '附加字段',
         Name: 'Options.Extra',
@@ -118,7 +129,7 @@ export default defineComponent({
 
     const readonlyNode = () => h(ReadonlyContent, {
       Field: props.Field,
-      Content: fieldData.value,
+      Content: props.Field.Options?.BaseNum ? (Number(props.Field.Options?.BaseNum || 0) + Number(fieldData.value || 0)) : fieldData.value,
     });
 
     const before = () => h(freeFieldLabel, {
@@ -133,8 +144,21 @@ export default defineComponent({
       class: 'postfix',
     }, props.Field.Options?.Postfix));
 
+    const mask = computed(() => {
+      if (!props.Field?.Options) return undefined;
+
+      if (props.Field.Options.IntegerOnly) {
+        const ll = props.Field.Options.MaxLength || 15;
+        console.log('mask', Array.from({length: ll}).map(() => '#').join(''))
+        return Array.from({length: ll}).map(() => '#').join('');
+      }
+
+      return undefined;
+    });
+
     const inputNode = computed(() => h(QInput, {
-      type: 'number',
+      type: mask.value ? 'text' : 'number',
+      mask,
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: 'off',
       // bottomSlots: true,

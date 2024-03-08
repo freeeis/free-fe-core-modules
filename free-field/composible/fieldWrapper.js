@@ -345,6 +345,7 @@ export default defineComponent({
       "div",
       {
         class: wrapperClass,
+        style: props.Field.Info?.Style || '',
       },
       [
         realComp.value,

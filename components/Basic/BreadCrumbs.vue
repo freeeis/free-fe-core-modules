@@ -9,7 +9,7 @@
     />
     <q-space></q-space>
     <q-btn v-if="meta.length > 0 && canBack"
-      flat icon="keyboard_arrow_left" @click="back">{{$t(backText)}}</q-btn>
+      flat :icon="backIcon" @click="back">{{$t(backText)}}</q-btn>
   </q-breadcrumbs>
 </template>
 
@@ -24,6 +24,7 @@ export default defineComponent({
   props: {
     canBack: { type: Boolean, default: true },
     backText: { type: String, default: '返回' },
+    backIcon: { type: String, default: 'keyboard_arrow_left' },
   },
   setup() {
     const router = useRouter();

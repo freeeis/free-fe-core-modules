@@ -146,12 +146,13 @@ export function useUploader(props, ctx) {
       zip: 'application/zip',
     };
 
-    extList.forEach((ext) => {
+    extList.forEach((ext = '') => {
+      if (!ext) return;
       let type = ext.trim().toLowerCase();
-      type = MIME_TYPE_LIST[type] || type;
+      type = MIME_TYPE_LIST[type];
 
-      if (type && typeList.indexOf(type) < 0) typeList.push(type);
-      if (ext && typeList.indexOf(ext) < 0) typeList.push(ext);
+      if (!ext.startsWith('.') && type && typeList.indexOf(type) < 0) typeList.push(type);
+      if (ext.startsWith('.') && typeList.indexOf(ext) < 0) typeList.push(ext);
     });
 
     return typeList.join(',');

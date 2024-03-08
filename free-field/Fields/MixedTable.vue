@@ -33,7 +33,7 @@
       </template>
       <template v-slot:body>
         <q-tr
-          v-for="(r,index) in (Field.Options?.Rows || [])"
+          v-for="(r,index) in localRows"
           :key="index"
           :class="((index || 0) % 2) ? 'row-zebra-odd' : 'row-zebra-even'"
         >
@@ -218,7 +218,9 @@ export default defineComponent({
           d.Options.Rows[i] = d.Options.Rows[i] || {};
 
           // set data row index
-          d.Options.Rows[i].auto__index = `${i + 1}`;
+          if (d.Options.Rows[i].auto__index === void 0) {
+            d.Options.Rows[i].auto__index = `${i + 1}`;
+          }
 
           // limit rowspan and colspan
           if (typeof rowColNumbers[i] === 'undefined') {
@@ -258,7 +260,8 @@ export default defineComponent({
         for (let i = 0; i < d.Options.Rows.length; i += 1) {
           // this.data.Options.Rows[i].rowSize = rowColNumbers[i];
           // remove extra cells according to the span
-          const newRow = { rowSize: rowColNumbers[i] };
+          const auto__index = d.Options.Rows[i].auto__index;
+          const newRow = { rowSize: rowColNumbers[i], auto__index };
           for (let j = 0; j < rowColNumbers[i]; j += 1) {
             newRow[j] = d.Options.Rows[i][j];
           }
@@ -359,6 +362,12 @@ export default defineComponent({
       cellChanged: (f) => {
         emit('input', f);
       },
+      localRows: computed(() => {
+        if (!props.Field?.Options?.Rows) return [];
+
+        props.Field.Options.Rows.sort((a, b) => (Number(a.auto__index) || 0) - (Number(b.auto__index) || 0));
+        return props.Field.Options.Rows;
+      }),
     }
   },
 });

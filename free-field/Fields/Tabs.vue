@@ -37,12 +37,12 @@
           v-for="(t, idx) in fieldData.value" :key="idx"
           :name="idx">
           <free-field
-            v-for="(field, idx) in Field.Options?.List"
+            v-for="(field, idx) in Field.Options?.Fields"
             :Field="field"
             :values="t"
             :key="idx"
             ref="fieldsToValidate"
-            @input="fieldChanged"></free-field>
+            @input="fieldChanged(field)"></free-field>
         </q-tab-panel>
       </q-tab-panels>
     </div>
@@ -74,7 +74,7 @@ export default defineComponent({
       },
       {
         Label: '字段',
-        Name: 'Options.List',
+        Name: 'Options.Fields',
         Type: 'FieldList',
         Options: {
           Columns: [

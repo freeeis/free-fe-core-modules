@@ -31,8 +31,11 @@ export function useObjectData(props, ctx) {
 
   const refreshData = (...args) => {
     // support multiple get data functions
+    let hasMultipleGetData = false;
+
     const getDataList = [];
     if (Array.isArray(props.GetData)) {
+      hasMultipleGetData = true;
       getDataList.push(...props.GetData);
     } else {
       getDataList.push(props.GetData);
@@ -45,12 +48,20 @@ export function useObjectData(props, ctx) {
 
       if (typeof getData === 'function') {
         Promise.resolve(getData(...args)).then((d) => {
-          Object.assign(data.value, unref(d));
+          if (hasMultipleGetData) {
+            Object.assign(data.value, unref(d[0]));
+          } else {
+            data.value = unref(d);
+          }
         }).finally(() => {
           callsLeft.value --;
         });
       } else {
-        Object.assign(data.value, unref(getData));
+        if (hasMultipleGetData) {
+          Object.assign(data.value, unref(getData[0]));
+        } else {
+          data.value = unref(getData);
+        }
         callsLeft.value --;
       }
     }

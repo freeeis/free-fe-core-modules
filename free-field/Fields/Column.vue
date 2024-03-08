@@ -1,17 +1,19 @@
 <template>
   <div class="free-field-column column" :class="columnClasses" v-if="Field">
     <free-field
-      v-for="(field, idx) in Field.Options?.List"
+      v-for="(field, idx) in Field.Options?.Fields"
       :Field="field"
       :values="fieldData"
       :key="idx"
-      @input="$emit('input')"></free-field>
+      ref="fieldsToValidate"
+      @input="$emit('input', field)"></free-field>
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
 import { freeFieldProps } from '../composible/useFreeField';
+import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldColumn',
@@ -26,7 +28,7 @@ export default defineComponent({
       {
         Label: '不换行',
         Name: 'Options.NoWrap',
-        Type: 'Bollean',
+        Type: 'Boolean',
       },
       {
         Label: '横向对齐',
@@ -80,7 +82,7 @@ export default defineComponent({
       },
       {
         Label: '字段',
-        Name: 'Options.List',
+        Name: 'Options.Fields',
         Type: 'FieldList',
         Options: {
           Columns: [
@@ -116,6 +118,15 @@ export default defineComponent({
       },
     ],
     Description: '',
+  },
+  setup(props) {
+    if(!props.Field) return () => null;
+
+    const { validate } = useFormValidator('fieldsToValidate');
+
+    return {
+      validate,
+    }
   },
   computed: {
     columnClasses() {

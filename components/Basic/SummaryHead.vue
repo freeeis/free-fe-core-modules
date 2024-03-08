@@ -33,6 +33,7 @@
         <q-btn
           flat
           round
+          :disable="item.disable"
           class="summary-head-btn"
           v-if="item.button"
           @click="button_clicked(item)">
@@ -133,7 +134,11 @@ export default defineComponent({
       return item.number;
     },
     button_clicked(item) {
+      if (item.disable) return;
+
+      item.disable = true;
       Promise.resolve(typeof item.action === 'function' ? item.action(item) : '').then(() => {
+        item.disable = false;
         if (item.event) {
           if (item.event_params) {
             this.Bus?.$emit(item.event, item.event_params);
@@ -150,6 +155,8 @@ export default defineComponent({
 
           this.router.push(item.route);
         }
+      }).catch(() => {
+        item.disable = false;
       });
     },
   },

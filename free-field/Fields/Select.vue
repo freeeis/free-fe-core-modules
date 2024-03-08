@@ -47,7 +47,7 @@
         hide-bottom-space
         :modelValue="fieldData.value"
         @update:modelValue="selectChanged"
-        :options="Field.Options || []"
+        :options="localOptions"
         option-value="Value"
         option-label="Label"
         map-options
@@ -56,8 +56,9 @@
         :multiple="Field.Multiple"
         :readonly="Field.ReadOnly"
         ref="fieldToValid"
-        :use-input="Field && Field.UseInput"
-        :use-chip="Field && Field.UseChip"
+        :use-input="Field && (Field.UseInput || (Field.Info?.CanFilter))"
+        @filter="filterFunc"
+        :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))"
         v-bind="inputControlSettings"
         :rules="Field.Rules"
       >
@@ -186,6 +187,16 @@ export default defineComponent({
         Type: 'Check',
         Label: '可多选',
         Name: 'Multiple',
+      },
+      {
+        Type: 'Check',
+        Label: '显示为碎屑',
+        Name: 'Info.Chip',
+      },
+      {
+        Type: 'Check',
+        Label: '可筛选',
+        Name: 'Info.CanFilter',
       },
       {
         Type: 'String',
@@ -380,9 +391,12 @@ export default defineComponent({
       }
     });
 
+    const localOptions = ref(props.Field.Options || []);
+
     return {
       fieldData,
       setFieldData,
+      localOptions,
 
       hasError,
       checked,
@@ -395,6 +409,23 @@ export default defineComponent({
       selectChanged,
       checkChanged,
       inputControlSettings,
+
+      filterFunc: (val, update) => {
+        if (val === '') {
+          update(() => {
+            localOptions.value = this.Field.Options || [];
+          })
+          return;
+        }
+
+        update(() => {
+          const needle = val.toLowerCase();
+
+          localOptions.value = (this.Field.Options || []).filter(opt => {
+            return `${opt.Label || opt.Value || opt}`.toLowerCase().indexOf(needle) > -1;
+          });
+        })
+      },
     };
   },
 });

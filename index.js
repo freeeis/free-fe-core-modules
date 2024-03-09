@@ -223,9 +223,12 @@ export default (app, root) => {
           Type: 'Tabs',
           Label: '显示内容',
           DataType: 'Array',
-          Default: [{
-            Locale: appStore.locale || app.config.defaultLocale,
-          }, ],
+          Default: config.locales.map((l) => ({
+            Locale: l.locale,
+            Name: l.name,
+            Label: '',
+            Description: '',
+          })),
           Options: {
             Dense: true,
             LabelField: 'Name',

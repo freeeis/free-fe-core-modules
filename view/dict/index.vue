@@ -205,13 +205,21 @@ export default defineComponent({
     },
     addNode(n) {
       if (this.selectedDictNode && this.selectedDictNode.id === n.id) {
+        // collapse the node when clicking it again (after clicking add button)
         this.selectedDictNode = {};
         this.editingDict = {};
         this.$refs.dictTree.setExpanded(n.id, false);
       } else {
+        // add new node
         this.selectedDictNode = n;
         this.editingDict = {
           Type: 'String',
+          Labels: this.ctx.config.locales.map((l) => ({
+            Label: '',
+            Locale: l.locale,
+            Description: '',
+            Name: l.name,
+          })),
         };
       }
 
@@ -223,10 +231,31 @@ export default defineComponent({
       this.makeLabelsName(n);
 
       if (this.selectedDictNode && this.selectedDictNode.id === n.id) {
+        // collapse the node when clicking it again (after clicking edit button)
         this.selectedDictNode = {};
         this.editingDict = {};
         this.$refs.dictTree.setExpanded(n.id, false);
       } else {
+        // edit node
+        n.Labels = n.Labels || [];
+        // check labels according to the locales
+        const locales = this.ctx.config.locales || [];
+        for(let i = 0; i < locales.length; i += 1) {
+          const locale = locales[i];
+          const existsLabel = n.Labels.find((l) => l.Locale === locale.locale);
+
+          if (!existsLabel) {
+            n.Labels.push({
+              Label: '',
+              Locale: locale.locale,
+              Description: '',
+              Name: locale.name,
+            });
+          } else {
+            existsLabel.Name = locale.name;
+          }
+        }
+
         this.selectedDictNode = n;
         this.editingDict = { ...n };
         this.$refs.dictTree.setExpanded(n.id, true);
@@ -235,9 +264,12 @@ export default defineComponent({
     deleteNode(n) {
       if (n.addingNew || !n.id) return;
 
+      let label = (n.Labels || []).find((l) => l.Locale === this.$i18n.locale);
+      label = label && label.Label;
+
       this.$MsgDialog({
         type: '',
-        content: this.$t('删除确认', { type: this.$t('字典项'), name: n.Name }),
+        content: this.$t('删除确认', { type: this.$t('字典项'), name: label || n.Name }),
         canCancel: true,
         okText: this.$t('okButtonText'),
         cancelText: this.$t('cancelButtonText'),
@@ -245,7 +277,12 @@ export default defineComponent({
         .then(() => {
           this.deleteDict(n.id).then((d) => {
             if (d && d.msg === 'OK') {
-              this.refreshData();
+              const parentNode = this.$refs.dictTree.getNodeByKey(n.Parent);
+              if (parentNode) {
+                parentNode.children = parentNode.children.filter((c) => c.id !== n.id);
+              } else {
+                this.data.docs = this.data.docs.filter((c) => c.id !== n.id);
+              }
             }
           });
         })

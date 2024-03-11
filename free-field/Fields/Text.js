@@ -27,6 +27,7 @@ export default defineComponent({
   setup(props, { emit, slots, expose, attrs }){
     if (!props.Field) return {};
 
+    const { proxy:vm } = getCurrentInstance();
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const rows = ref(3);
@@ -54,6 +55,7 @@ export default defineComponent({
       rows: rows.value,
 
       ...inputControlSettings.value,
+      placeholder: props.Field?.Placeholder || attrs.placeholder || vm.$t(vm.getModule('core-modules').config['defaultInputFieldPlaceholder']),
 
       class: 'full-width',
       style: props.Field.Info?.Style,

@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, watchEffect, computed, useAttrs } from 'vue';
+import { defineComponent, h, ref, watchEffect, computed, getCurrentInstance } from 'vue';
 import { QInput } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import ReadonlyContent from '../composible/readonlyContent';

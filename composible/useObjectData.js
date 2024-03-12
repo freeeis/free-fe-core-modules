@@ -49,7 +49,7 @@ export function useObjectData(props, ctx) {
       if (typeof getData === 'function') {
         Promise.resolve(getData(...args)).then((d) => {
           if (hasMultipleGetData) {
-            Object.assign(data.value, unref(d[0]));
+            Object.assign(data.value, unref(d));
           } else {
             data.value = unref(d);
           }
@@ -58,7 +58,7 @@ export function useObjectData(props, ctx) {
         });
       } else {
         if (hasMultipleGetData) {
-          Object.assign(data.value, unref(getData[0]));
+          Object.assign(data.value, unref(getData));
         } else {
           data.value = unref(getData);
         }

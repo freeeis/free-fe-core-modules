@@ -1,4 +1,4 @@
-
+import { getCurrentInstance } from 'vue';
 import { date as quasarDate } from 'quasar';
 import config from '@/config';
 import useAppStore from '@/stores/app';
@@ -132,36 +132,37 @@ const filters = {
   ago: (d) => {
     const date1 = new Date();
     const date2 = new Date(d);
+    const { proxy:vm } = getCurrentInstance();
 
     let diff = quasarDate.getDateDiff(date1, date2, 'seconds');
     if (diff < 1) {
-      return diff + Vue.prototype.$t('justNow');
+      return diff + vm.$t('justNow');
     }
     if (diff < 60) {
-      return diff + Vue.prototype.$t('secondsAgo');
+      return diff + vm.$t('secondsAgo');
     }
 
     diff = quasarDate.getDateDiff(date1, date2, 'minutes');
     if (diff < 60) {
-      return diff + Vue.prototype.$t('minutesAgo');
+      return diff + vm.$t('minutesAgo');
     }
 
     if (diff < 24) {
-      return diff + Vue.prototype.$t('hoursAgo');
+      return diff + vm.$t('hoursAgo');
     }
 
     diff = quasarDate.getDateDiff(date1, date2, 'days');
     if (diff < 31) {
-      return diff + Vue.prototype.$t('daysAgo');
+      return diff + vm.$t('daysAgo');
     }
 
     diff = quasarDate.getDateDiff(date1, date2, 'months');
     if (diff < 13) {
-      return diff + Vue.prototype.$t('monthsAgo');
+      return diff + vm.$t('monthsAgo');
     }
 
     diff = quasarDate.getDateDiff(date1, date2, 'years');
-    return diff + Vue.prototype.$t('yearsAgo');
+    return diff + vm.$t('yearsAgo');
   },
   stepCaption: (step, status, data) => {
     if (!step) return '';

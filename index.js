@@ -136,7 +136,7 @@ const filters = {
 
     let diff = quasarDate.getDateDiff(date1, date2, 'seconds');
     if (diff < 1) {
-      return diff + vm.$t('justNow');
+      return vm.$t('justNow');
     }
     if (diff < 60) {
       return diff + vm.$t('secondsAgo');

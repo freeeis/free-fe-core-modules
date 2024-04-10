@@ -192,6 +192,8 @@ export default (app, root) => {
 
   const appStore = useAppStore();
 
+  const validatorMobilePhone = (d) => !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(d);
+  const validatorEmail = (d) => !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(d);
   return {
     config: {
       backendDependencies: ["core-modules"],
@@ -376,9 +378,9 @@ export default (app, root) => {
 
     validators: {
       validatorNotEmpty: (d) => d !== void 0 && d.length > 0 && d.trim().length > 0,
-      validatorMobilePhone: (d) => !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(d),
-      validatorEmail: (d) => !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(d),
-      validatorPhoneOrEmail: (d) => d !== void 0 && d.length > 0 && (this.validatorMobilePhone(d) || this.validatorEmail(d)),
+      validatorMobilePhone,
+      validatorEmail,
+      validatorPhoneOrEmail: (d) => d !== void 0 && d.length > 0 && (validatorMobilePhone(d) || validatorEmail(d)),
       // validatorMinLength: (d, len = 0) => d !== undefined && d.length >= len,
       validatorChinaIDNumber: (d) => !d || /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(d),
       // validatorSame: (d, to) => d === to,

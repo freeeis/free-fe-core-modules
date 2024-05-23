@@ -11,6 +11,7 @@
             ((i < data.length && data[i + 1] && data[i + 1].button) ? ' last-summary' : '')
       "
       :style="'width: 20%;'"
+      @click="$emit('clicked', item)"
     >
       <e-icon
         v-if="item.icon && !item.button"
@@ -82,6 +83,7 @@ import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SummaryHead',
+  emits: ['clicked'],
   props: {
     ...objectDataProps,
     has_multiple_head: { type: Boolean, default: false },

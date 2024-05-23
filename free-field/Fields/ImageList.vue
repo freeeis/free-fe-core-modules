@@ -289,7 +289,7 @@ export default defineComponent({
       localFiles.value = localFiles.value.filter((f) => !info.files.includes(f));
 
       setFieldData([
-        ...fieldData.value,
+        ...(fieldData.value || []),
         ...uploadedFiles
       ], emit);
       selfValidate();

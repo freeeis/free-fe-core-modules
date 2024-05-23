@@ -32,7 +32,7 @@
 
       <q-expansion-item
         v-if="m.Sub && m.Sub.length > 0"
-        :modelValue="m.Sub.filter(s => $route.fullPath.startsWith(s.Route)).length > 0"
+        :modelValue="m.Sub.filter(s => $route.fullPath === s.Route || $route.fullPath.startsWith(`${s.Route}/`.replace(/\/\//g, '/'))).length > 0"
         exact
         class="expansion"
         :class="`${group} level_${level || 0}`"

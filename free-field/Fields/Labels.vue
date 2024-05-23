@@ -47,8 +47,8 @@
           v-for="(label, index) in fieldData.value"
           :key="index"
           removable
-          :value="!!fieldData[index]"
-          @remove="fieldData.splice(index,1) && $emit('input')"
+          :value="!!fieldData.value[index]"
+          @remove="fieldData.value.splice(index,1) && $emit('input')"
           :color="Field.BgColor || 'primary'"
           :text-color="Field.Color || 'white'"
         >{{label}}</q-chip>

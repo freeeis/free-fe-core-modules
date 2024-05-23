@@ -25,7 +25,7 @@
       <span
         v-if="Field.ReadOnly"
         class="col readonly"
-        ref="readonlyContent"
+        :ref="readonlyContent"
       ></span>
       <tiny
         v-if="!Field.ReadOnly"
@@ -219,7 +219,9 @@ export default defineComponent({
 
     if (props.Field.ReadOnly) {
       watchEffect(() => {
-        readonlyContent.value.innerHTML = fieldData.value;
+        if (readonlyContent.value) {
+          readonlyContent.value.innerHTML = fieldData.value;
+        }
       });
     }
 

@@ -413,7 +413,7 @@ export default defineComponent({
       filterFunc: (val, update) => {
         if (val === '') {
           update(() => {
-            localOptions.value = this.Field.Options || [];
+            localOptions.value = props.Field.Options || [];
           })
           return;
         }
@@ -421,7 +421,7 @@ export default defineComponent({
         update(() => {
           const needle = val.toLowerCase();
 
-          localOptions.value = (this.Field.Options || []).filter(opt => {
+          localOptions.value = (props.Field.Options || []).filter(opt => {
             return `${opt.Label || opt.Value || opt}`.toLowerCase().indexOf(needle) > -1;
           });
         })

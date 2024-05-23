@@ -4,7 +4,7 @@
     <q-table
       flat
       bordered
-      :rows="data ? data.docs : []"
+      :rows="data?.docs || []"
       :columns="columns"
       row-key="id"
       :hide-bottom="!pagination"

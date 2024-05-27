@@ -48,7 +48,12 @@
         extended_valid_elements:'efield',
         setup: tinySetup,
         default_link_target: (Field && Field.Options && Field.Options.LinkTarget) || '_blank',
-      }"
+
+        automatic_uploads: true,
+        images_upload_url: '/api/upload',
+        images_reuse_filename: true,
+        images_upload_handler,
+        }"
         initial-value
         model-events
         plugins
@@ -63,7 +68,7 @@
 </template>
 
 <script>
-import { defineComponent, watchEffect, ref } from 'vue';
+import { defineComponent, watchEffect, ref, getCurrentInstance } from 'vue';
 import tiny from '@tinymce/tinymce-vue';
 import { fileSizeStrToNumber } from '../composible/useFileSizeUtils';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
@@ -115,6 +120,8 @@ export default defineComponent({
     enableField: { type: Boolean, default: false },
   },
   setup(props, { expose, emit })  {
+    const { proxy:vm } = getCurrentInstance();
+
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -347,6 +354,34 @@ export default defineComponent({
       toolbar,
       quickbars_selection_toolbar,
       contextmenu,
+
+      images_upload_handler: (
+        blobInfo,
+        success,
+        failure,
+      ) => {
+        const formData = new FormData();
+        formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+        vm.postRequest('/upload', formData, {
+          __ignoreDecycle: true,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then((res) => {
+          if (res && res.data && res.data.id) {
+            success(`${vm.ctx.config.imageUrlBase}${res.data.id}`);
+          } else {
+            failure('上传失败', {
+              remove: true,
+            });
+          }
+        }).catch((err) => {
+          failure(err, {
+            remove: true,
+          });
+        });
+      },
     };
   },
 });

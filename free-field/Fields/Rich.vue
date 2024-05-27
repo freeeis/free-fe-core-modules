@@ -31,28 +31,32 @@
         v-if="!Field.ReadOnly"
         ref="tiny"
         api-key="wh7g3etkwrso25e0wcpqrx8uvoa51toag3j92mllkajtg1xb"
-        tinymce-script-src="tiny/tiny_bk.js"
+        tinymce-script-src="tiny/tiny7.js"
         :init="{
-        language_url: 'tiny/langs/zh_cn.js',
-        language: 'zh_cn',
-        plugins: Field.ReadOnly ? [] : this.plugins,
-        menubar: Field.ReadOnly ? [] : this.menubar,
-        toolbar: Field.ReadOnly ? '' : this.toolbar.join(' '),
-        toolbar_mode: 'wrap',
-        importcss_append: true,
-        height: 500,
-        image_caption: true,
-        quickbars_selection_toolbar: Field.ReadOnly
-          ? '' : this.quickbars_selection_toolbar.join(' '),
-        contextmenu: Field.ReadOnly ? '' : this.contextmenu.join(' '),
-        extended_valid_elements:'efield',
-        setup: tinySetup,
-        default_link_target: (Field && Field.Options && Field.Options.LinkTarget) || '_blank',
+          language_url: 'tiny/langs/zh_cn.js',
+          language: 'zh_cn',
+          plugins: Field.ReadOnly ? [] : this.plugins,
+          menubar: Field.ReadOnly ? [] : this.menubar,
+          toolbar: Field.ReadOnly ? '' : this.toolbar.join(' '),
+          toolbar_mode: 'wrap',
+          importcss_append: true,
+          height: 500,
+          image_caption: true,
+          quickbars_selection_toolbar: Field.ReadOnly
+            ? '' : this.quickbars_selection_toolbar.join(' '),
+          contextmenu: Field.ReadOnly ? '' : this.contextmenu.join(' '),
+          extended_valid_elements:'efield',
+          setup: tinySetup,
+          default_link_target: (Field && Field.Options && Field.Options.LinkTarget) || '_blank',
 
-        automatic_uploads: true,
-        images_upload_url: '/api/upload',
-        images_reuse_filename: true,
-        images_upload_handler,
+          automatic_uploads: true,
+          images_upload_url: '/api/upload',
+          images_reuse_filename: true,
+          images_upload_handler,
+
+          skin: isDark ? 'oxide-dark' : 'oxide',
+          content_css: isDark ? 'dark' : '',
+          promotion: false,
         }"
         initial-value
         model-events
@@ -69,6 +73,7 @@
 
 <script>
 import { defineComponent, watchEffect, ref, getCurrentInstance } from 'vue';
+import { useQuasar } from 'quasar';
 import tiny from '@tinymce/tinymce-vue';
 import { fileSizeStrToNumber } from '../composible/useFileSizeUtils';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
@@ -121,6 +126,7 @@ export default defineComponent({
   },
   setup(props, { expose, emit })  {
     const { proxy:vm } = getCurrentInstance();
+    const $q = useQuasar();
 
     if (!props.Field) return {};
 
@@ -136,9 +142,10 @@ export default defineComponent({
 
     const isValid = ref(true);
     const plugins = [
-        'print',
+        // 'print',
         // 'preview',
-        'paste',
+        // 'paste',
+        // 'powerpaste',
         // 'importcss',
         // 'searchreplace',
         // 'autolink',
@@ -156,7 +163,7 @@ export default defineComponent({
         // 'codesample',
         'table',
         // 'charmap',
-        'hr',
+        // 'hr',
         // 'pagebreak',
         // 'nonbreaking',
         // 'anchor',
@@ -355,6 +362,8 @@ export default defineComponent({
       quickbars_selection_toolbar,
       contextmenu,
 
+      isDark: $q.dark.isActive,
+
       images_upload_handler: (
         blobInfo,
         success,
@@ -407,8 +416,6 @@ export default defineComponent({
 //   z-index: 6001 !important
 
 .free-field-rich
-  .tox-statusbar__branding
-    display: none
   .tox-tinymce
     width: auto
     min-width: 0

@@ -366,9 +366,7 @@ export default defineComponent({
 
       images_upload_handler: (
         blobInfo,
-        success,
-        failure,
-      ) => {
+      ) => new Promise((resolve, reject) => {
         const formData = new FormData();
         formData.append('file', blobInfo.blob(), blobInfo.filename());
 
@@ -379,18 +377,20 @@ export default defineComponent({
           },
         }).then((res) => {
           if (res && res.data && res.data.id) {
-            success(`${vm.ctx.config.imageUrlBase}${res.data.id}`);
+            resolve(`${vm.ctx.config.imageUrlBase}${res.data.id}`);
           } else {
-            failure('上传失败', {
+            reject({
+              message: '上传失败',
               remove: true,
             });
           }
         }).catch((err) => {
-          failure(err, {
+          reject({
+            message: err,
             remove: true,
           });
         });
-      },
+      }),
     };
   },
 });

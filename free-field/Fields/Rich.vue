@@ -25,7 +25,7 @@
       <span
         v-if="Field.ReadOnly"
         class="col readonly"
-        :ref="readonlyContent"
+        ref="readonlyContent"
       ></span>
       <tiny
         v-if="!Field.ReadOnly"

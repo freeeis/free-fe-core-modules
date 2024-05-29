@@ -196,8 +196,13 @@ export default defineComponent({
           props.Field.ReadOnly ? "free-field--readonly" : "",
           !shouldHide.value && hasError.value ? "hasError" : "",
         ],
-        onInput: () => {
-          emit("input", props.Field);
+        /**
+         *
+         * @param {any} _ value of the changed field
+         * @param {Field} fld the changed field (optional)
+         */
+        onInput: (_, fld) => {
+          emit("input", fld || props.Field);
         },
         ...compEmits.value,
       },

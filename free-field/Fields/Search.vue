@@ -28,7 +28,7 @@
           <q-table
             :flat="Field.Options?.Flat"
             :bordered="Field.Options?.Bordered"
-            :rows="searchData ? searchData.docs : []"
+            :rows="searchData.docs || []"
             :columns="searchColumns"
             row-key="id"
             :pagination="searchPagination"
@@ -199,6 +199,12 @@ export default defineComponent({
         Label: '搜索字段',
         Name: 'Options.SearchField',
         Default: 'id',
+      },
+      {
+        Type: 'String',
+        Label: '搜索传输字段名',
+        Name: 'Options.SearchKeyName',
+        Default: 'search',
       },
       {
         Type: 'String',
@@ -423,9 +429,12 @@ export default defineComponent({
         return;
       }
 
+      const reqBody = {...(p ? {page: p} : {})};
+      reqBody[this.Field.Options?.SearchKeyName || 'search'] = this.searchKey;
+
       this.getRequest(
           this.Field.Options.SearchUrl,
-          {search: this.searchKey, ...(p ? {page: p} : {})}
+          reqBody,
         )
         .then((d) => {
           if (d && d.msg === 'OK') {

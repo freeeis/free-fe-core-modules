@@ -3,16 +3,16 @@
     <free-field
       v-for="(field, idx) in Field.Options?.Fields"
       :Field="field"
-      :values="fieldData"
+      :values="fieldData.value"
       :key="idx"
       ref="fieldsToValidate"
-      @input="$emit('input', field)"></free-field>
+      @input="changed"></free-field>
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-import { freeFieldProps } from '../composible/useFreeField';
+import { freeFieldProps, useFreeField } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
@@ -119,13 +119,21 @@ export default defineComponent({
     ],
     Description: '',
   },
-  setup(props) {
+  emits: ['input'],
+  setup(props, { emit }) {
     if(!props.Field) return () => null;
 
+    const { fieldData } = useFreeField(props);
     const { validate } = useFormValidator('fieldsToValidate');
 
     return {
+      fieldData,
       validate,
+
+      changed: (fld) => {
+        const newValue = props.Field.Name === '.' ? Object.nestValue(fieldData, fld.Name) : fieldData;
+        emit('input', newValue, props.Field.Name === '.' ? fld : props.Field);
+      }
     }
   },
   computed: {

@@ -165,6 +165,7 @@
           round size="20px"
           @click="showPreview=false"></q-icon>
         <q-img
+          fit="contain"
           v-if="previewType === 'image'"
           contain :src="previewFile"
           @click="showPreview=false"

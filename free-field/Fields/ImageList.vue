@@ -301,8 +301,6 @@ export default defineComponent({
       //   ...(uploader.value?.files || []),
       // ];
 
-      console.log('allFiles', fieldData.value, localFiles.value);
-
       return [].concat(fieldData.value || []).concat(localFiles.value)
     });
 

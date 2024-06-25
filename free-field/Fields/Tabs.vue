@@ -37,6 +37,7 @@
           v-for="(t, idx) in fieldData.value" :key="idx"
           :name="idx">
           <free-field
+            :class="`${Field.Options.HideFieldWhenEmpty ? `free-field-tabs-panel-field-${Object.nestValue(t, field.Name) === void 0 ? 'empty' : 'with-value'}` : ''}`"
             v-for="(field, idx) in Field.Options?.Fields"
             :Field="field"
             :values="t"
@@ -71,6 +72,11 @@ export default defineComponent({
         Type: 'String',
         Label: '数值字段名',
         Name: 'Options.ValueField',
+      },
+      {
+        Type: 'Boolean',
+        Label: '子字段值不存在时隐藏',
+        Name: 'Options.HideFieldWhenEmpty',
       },
       {
         Label: '字段',
@@ -156,6 +162,10 @@ export default defineComponent({
     .tabs {
       border-bottom: 1px solid;
     }
+  }
+
+  .input-field-tabs-panel-field-empty {
+    display: none;
   }
 }
 </style>

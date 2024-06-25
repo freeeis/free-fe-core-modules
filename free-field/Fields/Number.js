@@ -149,7 +149,6 @@ export default defineComponent({
 
       if (props.Field.Options.IntegerOnly) {
         const ll = props.Field.Options.MaxLength || 15;
-        console.log('mask', Array.from({length: ll}).map(() => '#').join(''))
         return Array.from({length: ll}).map(() => '#').join('');
       }
 

@@ -224,7 +224,7 @@ export default defineComponent({
         for (let i = 0; i < tableData.value.length; i += 1) {
           const td = tableData.value[i];
 
-          td.auto__index = td.auto__index || i;
+          td.auto__index = i;
         }
       }
     });

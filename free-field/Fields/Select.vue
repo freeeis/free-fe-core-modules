@@ -61,6 +61,8 @@
         :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))"
         v-bind="inputControlSettings"
         :rules="Field.Rules"
+
+        :new-value-mode="Field?.NewValueMode ? 'add' : undefined"
       >
         <template v-slot:before>
           <span

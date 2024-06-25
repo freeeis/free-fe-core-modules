@@ -109,7 +109,6 @@ import EIcon from '../Basic/EIcon.vue';
 
 export default defineComponent({
   name: 'BasicDialog',
-  // mixins: [mixins.InputFieldValidator],
   emits: ['hide', 'ok', 'cancel'],
   props: {
     persistent: { type: Boolean, default: true },

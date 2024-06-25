@@ -334,8 +334,6 @@ export default defineComponent({
         }
       }
 
-      console.log('uploadedFiles', uploadedFiles);
-
       setFieldData(uploadedFiles, emit);
       selfValidate();
     }

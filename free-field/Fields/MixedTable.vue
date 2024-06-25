@@ -364,9 +364,7 @@ export default defineComponent({
       },
       localRows: computed(() => {
         if (!props.Field?.Options?.Rows) return [];
-
-        props.Field.Options.Rows.sort((a, b) => (Number(a.auto__index) || 0) - (Number(b.auto__index) || 0));
-        return props.Field.Options.Rows;
+        return [...props.Field.Options.Rows].sort((a, b) => (Number(a.auto__index) || 0) - (Number(b.auto__index) || 0));
       }),
     }
   },

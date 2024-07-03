@@ -174,9 +174,9 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { defineComponent, getCurrentInstance, watch, ref, computed } from 'vue';
+import { useFreeField, freeFieldProps } from 'free-fe-core-modules/free-field/composible/useFreeField';
+import { useFormValidator} from 'free-fe-core-modules/composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldSearch',
@@ -294,219 +294,223 @@ export default defineComponent({
     ],
     Description: '',
   },
-  setup(props, { expose }) {
+  setup(props, { emit, expose }) {
     if (!props.Field) return {};
+
+    const { proxy:vm } = getCurrentInstance();
 
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const { validate } = useFormValidator('fieldToValid');
+
     expose({
       validate,
     })
 
-    return {
-      fieldData,
-      setFieldData,
-      inputControlSettings,
+    const searchKey = ref('');
+    const showSearch = ref(false);
+    const searchData = ref({});
+    const searchSelected = ref([]);
+    const originalSelected = ref([]);
+    const searchDisplay = ref('');
+    const searchPagination = {
+      rowsPerPage: searchData.value?.limit ? searchData.value.limit : 5,
+      rowsNumber: searchData.value?.total ? searchData.value.total : 0,
     };
-  },
-  data() {
-    return {
-      searchKey: '',
-      showSearch: false,
-      searchData: {},
-      searchSelected: [],
-      originalSelected: [],
-      searchDisplay: '',
-      searchPagination: {
-        rowsPerPage:
-          this.searchData && this.searchData.limit ? this.searchData.limit : 5,
-        rowsNumber:
-          this.searchData && this.searchData.total ? this.searchData.total : 0,
-      },
-    };
-  },
-  computed: {
-    searchColumns() {
-      if (!this.Field?.Options?.SearchColumns) {
-        return [];
-      }
 
-      const cls = [];
-      (this.Field?.Options?.SearchColumns || []).forEach((c) => {
-        const newC = { ...c };
-        newC.name = c.Name;
-        newC.label = c.Label;
-        newC.field = c.Name;
-        newC.required = c.required;
-        newC.align = c.align;
-        newC.sortable = c.sortable;
-        newC.sort = c.sort;
-        newC.style = c.style;
-        newC.classes = c.classes;
-        newC.headerStyle = c.headerStyle;
-        newC.headerClasses = c.headerClasses;
-        newC.format = c.format || ((val, row) => Object.nestValue(row, c.Name));
-
-        delete newC.Name;
-        delete newC.Label;
-
-        cls.push(newC);
-      });
-
-      return cls;
-    },
-  },
-  watch: {
-    'fieldData.value': function(n, o) {
+    const valueUpdated = (n, o) => {
       // init search data from exist id
-      if (this.fieldData.value === void 0) {
-        this.searchSelected = [];
-        this.searchData = {};
-        this.searchDisplay = '';
-        this.searchKey = '';
-      } else if (this.Field.Type === 'Search' && this.fieldData.value) {
+      if (fieldData.value === void 0) {
+        searchSelected.value = [];
+        searchData.value = {};
+        searchDisplay.value = '';
+        searchKey.value = '';
+      } else if (props.Field.Type === 'Search' && fieldData.value) {
         if (n && o) {
-          const nV = Object.nestValue(n, this.Field.Name);
-          const oV = Object.nestValue(o, this.Field.Name);
+          const nV = Object.nestValue(n, props.Field.Name);
+          const oV = Object.nestValue(o, props.Field.Name);
 
           if (nV === oV || !nV) return;
         }
 
-        if (this.Field.Options && this.Field.Options.SearchUrl) {
+        if (props.Field.Options && props.Field.Options.SearchUrl) {
           const paramObj = {};
-          paramObj[this.Field.Options.SearchField || 'id'] = this.Field.Multiple
-            ? JSON.stringify(this.fieldData.value)
-            : this.fieldData.value;
+          paramObj[props.Field.Options.SearchField || 'id'] = props.Field.Multiple
+            ? JSON.stringify(fieldData.value)
+            : fieldData.value;
 
-          this.getRequest(
-              `${this.Field.Options.SearchUrl}`,
+          vm.getRequest(
+              `${props.Field.Options.SearchUrl}`,
               paramObj
             )
             .then((d) => {
               if (d && d.msg === 'OK' && d.data.total) {
-                this.searchSelected = d.data.docs;
-                const selected = this.Field && this.Field.Multiple
-                  ? this.searchSelected : [this.searchSelected[0]];
-                const sdFieldName = this.Field.Options.SearchDisplayField || 'id';
-                this.searchDisplay = selected.map((ss) => Object.nestValue(ss, sdFieldName))
-                  .join(this.Field && this.Field.Options && this.Field.Options.AutoWrap ? '\r\n' : ',');
+                searchSelected.value = d.data.docs;
+                const selected = props.Field?.Multiple
+                  ? searchSelected.value : [searchSelected.value[0]];
+                const sdFieldName = props.Field.Options.SearchDisplayField || 'id';
+                searchDisplay.value = selected.map((ss) => Object.nestValue(ss, sdFieldName))
+                  .join(props.Field?.Options?.AutoWrap ? '\r\n' : ',');
               }
             });
         }
       }
-    },
-    searchSelected() {
-      if (this.Field && this.Field.Options && this.Field.Options.MaxSelection) {
-        if (this.searchSelected.length > this.Field.Options.MaxSelection) {
-          this.searchSelected.splice(this.Field.Options.MaxSelection);
+    };
+
+    watch(fieldData, valueUpdated);
+    valueUpdated(fieldData.value, void 0);
+
+    watch(searchSelected, () => {
+      if (props.Field?.Options?.MaxSelection) {
+        if (searchSelected.value.length > props.Field.Options.MaxSelection) {
+          searchSelected.value.splice(props.Field.Options.MaxSelection);
         }
       }
-    },
-    showSearch(v) {
-      if (v && this.Field && this.Field.Options && this.Field.Options.AutoSearch) {
-        this.search();
+    });
+
+    watch(showSearch, (v) => {
+      if (v && props.Field?.Options?.AutoSearch) {
+        search();
       }
 
       if(v) {
-        this.originalSelected = this.searchSelected;
-      }
-    },
-  },
-  created() {
-    this.searchColumns.forEach((col) => {
-      if (col.filters) {
-        col.format = (d) => this.$filter(col.filters, d);
+        originalSelected.value = searchSelected.value;
       }
     });
-  },
-  methods: {
-    search(p) {
+
+    const search = (p) => {
       if (
-        !this.Field?.Options?.SearchUrl
-        || (!this.searchKey && !this.Field?.Options?.AllowEmptySearch)
+        !props.Field?.Options?.SearchUrl
+        || (!searchKey.value && !props.Field?.Options?.AllowEmptySearch)
       ) {
         return;
       }
 
       const reqBody = {...(p ? {page: p} : {})};
-      reqBody[this.Field.Options?.SearchKeyName || 'search'] = this.searchKey;
+      reqBody[props.Field.Options?.SearchKeyName || 'search'] = searchKey.value;
 
-      this.getRequest(
-          this.Field.Options.SearchUrl,
-          reqBody,
-        )
-        .then((d) => {
-          if (d && d.msg === 'OK') {
-            const { data } = d;
-            if (data) {
-              for (let i = 0; i < data.docs?.length; i += 1) {
-                const dc = data.docs[i];
+      vm.getRequest(
+        props.Field.Options.SearchUrl,
+        reqBody,
+      )
+      .then((d) => {
+        if (d && d.msg === 'OK') {
+          const { data } = d;
+          if (data) {
+            for (let i = 0; i < data.docs?.length; i += 1) {
+              const dc = data.docs[i];
 
-                dc.index = (data.page - 1) * data.limit + i + 1;
-              }
-
-              this.searchData = data;
+              dc.index = (data.page - 1) * data.limit + i + 1;
             }
+
+            searchData.value = data;
           }
-        });
-    },
-    searchPaginationChanged(p) {
-      this.search(p);
-    },
-    searchOK() {
-      if (this.searchSelected.length) {
-        const selected = this.Field && this.Field.Multiple
-          ? this.searchSelected : [this.searchSelected[0]];
+        }
+      });
+    };
 
-        const sFieldName = this.Field.SearchField || 'id';
-
-        this.setFieldData(selected.map(
-          (ss) => Object.nestValue(ss, sFieldName),
-        ).filter((ss) => !!ss));
-
-        if (!this.Field || !this.Field.Multiple) {
-        this.setFieldData(this.fieldData.value[0]);
+    return {
+      fieldData,
+      setFieldData,
+      inputControlSettings,
+      searchKey,
+      showSearch,
+      searchData,
+      searchSelected,
+      originalSelected,
+      searchDisplay,
+      searchPagination,
+      searchColumns: computed(() => {
+        if (!props.Field?.Options?.SearchColumns) {
+          return [];
         }
 
-        const sdFieldName = this.Field.Options.SearchDisplayField || 'id';
-        this.searchDisplay = selected.map((ss) => Object.nestValue(ss, sdFieldName))
-          .join(this.Field && this.Field.Options && this.Field.Options.AutoWrap ? '\r\n' : ',');
+        const cls = [];
+        (props.Field?.Options?.SearchColumns || []).forEach((c) => {
+          const newC = { ...c };
+          newC.name = c.Name;
+          newC.label = c.Label;
+          newC.field = c.Name;
+          newC.required = c.required;
+          newC.align = c.align;
+          newC.sortable = c.sortable;
+          newC.sort = c.sort;
+          newC.style = c.style;
+          newC.classes = c.classes;
+          newC.headerStyle = c.headerStyle;
+          newC.headerClasses = c.headerClasses;
+          newC.format = c.format || ((val, row) => Object.nestValue(row, c.Name));
 
-        this.showSearch = false;
-        this.$emit('input');
-      }
-    },
-    removeSelected(item) {
-      if (!item) return;
+          if (c.filters) {
+            newC.format = (d) => vm.$filter(c.filters, d);
+          }
 
-      if (!this.Field || !this.Field.Multiple) {
-        this.searchSelected = [];
-        this.setFieldData(undefined);
+          delete newC.Name;
+          delete newC.Label;
 
-        this.$emit('input');
+          cls.push(newC);
+        });
 
-        return;
-      }
+        return cls;
+      }),
+      search,
+      searchPaginationChanged: (p) => {
+        search(p);
+      },
+      searchOK: () => {
+        if (searchSelected.value.length) {
+          const selected = props.Field?.Multiple
+            ? searchSelected.value : [searchSelected.value[0]];
 
-      const index = this.searchSelected.findIndex((ss) => ss[this.Field.SearchField || 'id'] === item[this.Field.SearchField || 'id']);
-      if (index >= 0) {
-        this.searchSelected.splice(index, 1);
+          const sFieldName = props.Field.SearchField || 'id';
 
-        const selected = this.Field && this.Field.Multiple
-          ? this.searchSelected : [this.searchSelected[0]];
-        const sFieldName = this.Field.SearchField || 'id';
-        this.fieldData = selected.map(
-          (ss) => Object.nestValue(ss, sFieldName),
-        ).filter((ss) => !!ss);
+          setFieldData(selected.map(
+            (ss) => Object.nestValue(ss, sFieldName),
+          ).filter((ss) => !!ss));
 
-        const sdFieldName = this.Field.Options.SearchDisplayField || 'id';
-        this.searchDisplay = selected.map((ss) => Object.nestValue(ss, sdFieldName))
-          .join(this.Field && this.Field.Options && this.Field.Options.AutoWrap ? '\r\n' : ',');
+          if (!props.Field?.Multiple) {
+          setFieldData(fieldData.value[0]);
+          }
 
-        this.$emit('input');
-      }
-    },
+          const sdFieldName = props.Field?.Options?.SearchDisplayField || 'id';
+          searchDisplay.value = selected.map((ss) => Object.nestValue(ss, sdFieldName))
+            .join(props.Field?.Options?.AutoWrap ? '\r\n' : ',');
+
+          showSearch.value = false;
+          emit('input');
+        }
+      },
+      removeSelected: (item) => {
+        if (!item) return;
+
+        if (!props.Field?.Multiple) {
+          searchSelected.value = [];
+          setFieldData('');
+
+          emit('input');
+
+          return;
+        }
+
+        const index = searchSelected.value.findIndex((ss) => ss[props.Field?.SearchField || 'id'] === item[props.Field?.SearchField || 'id']);
+        if (index >= 0) {
+          searchSelected.value.splice(index, 1);
+
+          const selected = props.Field?.Multiple
+            ? searchSelected.value : [searchSelected.value[0]];
+          const sFieldName = props.Field?.SearchField || 'id';
+          fieldData.value = selected.map(
+            (ss) => Object.nestValue(ss, sFieldName),
+          ).filter((ss) => !!ss);
+
+          const sdFieldName = props.Field?.Options?.SearchDisplayField || 'id';
+          searchDisplay.value = selected.map((ss) => Object.nestValue(ss, sdFieldName))
+            .join(props.Field?.Options?.AutoWrap ? '\r\n' : ',');
+
+          emit('input');
+        }
+      },
+    };
   },
 });
 </script>

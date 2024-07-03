@@ -124,6 +124,7 @@
       v-else
       modelValue=""
       :type="`${Field?.Multiple ? 'textarea' : ''}`"
+      rows="1"
       hide-bottom-space
       readonly
       :class="`${Field?.Multiple
@@ -226,24 +227,6 @@ export default defineComponent({
         Type: 'Boolean',
         Label: '可多选',
         Name: 'Multiple',
-        // Extra: [
-        //   {
-        //     Label: '最多可选',
-        //     Type: 'Number',
-        //     Name: 'Options.MaxSelection',
-        //     Default: 2,
-        //     MinValue: 1,
-        //   // Options: {
-        //   //   Postfix: '个',
-        //   // },
-        //   },
-        //   {
-        //     Label: '换行显示',
-        //     Type: 'Boolean',
-        //     Default: false,
-        //     Name: 'Options.AutoWrap',
-        //   },
-        // ],
       },
       {
         Label: '最多可选',
@@ -331,6 +314,12 @@ export default defineComponent({
           const oV = Object.nestValue(o, props.Field.Name);
 
           if (nV === oV || !nV) return;
+        }
+
+        if (Array.isArray(fieldData.value) && fieldData.value.length === 0) {
+          searchSelected.value = [];
+          searchDisplay.value = '';
+          return;
         }
 
         if (props.Field.Options && props.Field.Options.SearchUrl) {
@@ -499,9 +488,9 @@ export default defineComponent({
           const selected = props.Field?.Multiple
             ? searchSelected.value : [searchSelected.value[0]];
           const sFieldName = props.Field?.SearchField || 'id';
-          fieldData.value = selected.map(
-            (ss) => Object.nestValue(ss, sFieldName),
-          ).filter((ss) => !!ss);
+          setFieldData(selected.map(
+              (ss) => Object.nestValue(ss, sFieldName),
+            ).filter((ss) => !!ss));
 
           const sdFieldName = props.Field?.Options?.SearchDisplayField || 'id';
           searchDisplay.value = selected.map((ss) => Object.nestValue(ss, sdFieldName))

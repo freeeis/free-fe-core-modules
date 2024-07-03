@@ -19,12 +19,11 @@
         </div>
       </template>
     </q-img>
-    <!-- <q-icon v-else :name="ctx.config.defaultIcon">he</q-icon> -->
   </span>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import { ref, computed, defineComponent, getCurrentInstance, watchEffect, nextTick } from 'vue';
 
 export default defineComponent({
   name: 'EIcon',
@@ -36,28 +35,38 @@ export default defineComponent({
     hideError: { type: Boolean, default: false },
     defaultSize: { type: String, default: '@2x' },
   },
-  computed: {
-    isIcon() {
-      return this.name && (typeof this.name === 'string') && (this.name.startsWith('img:') || this.name.indexOf('/') < 0);
-    },
-    imgPath() {
-      if (typeof this.name !== 'string' || !this.name) return '';
+  setup(props) {
+    const { proxy:vm } = getCurrentInstance();
 
-      if (this.name.startsWith('data:')) return this.name;
+    const imgPath = ref('');
+    watchEffect(() => {
+      if (typeof props.name !== 'string' || !props.name) return '';
 
-      if (this.name.startsWith('http://')) return this.name;
+      if (props.name.startsWith('data:')) return props.name;
 
-      if (this.name.startsWith('https://')) return this.name;
+      if (props.name.startsWith('http://')) return props.name;
 
-      if (this.name.startsWith('blob:')) return this.name;
+      if (props.name.startsWith('https://')) return props.name;
+
+      if (props.name.startsWith('blob:')) return props.name;
 
       // TODO:默认使用二倍图？
-      if (this.relative) return `images/${this.name}${this.defaultSize}.png`;
+      if (props.relative) return `images/${props.name}${props.defaultSize}.png`;
 
-      return this.thumb
-        ? this.$filter('serverThumb', this.name)
-        : this.$filter('serverImage', this.name);
-    },
+      const ret = props.thumb
+        ? vm.$filter('serverThumb', props.name)
+        : vm.$filter('serverImage', props.name);
+
+      // 某些情况下不能及时显示缩略图，延迟设置图片路径
+      setTimeout(() => {
+        imgPath.value = ret;
+      }, 200);
+    })
+
+    return {
+      isIcon: computed(() => props.name && (typeof props.name === 'string') && (props.name.startsWith('img:') || props.name.indexOf('/') < 0)),
+      imgPath,
+    };
   },
 });
 </script>

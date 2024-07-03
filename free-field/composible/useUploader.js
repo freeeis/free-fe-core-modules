@@ -297,6 +297,9 @@ export function useUploader(props, ctx) {
     filePreview,
 
     filesRejected (rejectedEntries) {
+      // 忽略duplicate错误
+      rejectedEntries = rejectedEntries.filter((entry) => entry.failedPropValidation !== 'duplicate');
+
       if (rejectedEntries && rejectedEntries.length > 0) {
         const fName = rejectedEntries[0] && rejectedEntries[0].file && rejectedEntries[0].file.name;
         const fSize = fileSizeNumberToStr(

@@ -340,10 +340,14 @@ export default defineComponent({
         return fieldData.value?.length < props.Field?.Options?.MaxCount;
       }),
       dense: computed(() => props.Field?.dense || props.Field?.Options?.Dense),
-      removeFile: (files) => {
+      removeFile: (files = []) => {
         localFiles.value = localFiles.value.filter((f) => !files.includes(f));
         setFieldData(fieldData.value.filter((f) => !files.includes(f)), emit);
         selfValidate();
+
+        uploader.value.files = uploader.value.files.filter((f) => {
+          return files.findIndex((file) => file.name === f.name && file.size === f.size) < 0;
+        });
       },
     };
   },

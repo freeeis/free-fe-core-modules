@@ -62,7 +62,7 @@
         >
           <q-uploader-add-trigger />
         </q-btn>
-        
+
         <div v-else-if="(Field.onlyIcon || onlyIcon) && fieldData.value && fieldData.value[0]?.id">
           <q-img
             :src="$filter('serverThumb', `${fieldData.value[0].id}`)"
@@ -187,9 +187,9 @@
 
 <script>
 import { defineComponent, getCurrentInstance, ref } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
-import { useUploader } from '../composible/useUploader';
+import { useFreeField, freeFieldProps } from 'free-fe-core-modules/free-field/composible/useFreeField';
+import { useFormValidator} from 'free-fe-core-modules/composible/useFormValidator';
+import { useUploader } from 'free-fe-core-modules/free-field/composible/useUploader';
 
 export default defineComponent({
   name: 'InputFieldImage',
@@ -333,17 +333,16 @@ export default defineComponent({
       factoryFn,
       uploaded,
 
-      removeFile: () => {
+      removeFile: (files = []) => {
         setFieldData([], emit);
         selfValidate();
+
+        uploader.value.files = uploader.value.files.filter((f) => {
+          return files.findIndex((file) => file.name === f.name && file.size === f.size) < 0;
+        });
       },
     };
   },
-  // methods: {
-  //   fileAdded(files) {
-  //     this.$refs.uploader.files = files;
-  //   },
-  // },
 });
 </script>
 

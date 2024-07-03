@@ -71,8 +71,14 @@ const filters = {
       case '.flv':
       case '.mkv':
         return `${config.videoUrlBase}${url}`;
-      default:
+      case '.doc':
+      case '.docx':
+      case '.xls':
+      case '.xlsx':
+      case '.pdf':
         return `${config.documentUrlBase}${url}`;
+      default:
+        return `${config.videoUrlBase}${url}`;
     }
   },
   padding: (d, p = 2, c = '0') => {

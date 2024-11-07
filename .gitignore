@@ -1,4 +1,3 @@
-.DS_Store
 .thumbs.db
 node_modules
 
@@ -32,3 +31,5 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+
+.DS_Store

@@ -33,6 +33,7 @@
         api-key="wh7g3etkwrso25e0wcpqrx8uvoa51toag3j92mllkajtg1xb"
         tinymce-script-src="tiny/tiny7.js"
         :init="{
+          placeholder: Field.Placeholder || '',
           language_url: 'tiny/langs/zh_cn.js',
           language: 'zh_cn',
           plugins: Field.ReadOnly ? [] : this.plugins,
@@ -49,7 +50,7 @@
           setup: tinySetup,
           default_link_target: (Field && Field.Options && Field.Options.LinkTarget) || '_blank',
 
-          automatic_uploads: true,
+          automatic_uploads: (Field && Field.Options && Field.Options.NoUpload) ? false : true,
           images_upload_url: '/api/upload',
           images_reuse_filename: true,
           images_upload_handler,
@@ -113,6 +114,12 @@ export default defineComponent({
             Value: '_self',
           },
         ],
+      },
+      {
+        Type: 'Boolean',
+        Name: 'Options.NoUpload',
+        Label: '禁止上传',
+        Default: false,
       },
     ],
   },
@@ -298,43 +305,25 @@ export default defineComponent({
       }
 
       if (props.Field.Options?.MaxLength) {
-        editor.on('keydown', (e) => {
-          const allowedKeys = [8, 37, 38, 39, 40, 46];
-          if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
+        editor.on('input', () => {
+          const ctLen = editor.plugins.wordcount.body.getWordCount();
 
-          const selectedText = editor.selection.getContent({
-            format: 'text',
-          });
-
-          if (selectedText.length <= 0
-          && editor.getContent({ format: 'text' }).length >= props.Field.Options.MaxLength) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+          if (ctLen > props.Field.Options.MaxLength) {
+            // 如果超过了限制，则撤销最后的更改
+            // TODO: 撤销不是最好的处理方式，应该是从最后输入的内容开始删除
+            editor.undoManager.undo();
           }
-
-          return true;
         });
       }
       if (props.Field.Options?.MaxSize) {
         const maxSize = fileSizeStrToNumber(props.Field.Options.MaxSize);
 
-        editor.on('keydown', (e) => {
-          const allowedKeys = [8, 37, 38, 39, 40, 46];
-          if (allowedKeys.indexOf(e.keyCode) >= 0) return true;
-
-          const selectedText = editor.selection.getContent({
-            format: 'text',
-          });
-
-          if (selectedText.length <= 0
-          && editor.getContent({ format: 'html' }).length >= maxSize) {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+        editor.on('input', () => {
+          if (editor.getContent({ format: 'html' }).length > maxSize) {
+            // 如果超过了限制，则撤销最后的更改
+            // TODO: 撤销不是最好的处理方式，应该是从最后输入的内容开始删除
+            editor.undoManager.undo();
           }
-
-          return true;
         });
       }
     };

@@ -215,11 +215,12 @@
         >
         </q-img>
 
-        <q-pdfviewer
+        <pdf-viewer
           v-if="previewType === 'pdf'"
           v-model="showPreview"
           @click="showPreview=false"
           :src="previewFile"
+          :version="Field?.Options?.PdfViewerVersion"
           type="pdfjs"
           style="height: 100%; max-width: 100%;"
         />
@@ -233,6 +234,7 @@ import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
 import { useUploader } from '../composible/useUploader';
+import PdfViewer from './pdfviewer';
 
 export default defineComponent({
   name: 'InputFieldFileList',
@@ -286,8 +288,17 @@ export default defineComponent({
         Name: 'Options.AsLink',
         Default: false,
       },
+      {
+        Type: 'String',
+        Label: 'PDF查看器版本',
+        Name: 'Options.PdfViewerVersion',
+        Default: '',
+      },
     ],
     Description: '',
+  },
+  components: {
+    PdfViewer,
   },
   props: {
     ...freeFieldProps,

@@ -17,8 +17,8 @@
           <q-tooltip
             v-if="Field.Description"
             anchor="top right"
-          >{{Field.Description}}</q-tooltip>
-          {{Field.Label || ''}}
+          >{{$t(Field.Description)}}</q-tooltip>
+          {{$t(Field.Label) || ''}}
           <span
             v-if="Field.Required"
             class="required-mark"
@@ -27,17 +27,22 @@
         <span class="readonly-content">
           <span
             class="prefix"
-            v-if="Field.Options && Field.Options.Prefix"
+            v-if="Field.Info && Field.Info.Prefix"
           >
-            {{Field.Options.Prefix}}
+          {{Field.Info.Prefix}}
           </span>
-          <span :style="(Field.Info && Field.Info.Style) ? Field.Info.Style : ''">
+          <div v-if="Field.Info && Field.Info.Chip">
+            <q-chip v-bind="Field.Info.ChipOptions || {}" v-for="(opt, idx) in readonlyContent || []" :key="idx">
+              {{opt}}
+            </q-chip>
+          </div>
+          <span v-else :style="(Field.Info && Field.Info.Style) ? Field.Info.Style : ''">
             {{readonlyContent}}
           </span>
           <span
             class="postfix"
-            v-if="Field.Options && Field.Options.Postfix"
-          >{{Field.Options.Postfix}}</span>
+            v-if="Field.Info && Field.Info.Postfix"
+          >{{Field.OptiInfons.Postfix}}</span>
         </span>
       </span>
 
@@ -51,8 +56,8 @@
         option-value="Value"
         option-label="Label"
         map-options
-        :label="Field.Placeholder"
         emit-value
+        :label="Field.Placeholder || $t(getModule('core-modules').config['defaultSelectFieldPlaceholder'])"
         :multiple="Field.Multiple"
         :readonly="Field.ReadOnly"
         ref="fieldToValid"
@@ -61,7 +66,6 @@
         :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))"
         v-bind="inputControlSettings"
         :rules="Field.Rules"
-
         :new-value-mode="Field?.NewValueMode ? 'add' : undefined"
       >
         <template v-slot:before>
@@ -73,8 +77,8 @@
             <q-tooltip
               v-if="Field.Description"
               anchor="top right"
-            >{{Field.Description}}</q-tooltip>
-            {{Field.Label || ''}}
+            >{{$t(Field.Description)}}</q-tooltip>
+            {{$t(Field.Label) || ''}}
             <span
               v-if="Field.Required"
               class="required-mark"
@@ -85,6 +89,7 @@
         <template v-slot:option="scope">
           <q-item
             v-bind="scope.itemProps"
+            v-on="scope.itemEvents"
           >
             <q-item-section
               avatar
@@ -94,7 +99,7 @@
             </q-item-section>
 
             <q-item-section>
-              <q-item-label>{{ scope.opt.Label }}</q-item-label>
+              <q-item-label v-html="scope.opt.Label" />
               <q-tooltip v-if="scope.opt.Tooltip">
                 {{scope.opt.Tooltip}}
               </q-tooltip>
@@ -119,8 +124,8 @@
         <q-tooltip
           v-if="Field.Description"
           anchor="top right"
-        >{{Field.Description}}</q-tooltip>
-        {{Field.Label || ''}}
+        >{{$t(Field.Description)}}</q-tooltip>
+        {{$t(Field.Label) || ''}}
         <span
           v-if="Field.Required"
           class="required-mark"
@@ -144,14 +149,30 @@
 
           <q-checkbox
             v-for="(option, index) in Field.Options"
+            :class="{
+              checked: checked.includes(option.Value),
+              'with-inner-extra': option.InnerExtra?.length,
+            }"
             :key="index"
             hide-bottom-space
             :label="option.Label || ''"
             v-model="checked"
             :val="option.Value"
             :disable="Field.ReadOnly"
-            @update:modelValue="checkChanged(option.Value)"
-          ></q-checkbox>
+            @input="checkChanged(option.Value)"
+            :checked-icon="checkedIcon(option)"
+          >
+            <q-tooltip v-if="option.opt?.Tooltip"
+              anchor="bottom middle">
+              {{$t(option.opt.Tooltip) || ''}}
+            </q-tooltip>
+            <div class="option-inner-extra" v-if="option.InnerExtra?.length">
+              <input-field
+                v-for="(fld, idx) in option.InnerExtra || []" :key="idx"
+                :Field="fld"
+                :values="data"></input-field>
+            </div>
+          </q-checkbox>
         </div>
       </span>
     </span>
@@ -162,6 +183,13 @@
 import { ref, computed, defineComponent, getCurrentInstance, watchEffect } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
+
+const NUM_ICONS = [
+  '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩',
+  '⑪', '⑫', '⑬', '⑭', '⑮','⑯','⑰','⑱','⑲','⑳',
+  '㉑','㉒','㉓','㉔','㉕','㉖','㉗','㉘','㉙','㉚',
+  '㉛','㉜','㉝','㉞','㉟','㊱','㊲','㊳','㊴','㊵',
+  '㊶','㊷','㊸','㊹','㊺','㊻','㊼','㊽','㊾','㊿'];
 
 export default defineComponent({
   name: 'InputFieldSelect',
@@ -176,6 +204,16 @@ export default defineComponent({
     Description: '',
     Extra: [
       {
+        Type: 'String',
+        Label: '前缀',
+        Name: 'Info.Prefix',
+      },
+      {
+        Type: 'String',
+        Label: '后缀',
+        Name: 'Info.Postfix',
+      },
+      {
         Type: 'Check',
         Label: '展开单选',
         Name: 'AsRadio',
@@ -189,6 +227,11 @@ export default defineComponent({
         Type: 'Check',
         Label: '可多选',
         Name: 'Multiple',
+      },
+      {
+        Type: 'Check',
+        Label: '显示为顺序号',
+        Name: 'Info.AsOrderNumber',
       },
       {
         Type: 'Check',
@@ -212,6 +255,12 @@ export default defineComponent({
         Placeholder: '逗号分割多个参数字段名',
       },
       {
+        Type: 'String',
+        Name: 'Info.TriggerTo',
+        Label: '选择后激活字段',
+        Placeholder: '逗号分割多个参数字段名',
+      },
+      {
         Type: 'DynamicList',
         Label: '选项',
         Name: 'Options',
@@ -226,8 +275,38 @@ export default defineComponent({
               Name: 'Value',
             },
             {
+              Label: 'Tooltip',
+              Name: 'opt.Tooltip',
+            },
+            {
               Label: 'Extra',
               Name: 'Extra',
+              Type: 'FieldList',
+              Options: {
+                Columns: [
+                  {
+                    Label: '#',
+                    Name: 'Index',
+                    sortable: true,
+                  },
+                  {
+                    Label: '名称',
+                    Name: 'Name',
+                    style: 'max-width: 200px;',
+                    sortable: true,
+                  },
+                  {
+                    Label: '标题',
+                    Name: 'Label',
+                    style: 'max-width: 200px;',
+                    sortable: true,
+                  },
+                ],
+              },
+            },
+            {
+              Label: 'InnerExtra',
+              Name: 'InnerExtra',
               Type: 'FieldList',
               Options: {
                 Columns: [
@@ -297,6 +376,25 @@ export default defineComponent({
       }
 
       return fieldData.value;
+    });
+
+    const checkedIcon = computed(() => {
+      // only when ascheck and multiple and as order number
+      if (props.Field?.AsCheck && props.Field?.Multiple && props.Field?.Info?.AsOrderNumber) {
+        return (opt) => {
+          if (!opt?.Value) return undefined;
+
+          const idx = (checked.value || []).findIndex((v) => v === opt.Value);
+
+          if (idx >= 0 && idx < NUM_ICONS.length) {
+            return NUM_ICONS[idx];
+          }
+
+          return undefined;
+        };
+      }
+
+      return () => undefined;
     });
 
 
@@ -407,6 +505,7 @@ export default defineComponent({
       selectOptions,
 
       readonlyContent,
+      checkedIcon,
 
       selectChanged,
       checkChanged,

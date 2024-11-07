@@ -30,7 +30,8 @@ export default defineComponent({
     const { proxy: vm } = getCurrentInstance();
 
     const localField = computed(() => {
-      const lField = { ...props.Field };
+      const lField = Object.clone(props.Field);
+      
       lField.Rules = lField.Rules || [];
       for (let i = 0; i < lField.Rules.length; i += 1) {
         const rule = lField.Rules[i];
@@ -205,6 +206,7 @@ export default defineComponent({
           emit("input", fld || props.Field);
         },
         ...compEmits.value,
+        ...localField.value.attrs,
       },
       {
         ...slots,

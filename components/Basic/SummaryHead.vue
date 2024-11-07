@@ -3,7 +3,7 @@
     <div
       v-for="(item, i) in data"
       :key="i"
-      :class="
+      :class="(item.classes ? (item.classes + ' ') : '') +
         (item.is_count ? 'summary-head-count ' : '') +
           (item.is_title
             ? 'summary-head-title summary-head-item'

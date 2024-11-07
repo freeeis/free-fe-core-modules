@@ -1,11 +1,10 @@
-import ModelToggleMixin from 'quasar/src/mixins/model-toggle.js';
+import { useModelToggleProps, useModelToggleEmits } from 'quasar/src/composables/private.use-model-toggle/use-model-toggle.js';
 
 export default {
   name: 'QPdfviewer',
 
-  mixins: [ModelToggleMixin],
-
   props: {
+    ...useModelToggleProps,
     version: { type: String, default: '' },
     src: String,
     type: {
@@ -24,6 +23,9 @@ export default {
     innerContentClass: [String, Object, Array],
   },
 
+  emits: [
+    ...useModelToggleEmits,
+  ],
   data() {
     return {
       hashId: `q-pdfviewer-${Math.random()

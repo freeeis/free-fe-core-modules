@@ -136,7 +136,7 @@
           <slot name="warning"></slot>
         </div>
         <div
-          class="checkbox-list"
+          class="checkbox-list row"
           :class="hasError ? 'free-field--error' : ''"
         >
 
@@ -146,7 +146,6 @@
           >
             <e-icon name="error"></e-icon>
           </div>
-
           <q-checkbox
             v-for="(option, index) in Field.Options"
             :class="{
@@ -159,7 +158,7 @@
             v-model="checked"
             :val="option.Value"
             :disable="Field.ReadOnly"
-            @input="checkChanged(option.Value)"
+            @update:modelValue="checkChanged(option.Value)"
             :checked-icon="checkedIcon(option)"
           >
             <q-tooltip v-if="option.opt?.Tooltip"
@@ -433,9 +432,10 @@ export default defineComponent({
     const checkChanged = (v) => {
       selfValidate();
 
-      if (!props.Field.Multiple) {
+      if (!props.Field.Multiple && checked.value.indexOf(v) >= 0) {
         checked.value = [v];
       }
+
       setFieldData(checked.value.join(','), emit);
     };
 
@@ -531,6 +531,16 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.free-field-select {
+  .free-field-select-ascheck {
+    .field-label {
+      line-height: 40px;
+    }
+  }
+}
+</style>
 
 <style lang="sass">
 .free-field-select

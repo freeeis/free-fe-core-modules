@@ -65,7 +65,7 @@
 
         <div v-else-if="(Field.onlyIcon || onlyIcon) && fieldData.value && fieldData.value[0]?.id">
           <q-img
-            :src="$filter('serverThumb', `${fieldData.value[0].id}`)"
+            :src="$filter(Field?.Options?.NoThumb ? 'serverImage' : 'serverThumb', `${fieldData.value[0].id}`)"
             style="width:32px; max-height:32px;min-height:32px;"
           >
           </q-img>
@@ -209,6 +209,12 @@ export default defineComponent({
         Label: '最大文件大小',
         Name: 'MaxValue',
         Default: '10m',
+      },
+      {
+        Type: 'Boolean',
+        Default: false,
+        Label: '不使用缩略图',
+        Name: 'Options.NoThumb',
       },
     ],
     Description: '',

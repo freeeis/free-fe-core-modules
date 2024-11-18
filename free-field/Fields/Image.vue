@@ -108,7 +108,9 @@
             flat
             class="file-list-item"
             v-for="(file, index) in fieldData.value" :key="index">
-              <e-icon class="file-image" :name="fileThumb(file)" thumb
+              <e-icon class="file-image" 
+                :name="fileThumb(file)" 
+                :thumb="!Field?.Options?.NoThumb"
                 :relative="filePreviewType(file) !== 'image'"
                 @click="preview(file)">
                 <div class="view-btn-wrapper absolute-full justify-center text-center">

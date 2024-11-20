@@ -1,3 +1,6 @@
+import { h, getCurrentInstance, } from 'vue';
+import { useQuasar } from 'quasar';
+
 import { useModelToggleProps, useModelToggleEmits } from 'quasar/src/composables/private.use-model-toggle/use-model-toggle.js';
 
 export default {
@@ -39,6 +42,32 @@ export default {
       this.height = event.data;
     });
   },
+  setup(props) {
+    const { proxy:vm } = getCurrentInstance();
+    const $q = useQuasar();
+
+    return () => {
+      if (props.src !== undefined && props.src.length > 0) {
+        return h(
+          'div',
+          {
+            staticClass: 'q-pdfviewer',
+            class: props.contentClass,
+            style: props.contentStyle,
+          },
+          [
+            ($q.platform.is.electron || props.type === 'pdfjs')
+              // eslint-disable-next-line no-underscore-dangle
+              ? vm.__renderIFramePDFJS(h)
+              // eslint-disable-next-line no-underscore-dangle
+              : vm.__renderObject(h),
+          ],
+        );
+      }
+
+      return ''
+    };
+  },
   methods: {
     // eslint-disable-next-line no-underscore-dangle
     __renderObject(h) {
@@ -72,11 +101,9 @@ export default {
         'iframe',
         {
           staticClass: 'q-pdfviewer__iframe',
-          attrs: {
-            src: this.src,
-            width: '100%',
-            height: '100%',
-          },
+          src: this.src,
+          width: '100%',
+          height: '100%',
         },
       );
     },
@@ -87,36 +114,11 @@ export default {
         'iframe',
         {
           staticClass: 'q-pdfviewer__iframe',
-          attrs: {
-            src: `pdfjs${this.version ? `_${this.version}` : ''}/web/viewer.html?file=${encodeURIComponent(this.src)}`,
-            width: '100%',
-            height: '100%',
-          },
+          src: `pdfjs${this.version ? `_${this.version}` : ''}/web/viewer.html?file=${encodeURIComponent(this.src)}`,
+          width: '100%',
+          height: '100%',
         },
       );
     },
-  },
-
-  render(h) {
-    if (this.value === true && this.src !== undefined && this.src.length > 0) {
-      return h(
-        'div',
-        {
-          staticClass: 'q-pdfviewer',
-          class: this.contentClass,
-          style: this.contentStyle,
-          attrs: {
-          },
-        },
-        [
-          this.$q.platform.is.electron || this.type === 'pdfjs'
-            // eslint-disable-next-line no-underscore-dangle
-            ? this.__renderIFramePDFJS(h)
-            // eslint-disable-next-line no-underscore-dangle
-            : this.__renderObject(h),
-        ],
-      );
-    }
-    return '';
   },
 };

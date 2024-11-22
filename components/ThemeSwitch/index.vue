@@ -18,7 +18,7 @@
             :key="index"
             clickable
             v-close-popup
-            @click="theme = tm"
+            @click="setTheme(tm)"
             :active="theme === tm"
           >
             <q-item-section>{{$t(tm)}}</q-item-section>
@@ -39,6 +39,7 @@ export default defineComponent({
     icon: { type: String, default: 'fas fa-palette' },
     dense: { type: Boolean, default: true },
     hide: { type: Boolean, default: false },
+    reload: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -101,6 +102,17 @@ export default defineComponent({
   created() {
     const appStore = useAppStore();
     this.theme = appStore.theme || this.ctx.config.defaultTheme || (this.themes && (this.themes.length > 0) && this.themes[0]);
+  },
+  methods: {
+    setTheme(tm) {
+      if (!tm || this.theme === tm) return;
+
+      this.theme = tm;
+
+      if (this.reload) {
+        window.location.reload();
+      }
+    },
   },
 });
 </script>

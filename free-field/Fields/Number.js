@@ -157,7 +157,7 @@ export default defineComponent({
 
     const inputNode = computed(() => h(QInput, {
       type: mask.value ? 'text' : 'number',
-      mask,
+      mask: mask.value,
       maxlength: props.Field.Options?.MaxLength,
       autocomplete: 'off',
       // bottomSlots: true,

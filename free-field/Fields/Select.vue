@@ -166,10 +166,10 @@
               {{$t(option.opt.Tooltip) || ''}}
             </q-tooltip>
             <div class="option-inner-extra" v-if="option.InnerExtra?.length">
-              <input-field
+              <free-field
                 v-for="(fld, idx) in option.InnerExtra || []" :key="idx"
                 :Field="fld"
-                :values="data"></input-field>
+                :values="data"></free-field>
             </div>
           </q-checkbox>
         </div>

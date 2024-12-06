@@ -164,7 +164,7 @@ export default defineComponent({
     }
   }
 
-  .input-field-tabs-panel-field-empty {
+  .free-field-tabs-panel-field-empty {
     display: none;
   }
 }

@@ -53,7 +53,7 @@
         </div>
 
         <q-btn
-          v-if="(Field.onlyIcon || onlyIcon) && (!fieldData.value || !fieldData.value[0] || !fieldData.value[0].id)"
+          v-if="(Field.onlyIcon || onlyIcon) && (!fieldData.value || !fieldData.value || !fieldData.value.id)"
           type="a"
           :icon="fieldData?.value?.length ? 'check' : 'cloud_upload'"
           dense
@@ -63,9 +63,9 @@
           <q-uploader-add-trigger />
         </q-btn>
 
-        <div v-else-if="(Field.onlyIcon || onlyIcon) && fieldData.value && fieldData.value[0]?.id">
+        <div v-else-if="(Field.onlyIcon || onlyIcon) && fieldData.value && fieldData.value?.id">
           <q-img
-            :src="$filter(Field?.Options?.NoThumb ? 'serverImage' : 'serverThumb', `${fieldData.value[0].id}`)"
+            :src="$filter(Field?.Options?.NoThumb ? 'serverImage' : 'serverThumb', `${fieldData.value.id}`)"
             style="width:32px; max-height:32px;min-height:32px;"
           >
           </q-img>
@@ -73,17 +73,17 @@
         </div>
 
         <q-item v-else-if="Field.dense" class="items-center q-pa-none">
-          <q-item-section v-if="fieldData?.value?.length && fieldData.value[0].id" thumbnail>
+          <q-item-section v-if="fieldData?.value?.length && fieldData.value.id" thumbnail>
             <q-img
-              :src="`${ctx.config.thumbUrlBase}${fieldData.value[0].id}`"
+              :src="`${ctx.config.thumbUrlBase}${fieldData.value.id}`"
               style="width: 48px; max-height: 48px;"
             >
             </q-img>
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>
 
-          <q-item-section v-if="fieldData.value?.length && fieldData.value[0].__img" thumbnail class="gt-xs">
-            <q-img :src="fieldData.value[0].__img.src">
+          <q-item-section v-if="fieldData.value?.length && fieldData.value.__img" thumbnail class="gt-xs">
+            <q-img :src="fieldData.value.__img.src">
             </q-img>
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>

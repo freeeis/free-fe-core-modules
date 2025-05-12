@@ -86,10 +86,10 @@
           </div>
 
           <q-item v-if="dense && fieldData.value?.length">
-            <q-item-section v-if="fieldData.value?.length && fieldData.value[0].name">
+            <q-item-section v-if="fieldData.value?.length && fieldData.value.name">
               <q-item-label class="full-width ellipsis">
-                {{ fieldData.value[0].name }}
-                <q-tooltip>{{ fieldData.value[0].name }}</q-tooltip>
+                {{ fieldData.value.name }}
+                <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
               </q-item-label>
             </q-item-section>
 

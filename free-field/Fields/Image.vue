@@ -108,8 +108,8 @@
             flat
             class="file-list-item"
             v-for="(file, index) in fieldData.value" :key="index">
-              <e-icon class="file-image" 
-                :name="fileThumb(file)" 
+              <e-icon class="file-image"
+                :name="fileThumb(file)"
                 :thumb="!Field?.Options?.NoThumb"
                 :relative="filePreviewType(file) !== 'image'"
                 @click="preview(file)">
@@ -249,8 +249,8 @@ export default defineComponent({
 
     const selfValidate = () => {
       if (props.Field?.Required) {
-        hasError.value = fieldData.value?.length <= 0;
-        return fieldData.value?.length > 0;
+        hasError.value = !!fieldData.value?.id;
+        return !!fieldData.value?.id;
       }
 
       const rules = Array.isArray(typeof props.Field.Rules) ? props.Field.Rules : [props.Field.Rules];
@@ -276,42 +276,41 @@ export default defineComponent({
     };
 
     const uploaded = (info) => {
-      const uploadedFiles = [];
-      for (let i = 0; i < info.files.length; i += 1) {
-        const file = info.files[i];
+      // Image组件只允许一个图片
+      const file = info.files[0];
 
-        const { xhr } = file;
-        let res;
-        if (xhr && xhr.response) {
-          if (typeof xhr.response === 'string') {
-            //
-            res = JSON.parse(xhr.response);
-          } else if (typeof xhr.response === 'object') {
-            //
-            res = xhr.response;
-          } else {
-            //
-            return;
-          }
+      if (!file) return;
 
-          if (res && res.msg === 'OK') {
-            uploadedFiles.push({
-              id: res.data.id,
-              // eslint-disable-next-line no-underscore-dangle
-              sizeLabel: file.__sizeLabel,
-              name: file.name,
-              size: file.size,
-              type: file.type,
-            });
-          }
-        } else if (file.id) {
-          // old files
-          uploadedFiles.push(file);
+      const { xhr } = file;
+      let res;
+      if (xhr && xhr.response) {
+        if (typeof xhr.response === 'string') {
+          //
+          res = JSON.parse(xhr.response);
+        } else if (typeof xhr.response === 'object') {
+          //
+          res = xhr.response;
+        } else {
+          //
+          return;
         }
-      }
 
-      setFieldData(uploadedFiles, emit);
-      selfValidate();
+        if (res && res.msg === 'OK') {
+          setFieldData({
+            id: res.data.id,
+            // eslint-disable-next-line no-underscore-dangle
+            sizeLabel: file.__sizeLabel,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          }, emit);
+          selfValidate();
+        }
+      } else if (file.id) {
+        // old files
+        setFieldData(file, emit);
+        selfValidate();
+      }
     }
 
     const { validate } = useFormValidator();

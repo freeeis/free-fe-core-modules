@@ -169,7 +169,7 @@
         <q-img
           fit="contain"
           v-if="previewType === 'image'"
-          contain :src="previewFile"
+          :src="previewFile"
           @click="showPreview=false"
           style="max-height: 100%; max-width: 100%;">
         </q-img>

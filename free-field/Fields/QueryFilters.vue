@@ -47,14 +47,14 @@
       <q-space></q-space>
       <div class="q-ma-xs query-btns">
         <q-btn
-          v-if="canExport"
+          v-if="Field.canExport"
           class="export-btn"
           icon="fa fa-list"
           label="导出"
           @click="$emit('export')"
         />
-        <q-btn class="clear-btn" :icon="clearIcon" label="清空" @click="clear"></q-btn>
-        <q-btn class="query-btn q-ma-xs" :icon="searchIcon" label="查询" @click="search"></q-btn>
+        <q-btn class="clear-btn" :icon="Field.clearIcon || 'refresh'" label="清空" @click="clear"></q-btn>
+        <q-btn class="query-btn q-ma-xs" :icon="Field.searchIcon || 'search'" label="查询" @click="search"></q-btn>
       </div>
     </div>
   </div>
@@ -76,10 +76,6 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
     dense: { type: Boolean, default: false },
-    canExport: { type: Boolean, default: false },
-    queryData: { type: Object, default: () => ({}) },
-    searchIcon: { type: String, default: 'search' },
-    clearIcon: { type: String, default: 'refresh' },
   },
   setup(props, { emit }) {
     if (!props.Field) return {};
@@ -92,7 +88,7 @@ export default defineComponent({
     const kwFields = ref([]);
 
     watchEffect(()  => {
-      query.value = props.queryData;
+      query.value = props.Field.queryData;
     })
 
     watchEffect(() => {

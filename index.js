@@ -242,7 +242,7 @@ export default (app, root) => {
             Dense: true,
             LabelField: 'Name',
             ValueField: 'Locale',
-            List: [{
+            Fields: [{
                 Name: 'Locale',
                 Label: '语言',
                 Type: 'String',

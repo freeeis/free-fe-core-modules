@@ -29,7 +29,7 @@
     >
       <template v-slot:list="scope">
         <div
-          v-if="Field.Options && Field.Options.AsLink && Array.isArray(fieldData.value) && fieldData.value?.length"
+          v-if="Field.Options && Field.Options.AsLink && !!fieldData.value?.id"
           class="file-link row full-width ellipsis items-center"
         >
           <div
@@ -85,8 +85,8 @@
             <slot name="warning"></slot>
           </div>
 
-          <q-item v-if="dense && fieldData.value?.length">
-            <q-item-section v-if="fieldData.value?.length && fieldData.value.name">
+          <q-item v-if="dense && fieldData.value?.id">
+            <q-item-section v-if="fieldData.value?.id && fieldData.value.name">
               <q-item-label class="full-width ellipsis">
                 {{ fieldData.value.name }}
                 <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
@@ -108,21 +108,19 @@
           </q-item>
 
           <div
-            v-else-if="Array.isArray(fieldData.value) && fieldData.value?.length"
+            v-else-if="!!fieldData.value?.id"
             class="file-list row items-start justify-start"
           >
             <q-card
               flat
               class="file-list-item"
-              v-for="(file, index) in fieldData.value"
-              :key="index"
             >
               <e-icon
                 class="file-image"
-                :name="fileThumb(file)"
+                :name="fileThumb(fieldData.value)"
                 thumb
-                :relative="filePreviewType(file) !== 'image'"
-                @click="preview(file)"
+                :relative="filePreviewType(fieldData.value) !== 'image'"
+                @click="preview(fieldData.value)"
               >
                 <div class="view-btn-wrapper absolute-full justify-center text-center">
                   <q-btn
@@ -133,20 +131,20 @@
               </e-icon>
               <span class="file-name full-width ellipsis">
                 <a
-                  v-if="file && file.id"
+                  v-if="fieldData.value && fieldData.value.id"
                   target="_blank"
-                  :href="$filter('serverPath', file.id)"
-                  :download="file.name">
-                    {{ file.name }}
+                  :href="$filter('serverPath', fieldData.value.id)"
+                  :download="fieldData.value.name">
+                    {{ fieldData.value.name }}
                 </a>
-                <span v-else-if="file && file.name">
-                  {{file.name}}
+                <span v-else-if="fieldData.value && fieldData.value.name">
+                  {{fieldData.value.name}}
                 </span>
-                <q-tooltip>{{ file.name }}</q-tooltip>
+                <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
               </span>
 
               <span class="file-size full-width ellipsis">
-                Size: {{ file.sizeLabel || file.__sizeLabel }}
+                Size: {{ fieldData.value.sizeLabel || fieldData.value.__sizeLabel }}
               </span>
 
               <q-btn
@@ -155,7 +153,7 @@
                 round
                 class="delete-btn"
                 icon="close"
-                @click="scope.removeFile(file)"
+                @click="scope.removeFile(fieldData.value)"
                 v-if="!Field.ReadOnly"
               />
             </q-card>
@@ -282,7 +280,7 @@ export default defineComponent({
 
     const selfValidate = () => {
       if (props.Field?.Required) {
-        hasError.value = !!fieldData.value?.id;
+        hasError.value = !fieldData.value?.id;
         return !!fieldData.value?.id;
       }
 

@@ -17,7 +17,7 @@ export default defineComponent({
       Options: {
         Columns: [{
           Label: '第一列',
-          List: [{
+          Fields: [{
             Name: 'CA',
             Placeholder: '请填写',
             Type: 'Number',
@@ -25,7 +25,7 @@ export default defineComponent({
           }],
         }, {
           Label: '第二列',
-          List: [{
+          Fields: [{
             Name: 'CB',
             Type: 'String',
           }],
@@ -302,7 +302,7 @@ export default defineComponent({
             align : 'center',
             sortable : true,
             classes : 'index',
-            List: [{
+            Fields: [{
               Name: 'index',
               Type: 'Number',
               required : true,

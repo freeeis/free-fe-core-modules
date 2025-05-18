@@ -165,7 +165,7 @@ export default defineComponent({
             Label: `${ii + 1}`,
             Name: `${ii}`,
             Type: 'FixedList',
-            List: [
+            Fields: [
               {
                 Label: 'rowspan',
                 Name: 'rowspan',

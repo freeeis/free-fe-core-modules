@@ -55,7 +55,7 @@
         <q-btn
           v-if="(Field.onlyIcon || onlyIcon) && (!fieldData.value || !fieldData.value || !fieldData.value.id)"
           type="a"
-          :icon="fieldData?.value?.length ? 'check' : 'cloud_upload'"
+          :icon="fieldData?.value?.id ? 'check' : 'cloud_upload'"
           dense
           flat
           :disabled="Field.ReadOnly"
@@ -73,7 +73,7 @@
         </div>
 
         <q-item v-else-if="Field.dense" class="items-center q-pa-none">
-          <q-item-section v-if="fieldData?.value?.length && fieldData.value.id" thumbnail>
+          <q-item-section v-if="fieldData.value.id" thumbnail>
             <q-img
               :src="`${ctx.config.thumbUrlBase}${fieldData.value.id}`"
               style="width: 48px; max-height: 48px;"
@@ -82,13 +82,13 @@
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>
 
-          <q-item-section v-if="fieldData.value?.length && fieldData.value.__img" thumbnail class="gt-xs">
+          <q-item-section v-if=" fieldData.value.__img" thumbnail class="gt-xs">
             <q-img :src="fieldData.value.__img.src">
             </q-img>
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>
 
-          <q-item-section v-if="!fieldData.value?.length">
+          <q-item-section v-if="!fieldData.value?.id">
             <q-btn
               v-if="!scope.isUploading"
               type="a"
@@ -103,40 +103,39 @@
           </q-item-section>
         </q-item>
 
-        <div v-else-if="Array.isArray(fieldData.value) && fieldData.value?.length" class="file-list row items-start justify-start">
+        <div v-else-if="fieldData.value?.id" class="file-list row items-start justify-start">
           <q-card
             flat
-            class="file-list-item"
-            v-for="(file, index) in fieldData.value" :key="index">
+            class="file-list-item">
               <e-icon class="file-image"
-                :name="fileThumb(file)"
+                :name="fileThumb(fieldData.value)"
                 :thumb="!Field?.Options?.NoThumb"
-                :relative="filePreviewType(file) !== 'image'"
-                @click="preview(file)">
+                :relative="filePreviewType(fieldData.value) !== 'image'"
+                @click="preview(fieldData.value)">
                 <div class="view-btn-wrapper absolute-full justify-center text-center">
                   <q-btn
                     flat
                     class="view-btn full-height full-width"
-                    @click="preview(file)"
+                    @click="preview(fieldData.value)"
                   >查看</q-btn>
                 </div>
               </e-icon>
               <span class="file-name full-width ellipsis">
                 <a
-                  v-if="file && file.id"
+                  v-if="fieldData.value && fieldData.value.id"
                   target="_blank"
-                  :href="$filter('serverPath', file.id)"
-                  :download="file.name">
-                    {{ file.name }}
+                  :href="$filter('serverPath', fieldData.value.id)"
+                  :download="fieldData.value.name">
+                    {{ fieldData.value.name }}
                 </a>
-                <span v-else-if="file && file.name">
-                  {{file.name}}
+                <span v-else-if="fieldData.value && fieldData.value.name">
+                  {{fieldData.value.name}}
                 </span>
-                <q-tooltip>{{ file.name }}</q-tooltip>
+                <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
               </span>
 
               <span class="file-size full-width ellipsis">
-                Size: {{ file.sizeLabel || file.__sizeLabel }}
+                Size: {{ fieldData.value.sizeLabel || fieldData.value.__sizeLabel }}
               </span>
 
               <q-btn
@@ -145,7 +144,7 @@
                 round
                 class="delete-btn"
                 icon="close"
-                @click="scope.removeFile(file)"
+                @click="scope.removeFile(fieldData.value)"
                 :disabled="Field.ReadOnly"
               />
           </q-card>
@@ -249,7 +248,7 @@ export default defineComponent({
 
     const selfValidate = () => {
       if (props.Field?.Required) {
-        hasError.value = !!fieldData.value?.id;
+        hasError.value = !fieldData.value?.id;
         return !!fieldData.value?.id;
       }
 

@@ -14,7 +14,7 @@ MsgDialog.install = (app) => {
 
     dialogApp.config.globalProperties = app.config.globalProperties;
 
-    const { reload, ...appContext } = app._context;
+    const { ...appContext } = app._context;
     Object.assign(dialogApp._context, appContext);
 
     MsgDialogInstance = dialogApp.mount('#free-dialog');

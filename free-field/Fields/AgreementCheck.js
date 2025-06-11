@@ -1,5 +1,5 @@
-import { defineComponent, h, ref, getCurrentInstance } from 'vue';
-import { QCheckbox } from 'quasar';
+import { defineComponent, h, ref, getCurrentInstance, defineExpose } from 'vue';
+import { QCheckbox, QIcon } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 
 export default defineComponent({
@@ -21,7 +21,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit, expose }){
+  setup(props, { emit }){
     if (!props.Field) return {};
 
     const { proxy:vm } = getCurrentInstance();

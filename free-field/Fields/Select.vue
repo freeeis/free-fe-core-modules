@@ -1,107 +1,56 @@
 <template>
   <span :class="(Field && Field.AsCheck) ? 'free-field-select' :
     'free-field-select simple-field row'">
-    <span
-      v-if="!Field.AsCheck"
-      class="row no-wrap items-center full-width inline-block"
-    >
-      <span
-        v-if="Field.ReadOnly"
-        class="full-width"
-      >
-        <span
-          :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
-            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          v-if="Field.Label !== void 0"
-        >
-          <q-tooltip
-            v-if="Field.Description"
-            anchor="top right"
-          >{{$t(Field.Description)}}</q-tooltip>
-          {{$t(Field.Label) || ''}}
-          <span
-            v-if="Field.Required"
-            class="required-mark"
-          >*</span>
+    <span v-if="!Field.AsCheck" class="row no-wrap items-center full-width inline-block">
+      <span v-if="Field.ReadOnly" class="full-width">
+        <span :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
+          ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+          <q-tooltip v-if="Field.Description" anchor="top right">{{ $t(Field.Description) }}</q-tooltip>
+          {{ $t(Field.Label) || '' }}
+          <span v-if="Field.Required" class="required-mark">*</span>
         </span>
         <span class="readonly-content">
-          <span
-            class="prefix"
-            v-if="Field.Info && Field.Info.Prefix"
-          >
-          {{Field.Info.Prefix}}
+          <span class="prefix" v-if="Field.Info && Field.Info.Prefix">
+            {{ Field.Info.Prefix }}
           </span>
           <div v-if="Field.Info && Field.Info.Chip">
             <q-chip v-bind="Field.Info.ChipOptions || {}" v-for="(opt, idx) in readonlyContent || []" :key="idx">
-              {{opt}}
+              {{ opt }}
             </q-chip>
           </div>
           <span v-else :style="(Field.Info && Field.Info.Style) ? Field.Info.Style : ''">
-            {{readonlyContent}}
+            {{ readonlyContent }}
           </span>
-          <span
-            class="postfix"
-            v-if="Field.Info && Field.Info.Postfix"
-          >{{Field.OptiInfons.Postfix}}</span>
+          <span class="postfix" v-if="Field.Info && Field.Info.Postfix">{{ Field.OptiInfons.Postfix }}</span>
         </span>
       </span>
 
-      <q-select
-        v-else
-        popup-content-class="free-field-select-control"
-        hide-bottom-space
-        :modelValue="fieldData.value"
-        @update:modelValue="selectChanged"
-        :options="localOptions"
-        option-value="Value"
-        option-label="Label"
-        map-options
-        emit-value
-        :label="Field.Placeholder || $t(getModule('core-modules').config['defaultSelectFieldPlaceholder'])"
-        :multiple="Field.Multiple"
-        :readonly="Field.ReadOnly"
-        ref="fieldToValid"
-        :use-input="Field && (Field.UseInput || (Field.Info?.CanFilter))"
-        @filter="filterFunc"
-        :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))"
-        v-bind="inputControlSettings"
-        :rules="Field.Rules"
-        :new-value-mode="Field?.NewValueMode ? 'add' : undefined"
-      >
+      <q-select v-else popup-content-class="free-field-select-control" hide-bottom-space :modelValue="fieldData.value"
+        @update:modelValue="selectChanged" :options="localOptions" option-value="Value" option-label="Label" map-options
+        emit-value :label="Field.Placeholder || $t(getModule('core-modules').config['defaultSelectFieldPlaceholder'])"
+        :multiple="Field.Multiple" :readonly="Field.ReadOnly" ref="fieldToValid"
+        :use-input="Field && (Field.UseInput || (Field.Info?.CanFilter))" @filter="filterFunc"
+        :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))" v-bind="inputControlSettings"
+        :rules="Field.Rules" :new-value-mode="Field?.NewValueMode ? 'add' : undefined">
         <template v-slot:before>
-          <span
-            :class="`field-label ${(Field.Label && Field.Label.trim().length)
-              ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-            v-if="Field.Label !== void 0"
-          >
-            <q-tooltip
-              v-if="Field.Description"
-              anchor="top right"
-            >{{$t(Field.Description)}}</q-tooltip>
-            {{$t(Field.Label) || ''}}
-            <span
-              v-if="Field.Required"
-              class="required-mark"
-            >*</span>
+          <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+            <q-tooltip v-if="Field.Description" anchor="top right">{{ $t(Field.Description) }}</q-tooltip>
+            {{ $t(Field.Label) || '' }}
+            <span v-if="Field.Required" class="required-mark">*</span>
           </span>
         </template>
 
         <template v-slot:option="scope">
-          <q-item
-            v-bind="scope.itemProps"
-            v-on="scope.itemEvents"
-          >
-            <q-item-section
-              avatar
-              v-if="scope.opt.Icon"
-            >
+          <q-item v-bind="scope.itemProps" v-on="scope.itemEvents">
+            <q-item-section avatar v-if="scope.opt.Icon">
               <e-icon :name="scope.opt.Icon" />
             </q-item-section>
 
             <q-item-section>
-              <q-item-label v-html="scope.opt.Label" />
+              <q-item-label v-dompurify-html="scope.opt.Label" />
               <q-tooltip v-if="scope.opt.Tooltip">
-                {{scope.opt.Tooltip}}
+                {{ scope.opt.Tooltip }}
               </q-tooltip>
               <!-- <q-item-label caption v-if="scope.opt.Description" class="ellipsis">
                 {{ scope.opt.Description }}
@@ -112,63 +61,33 @@
       </q-select>
       <slot name="warning"></slot>
     </span>
-    <span
-      v-else
-      class="free-field-select-ascheck row items-start no-wrap"
-    >
-      <span
-        :class="`field-label ${(Field.Label && Field.Label.trim().length)
-          ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="Field.Label !== void 0"
-      >
-        <q-tooltip
-          v-if="Field.Description"
-          anchor="top right"
-        >{{$t(Field.Description)}}</q-tooltip>
-        {{$t(Field.Label) || ''}}
-        <span
-          v-if="Field.Required"
-          class="required-mark"
-        >*</span>
+    <span v-else class="free-field-select-ascheck row items-start no-wrap">
+      <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+        <q-tooltip v-if="Field.Description" anchor="top right">{{ $t(Field.Description) }}</q-tooltip>
+        {{ $t(Field.Label) || '' }}
+        <span v-if="Field.Required" class="required-mark">*</span>
       </span>
       <span class="column items-start no-wrap">
         <div>
           <slot name="warning"></slot>
         </div>
-        <div
-          class="checkbox-list row"
-          :class="hasError ? 'free-field--error' : ''"
-        >
+        <div class="checkbox-list row" :class="hasError ? 'free-field--error' : ''">
 
-          <div
-            class="free-field--error-tag"
-            v-if="hasError"
-          >
+          <div class="free-field--error-tag" v-if="hasError">
             <e-icon name="error"></e-icon>
           </div>
-          <q-checkbox
-            v-for="(option, index) in Field.Options"
-            :class="{
-              checked: checked.includes(option.Value),
-              'with-inner-extra': option.InnerExtra?.length,
-            }"
-            :key="index"
-            hide-bottom-space
-            :label="option.Label || ''"
-            v-model="checked"
-            :val="option.Value"
-            :disable="Field.ReadOnly"
-            @update:modelValue="checkChanged(option.Value)"
-            :checked-icon="checkedIcon(option)"
-          >
-            <q-tooltip v-if="option.opt?.Tooltip"
-              anchor="bottom middle">
-              {{$t(option.opt.Tooltip) || ''}}
+          <q-checkbox v-for="(option, index) in Field.Options" :class="{
+            checked: checked.includes(option.Value),
+            'with-inner-extra': option.InnerExtra?.length,
+          }" :key="index" hide-bottom-space :label="option.Label || ''" v-model="checked" :val="option.Value"
+            :disable="Field.ReadOnly" @update:modelValue="checkChanged(option.Value)"
+            :checked-icon="checkedIcon(option)">
+            <q-tooltip v-if="option.opt?.Tooltip" anchor="bottom middle">
+              {{ $t(option.opt.Tooltip) || '' }}
             </q-tooltip>
             <div class="option-inner-extra" v-if="option.InnerExtra?.length">
-              <free-field
-                v-for="(fld, idx) in option.InnerExtra || []" :key="idx"
-                :Field="fld"
+              <free-field v-for="(fld, idx) in option.InnerExtra || []" :key="idx" :Field="fld"
                 :values="data"></free-field>
             </div>
           </q-checkbox>
@@ -180,8 +99,8 @@
 
 <script>
 import { ref, computed, defineComponent, getCurrentInstance, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
 
 const NUM_ICONS = [
   '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩',
@@ -445,7 +364,7 @@ export default defineComponent({
       }
 
       const paramObj = {};
-      const params = props.Field.Info.Params || '';
+      let params = props.Field.Info.Params || '';
       if (params.length > 0) {
         if (typeof params === 'string') {
           params = params.split(',');

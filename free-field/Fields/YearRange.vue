@@ -1,48 +1,29 @@
 <template>
   <span class="free-field-year-range simple-field">
     <span v-if="Field.ReadOnly">
-      <span
-        :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
-            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="Field.Label"
-      >
-        <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
-        {{Field.Label || ''}}
+      <span :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
+        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label">
+        <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+        {{ Field.Label || '' }}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData.value}}</span>
+      <span class="readonly-content">{{ fieldData.value }}</span>
     </span>
     <span v-else class="row items-center no-wrap">
-      <q-select
-        v-model="range.min"
-        hide-bottom-space
-        :options="minYearOptions"
-        :readonly="Field.ReadOnly"
-        @update:modelValue="rangeChanged"
-        v-bind="inputControlSettings"
-        ref="input_field_validator_first"
-      >
+      <q-select v-model="range.min" hide-bottom-space :options="minYearOptions" :readonly="Field.ReadOnly"
+        @update:modelValue="rangeChanged" v-bind="inputControlSettings" ref="input_field_validator_first">
         <template v-slot:before v-if="Field.Label !== void 0">
-          <span
-            :class="`field-label ${(Field.Label && Field.Label.trim().length)
-            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          >
-            <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
-            {{Field.Label || ''}}
+          <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`">
+            <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+            {{ Field.Label || '' }}
             <span v-if="Field.Required" class="required-mark">*</span>
           </span>
         </template>
       </q-select>
-      <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
-      <q-select
-        v-model="range.max"
-        hide-bottom-space
-        :options="maxYearOptions"
-        :readonly="Field.ReadOnly"
-        @update:modelValue="rangeChanged"
-        v-bind="inputControlSettings"
-        ref="input_field_validator_second"
-      />
+      <span class="free-field-range-separator">{{ `${Field.Separator || '~'}` }}</span>
+      <q-select v-model="range.max" hide-bottom-space :options="maxYearOptions" :readonly="Field.ReadOnly"
+        @update:modelValue="rangeChanged" v-bind="inputControlSettings" ref="input_field_validator_second" />
     </span>
 
     <slot name="warning"></slot>
@@ -50,9 +31,9 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { defineComponent, ref, watch, watchEffect, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
 
 export default defineComponent({
   name: 'InputFieldYearRange',
@@ -95,6 +76,11 @@ export default defineComponent({
 
     const min = ref('');
     const max = ref('');
+
+    const range = ref({
+      min: min,
+      max: max,
+    });
 
     const rangeChanged = () => {
       setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);

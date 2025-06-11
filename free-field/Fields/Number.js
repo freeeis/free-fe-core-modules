@@ -104,7 +104,6 @@ export default defineComponent({
   props: {
     ...freeFieldProps,
   },
-  emits: ['input'],
   setup(props, { emit, slots , expose }){
     if (!props.Field) return {};
 

@@ -1,47 +1,23 @@
 <template>
   <div class="admin-dictionary-mgmt-wrapper full-height q-pa-md">
-    <q-tree
-      :nodes="(data && data.total) ? data.docs : []"
-      ref="dictTree"
-      accordion
-      no-connectors
-      node-key="id"
-      label-key="Label"
-      @lazy-load="loadSubDicts"
-      @update:expanded="onNodeExpanded"
-    >
+    <q-tree :nodes="(data && data.total) ? data.docs : []" ref="dictTree" accordion no-connectors node-key="id"
+      label-key="Label" @lazy-load="loadSubDicts" @update:expanded="onNodeExpanded">
       <template v-slot:default-header="prop">
-        <div
-          class="dictionary-head row items-center full-width"
-          style="border-bottom: solid 1px grey;"
-        >
+        <div class="dictionary-head row items-center full-width" style="border-bottom: solid 1px grey;">
           <div>
             {{ dictLabel(prop.node) }}
-            <span
-              v-if="prop.node.level === 1 && prop.node.Name"
-              class="dictionary-data-name"
-            >({{prop.node.Name}})</span>
-            <div
-              v-if="prop.node.Description"
-              caption
-              class="description ellipsis-3-lines"
-              v-html="prop.node.Description"
-            ></div>
+            <span v-if="prop.node.level === 1 && prop.node.Name" class="dictionary-data-name">({{ prop.node.Name
+            }})</span>
+            <div v-if="prop.node.Description" caption class="description ellipsis-3-lines"
+              v-html="prop.node.Description"></div>
           </div>
           <q-space></q-space>
 
           <span class="flex justify-start action-buttons">
-            <q-btn v-if="prop.node.addingNew" flat icon="add"
-              @click.stop="addNode(prop.node)"></q-btn>
-            <q-btn v-if="!prop.node.addingNew" flat icon="edit"
-              @click.stop="editNode(prop.node)"></q-btn>
-            <q-btn
-              v-if="!prop.node.addingNew"
-              :disabled="prop.node.BuiltIn"
-              flat
-              icon="delete"
-              @click.stop="deleteNode(prop.node)"
-            ></q-btn>
+            <q-btn v-if="prop.node.addingNew" flat icon="add" @click.stop="addNode(prop.node)"></q-btn>
+            <q-btn v-if="!prop.node.addingNew" flat icon="edit" @click.stop="editNode(prop.node)"></q-btn>
+            <q-btn v-if="!prop.node.addingNew" :disabled="prop.node.BuiltIn" flat icon="delete"
+              @click.stop="deleteNode(prop.node)"></q-btn>
           </span>
         </div>
       </template>
@@ -49,12 +25,8 @@
       <template v-slot:default-body="prop">
         <div v-if="prop.node.id === selectedDictNode.id" class="full-width">
           <div v-for="(field, fIndex) in dictFields || []" :key="fIndex">
-            <free-field
-              v-if="field.Name !== 'Name' || !selectedDictNode.Parent"
-              :values="editingDict"
-              :Field="field"
-              ref="fieldsToValidate"
-            ></free-field>
+            <free-field v-if="field.Name !== 'Name' || !selectedDictNode.Parent" :values="editingDict" :Field="field"
+              ref="fieldsToValidate"></free-field>
           </div>
 
           <div class="action-btns full-width row justify-center q-gutter-md">
@@ -62,20 +34,17 @@
             <q-btn :label="$t('cancelButtonText')" class="btn-secondary" @click="onCancelClick" />
           </div>
 
-          <sticky-buttons
-            :actions="[
-              {
+          <sticky-buttons :actions="[
+            {
               Action: 'cancel',
-              icon:'cancel',
+              icon: 'cancel',
               Label: $t('cancelButtonText')
-              },{
-                Action: 'save',
-                icon: 'save',
-                Label:$t('saveButtonText')
-              }
-            ]"
-            @click="stickyButtonClicked"
-          ></sticky-buttons>
+            }, {
+              Action: 'save',
+              icon: 'save',
+              Label: $t('saveButtonText')
+            }
+          ]" @click="stickyButtonClicked"></sticky-buttons>
         </div>
       </template>
     </q-tree>
@@ -85,12 +54,7 @@
       <q-btn flat @click="importTranslates" class="btn-primary">导入翻译</q-btn>
 
       <div class="row full-width q-mt-md">
-        <q-input v-if="showImportTextArea"
-          class="full-width"
-          type="textarea"
-          autogrow
-          v-model="importText"
-          placeholder="请输入要导入的内容(tab键分割)，如：
+        <q-input v-if="showImportTextArea" class="full-width" type="textarea" autogrow v-model="importText" placeholder="请输入要导入的内容(tab键分割)，如：
     xxx类型 类型一  en-us Type One
     xxx类型 类型二  en-us Type Two"></q-input>
       </div>
@@ -99,11 +63,11 @@
 </template>
 
 <script>
-import { defineComponent, watch } from 'vue';
+import { defineComponent } from 'vue';
 import { copyToClipboard } from 'quasar';
 import { requests } from '@/boot/axios';
-import { useObjectData, objectDataProps } from '../../composible/useObjectData';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { useObjectData, objectDataProps } from '../../composible/useObjectData.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
 
 export default defineComponent({
   name: 'DictionaryPage',
@@ -138,7 +102,7 @@ export default defineComponent({
     };
   },
   watch: {
-    // eslint-disable-next-line func-names
+
     'editingDict.Type': function (v) {
       const valueField = this.dictFields.find((f) => f.Name === 'Value');
       if (valueField) {
@@ -393,7 +357,6 @@ export default defineComponent({
       } else {
         // do the i
         this.postRequest('/dict/import/trans', {c: this.importText}).then((d) => {
-          const data = d && d.data;
           if (d && d.msg === 'OK') {
             this.$q.notify('导入成功！');
           }
@@ -403,8 +366,6 @@ export default defineComponent({
     exportTranslates() {
       this.showImportTextArea = false;
       this.getRequest('/dict/export/trans').then((d) => {
-        const data = (d && d.data) || {};
-
         if (d.data.c) {
           copyToClipboard(d.data.c);
           this.$q.notify('已拷贝到剪切板，可直接粘贴至excel等工具！');

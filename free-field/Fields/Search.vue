@@ -4,68 +4,48 @@
       <q-card class="free-field-search-dialog-card">
         <q-toolbar>
           <div class="simple-field full-width">
-            <q-input
-              autofocus
-              v-model="searchKey"
-              hide-bottom-space
-              :placeholder="Field &&
-              ((Field.Options?.SearchPlaceholder) || Field.Placeholder)"
-              @keydown.enter="search()"
-              class="full-width"
-              v-bind="inputControlSettings"
-            >
+            <q-input autofocus v-model="searchKey" hide-bottom-space :placeholder="Field &&
+              ((Field.Options?.SearchPlaceholder) || Field.Placeholder)" @keydown.enter="search()" class="full-width"
+              v-bind="inputControlSettings">
               <template v-slot:append>
-                <q-btn :class="Field.Options?.SearchBtnClasses" :flat="!Field.Options?.SearchBtn3D" :round="!Field.Options?.SearchBtnRect" icon="search" @click="search()" :disabled="Field.ReadOnly">{{Field.Options.SearchBtnText}}</q-btn>
+                <q-btn :class="Field.Options?.SearchBtnClasses" :flat="!Field.Options?.SearchBtn3D"
+                  :round="!Field.Options?.SearchBtnRect" icon="search" @click="search()" :disabled="Field.ReadOnly">{{
+                    Field.Options.SearchBtnText }}</q-btn>
               </template>
             </q-input>
           </div>
         </q-toolbar>
 
         <q-card-section :style="`
-          width: ${Field.Options?.Width|| '800px'};
-          max-width: ${Field.Options?.MaxWidth|| '80vw'};
+          width: ${Field.Options?.Width || '800px'};
+          max-width: ${Field.Options?.MaxWidth || '80vw'};
           overflow-y: scroll`">
-          <q-table
-            :flat="Field.Options?.Flat"
-            :bordered="Field.Options?.Bordered"
-            :rows="searchData.docs || []"
-            :columns="searchColumns"
-            row-key="id"
-            :pagination="searchPagination"
-            :selection="Field.Multiple ? 'multiple' : 'single'"
-            :selected="searchSelected"
-            @update:selected="searchSelected = $event"
-          >
+          <q-table :flat="Field.Options?.Flat" :bordered="Field.Options?.Bordered" :rows="searchData.docs || []"
+            :columns="searchColumns" row-key="id" :pagination="searchPagination"
+            :selection="Field.Multiple ? 'multiple' : 'single'" :selected="searchSelected"
+            @update:selected="searchSelected = $event">
             <template v-slot:header="props">
               <q-tr :props="props">
-                <q-th auto-width v-if="!Field.Options?.checkOnRight"/>
-                <q-th
-                  v-for="col in props.cols"
-                  :key="col.name"
-                  :props="props"
-                >
+                <q-th auto-width v-if="!Field.Options?.checkOnRight" />
+                <q-th v-for="col in props.cols" :key="col.name" :props="props">
                   {{ col.label }}
                 </q-th>
-                <q-th auto-width v-if="Field.Options?.checkOnRight"/>
+                <q-th auto-width v-if="Field.Options?.checkOnRight" />
               </q-tr>
             </template>
             <template v-slot:body="props">
               <q-tr class="table-row">
                 <q-td auto-width v-if="!Field.Options?.checkOnRight">
-                   <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle"/>
-                   <q-checkbox v-else v-model="props.selected"></q-checkbox>
+                  <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle" />
+                  <q-checkbox v-else v-model="props.selected"></q-checkbox>
                 </q-td>
-                <q-td
-                  v-for="col in props.cols"
-                  :key="col.name"
-                  :props="props"
-                  :class="`col-${col.name} col-${col.value}`"
-                >
-                {{col.value}}
+                <q-td v-for="col in props.cols" :key="col.name" :props="props"
+                  :class="`col-${col.name} col-${col.value}`">
+                  {{ col.value }}
                 </q-td>
                 <q-td auto-width v-if="Field.Options?.checkOnRight">
-                   <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle"/>
-                   <q-checkbox v-else v-model="props.selected"></q-checkbox>
+                  <q-toggle v-model="props.selected" v-if="Field.Options?.useToggle" />
+                  <q-checkbox v-else v-model="props.selected"></q-checkbox>
                 </q-td>
               </q-tr>
             </template>
@@ -77,97 +57,59 @@
 
             <template v-slot:bottom>
               <div class="full-width row flex-center">
-                共{{searchData.total}}条
-                <q-pagination
-                  v-model="searchData.page"
-                  :max="searchData.pages"
-                  @update:modelValue="searchPaginationChanged"
-                  boundary-numbers
-                  direction-links
-                  :max-pages="2"
-                ></q-pagination>
+                共{{ searchData.total }}条
+                <q-pagination v-model="searchData.page" :max="searchData.pages"
+                  @update:modelValue="searchPaginationChanged" boundary-numbers direction-links
+                  :max-pages="2"></q-pagination>
               </div>
             </template>
           </q-table>
         </q-card-section>
         <q-card-actions>
           <div class="buttons row full-width justify-center q-ma-sm">
-            <q-btn
-              :icon="(Field.Options?.CancelIcon) || 'cancel'"
-              class="cancel-btn q-mr-md"
-              @click="showSearch = false; searchSelected=originalSelected; $emit('input')"
-            >{{$t('cancelButtonText')}}</q-btn>
-            <q-btn
-              :icon="(Field.Options?.OkIcon) || 'check'"
-              class="ok-btn" @click="searchOK">{{$t('okButtonText')}}</q-btn>
+            <q-btn :icon="(Field.Options?.CancelIcon) || 'cancel'" class="cancel-btn q-mr-md"
+              @click="showSearch = false; searchSelected = originalSelected; $emit('input')">{{ $t('cancelButtonText')
+              }}</q-btn>
+            <q-btn :icon="(Field.Options?.OkIcon) || 'check'" class="ok-btn" @click="searchOK">{{ $t('okButtonText')
+            }}</q-btn>
           </div>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <span v-if="Field.ReadOnly" class="simple-field row">
-      <span
-        :class="`field-label field-label-readonly ${
-          (Field.Label && Field.Label.trim().length)
-            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-        v-if="Field.Label !== void 0"
-      >
-        <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
-        {{Field.Label || ''}}
+      <span :class="`field-label field-label-readonly ${(Field.Label && Field.Label.trim().length)
+        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+        <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+        {{ Field.Label || '' }}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
       <span class="readonly-content">
-        <span :style="(Field.Info?.Style) ? Field.Info.Style : ''">{{searchDisplay}}</span>
+        <span :style="(Field.Info?.Style) ? Field.Info.Style : ''">{{ searchDisplay }}</span>
       </span>
     </span>
-    <q-input
-      v-else
-      modelValue=""
-      :type="`${Field?.Multiple ? 'textarea' : ''}`"
-      rows="1"
-      hide-bottom-space
-      readonly
+    <q-input v-else modelValue="" :type="`${Field?.Multiple ? 'textarea' : ''}`" rows="1" hide-bottom-space readonly
       :class="`${Field?.Multiple
-        ? '' : 'simple-field'} ${searchDisplay ? 'has-data' : 'empty'}`"
-      ref="fieldToValid"
-      @click="searchKey = '';searchData = {}; showSearch = true"
-    >
+        ? '' : 'simple-field'} ${searchDisplay ? 'has-data' : 'empty'}`" ref="fieldToValid"
+      @click="searchKey = ''; searchData = {}; showSearch = true">
       <template v-slot:prepend>
-        <q-chip
-          v-for="(selected, index) in searchSelected"
-          :key="index"
-          removable
-          :value="!!searchSelected[index]"
-          @remove="removeSelected(selected)"
-          :color="Field.BgColor || 'primary'"
-          :text-color="Field.Color || 'white'"
-        >
-          <q-tooltip
-            anchor="top right"
-          >{{selected[(Field.Options?.SearchDisplayField) || 'id']}}</q-tooltip>
-          {{selected[(Field.Options?.SearchDisplayField) || 'id']}}
+        <q-chip v-for="(selected, index) in searchSelected" :key="index" removable :value="!!searchSelected[index]"
+          @remove="removeSelected(selected)" :color="Field.BgColor || 'primary'" :text-color="Field.Color || 'white'">
+          <q-tooltip anchor="top right">{{ selected[(Field.Options?.SearchDisplayField) || 'id'] }}</q-tooltip>
+          {{ selected[(Field.Options?.SearchDisplayField) || 'id'] }}
         </q-chip>
       </template>
       <template v-slot:before>
-        <span
-          :class="`field-label ${(Field.Label?.trim().length)
-            ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-          v-if="Field.Label !== void 0"
-        >
-          <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
-          {{Field.Label || ''}}
+        <span :class="`field-label ${(Field.Label?.trim().length)
+          ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+          <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+          {{ Field.Label || '' }}
           <span v-if="Field.Required" class="required-mark">*</span>
         </span>
       </template>
       <template v-slot:append>
-        <q-btn
-          flat
-          dense
-          icon="search"
-          class="search-btn"
-          style="width: 36px"
-          @click="searchKey = '';searchData = {}; showSearch = true"
-        ></q-btn>
+        <q-btn flat dense icon="search" class="search-btn" style="width: 36px"
+          @click="searchKey = ''; searchData = {}; showSearch = true"></q-btn>
       </template>
     </q-input>
     <slot name="warning"></slot>
@@ -176,8 +118,8 @@
 
 <script>
 import { defineComponent, getCurrentInstance, watch, ref, computed } from 'vue';
-import { useFreeField, freeFieldProps } from 'free-fe-core-modules/free-field/composible/useFreeField';
-import { useFormValidator} from 'free-fe-core-modules/composible/useFormValidator';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
 
 export default defineComponent({
   name: 'InputFieldSearch',

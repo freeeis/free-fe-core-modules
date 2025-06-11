@@ -1,69 +1,38 @@
 <template>
   <div class="free-field-fixed-list row">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.Label !== void 0"
-    >
-      <q-tooltip v-if="Field.Description" anchor="top right">{{Field.Description}}</q-tooltip>
-      {{Field.Label || ''}}
+    <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+      ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+      <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+      {{ Field.Label || '' }}
       <span v-if="Field.Required" class="required-mark">*</span>
     </span>
-    <q-table
-      class="q-ma-xs col"
-      :rows="tableData"
-      :columns="columns"
-      row-key="Name"
-      :hide-bottom="!summaryContent"
-      separator="cell"
-      :pagination="{rowsPerPage:100000}"
-      table-header-class="row-zebra-even"
-    >
+    <q-table class="q-ma-xs col" :rows="tableData" :columns="columns" row-key="Name" :hide-bottom="!summaryContent"
+      separator="cell" :pagination="{ rowsPerPage: 100000 }" table-header-class="row-zebra-even">
       <template v-slot:top v-if="Field.Warning">
         <slot name="warning"></slot>
       </template>
       <template v-slot:body-cell="props">
-        <q-td
-          :props="props"
-          style="text-align: center;padding:0;margin:0;height:auto;width:auto;"
-          v-if="props.col.List &&
+        <q-td :props="props" style="text-align: center;padding:0;margin:0;height:auto;width:auto;" v-if="props.col.List &&
           (props.col.List.length === 1) &&
-            props.row[props.col.List[0].Name] === 'NaN'"
-          :class="tableTdClass(props.rowIndex)"
-        >/</q-td>
-        <q-td
-          :props="props"
-          v-else-if="showCell(props)"
-          :colspan="props.value && props.value.colspan || 1"
+          props.row[props.col.List[0].Name] === 'NaN'" :class="tableTdClass(props.rowIndex)">/</q-td>
+        <q-td :props="props" v-else-if="showCell(props)" :colspan="props.value && props.value.colspan || 1"
           :rowspan="props.value && props.value.rowspan || 1"
           :class="`items-center justify-center ${tableTdClass(props.rowIndex)}`"
-          style="padding:0;margin:0;height:auto;width:auto;"
-        >
+          style="padding:0;margin:0;height:auto;width:auto;">
           <span v-if="props.col.List && props.col.List.length > 1" class="full-width full-height">
-            <free-field
-              v-for="(col,index) in props.col.List"
-              :key="index"
-              :Field="columnField(col, true, props.col)"
-              :values="props.row"
-              @input="cellChanged()"
-              ref="fieldsToValid"
-            ></free-field>
+            <free-field v-for="(col, index) in props.col.List" :key="index" :Field="columnField(col, true, props.col)"
+              :values="props.row" @input="cellChanged()" ref="fieldsToValid"></free-field>
           </span>
           <span v-else class="full-width full-height">
-            <free-field
-              :Field="columnField(props.col, false)"
-              :values="props.row"
-              @input="cellChanged()"
-              borderless
-              ref="fieldToValid"
-            ></free-field>
+            <free-field :Field="columnField(props.col, false)" :values="props.row" @input="cellChanged()" borderless
+              ref="fieldToValid"></free-field>
           </span>
         </q-td>
       </template>
 
       <template v-slot:bottom>
         <q-tr class="summary-tr">
-          <q-td colspan="100%" class="text-right summary-row">{{summaryContent}}</q-td>
+          <q-td colspan="100%" class="text-right summary-row">{{ summaryContent }}</q-td>
         </q-tr>
       </template>
     </q-table>
@@ -72,8 +41,8 @@
 
 <script>
 import { defineComponent, watchEffect, ref, computed } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
 
 export default defineComponent({
   name: 'InputFieldFixedList',
@@ -235,7 +204,6 @@ export default defineComponent({
     const showCell = (p) => {
         const colNum = Number(p.col.name);
 
-        // eslint-disable-next-line no-restricted-globals
         if (isNaN(colNum)) return true;
 
         if (p.row.rowSize !== void 0) {

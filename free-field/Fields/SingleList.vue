@@ -1,41 +1,32 @@
 <template>
   <div class="free-field-single-list row" v-if="Field">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.Label !== void 0"
-    >
-      <q-tooltip
-        v-if="Field.Description"
-        anchor="top right"
-      >{{Field.Description}}</q-tooltip>
-      {{Field.Label || ''}}
-      <span
-        v-if="Field.Required"
-        class="required-mark"
-      >*</span>
+    <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+      ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+      <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+      {{ Field.Label || '' }}
+      <span v-if="Field.Required" class="required-mark">*</span>
     </span>
 
     <table flat>
-        <thead v-if="Field && Field.Options && Field.Options.Header">
-            <tr>
-                <td>{{Field.Options.Header}}</td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(row, index) in localData" :key="index">
-                <td>
-                    {{row}}
-                </td>
-            </tr>
-        </tbody>
+      <thead v-if="Field && Field.Options && Field.Options.Header">
+        <tr>
+          <td>{{ Field.Options.Header }}</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(row, index) in localData" :key="index">
+          <td>
+            {{ row }}
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, computed } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import { defineComponent, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
 
 export default defineComponent({
   name: 'InputFieldSingleList',

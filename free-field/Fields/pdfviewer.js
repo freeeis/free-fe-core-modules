@@ -57,9 +57,9 @@ export default {
           },
           [
             ($q.platform.is.electron || props.type === 'pdfjs')
-              // eslint-disable-next-line no-underscore-dangle
+
               ? vm.__renderIFramePDFJS(h)
-              // eslint-disable-next-line no-underscore-dangle
+
               : vm.__renderObject(h),
           ],
         );
@@ -69,7 +69,7 @@ export default {
     };
   },
   methods: {
-    // eslint-disable-next-line no-underscore-dangle
+
     __renderObject(h) {
       return h(
         'object',
@@ -89,13 +89,13 @@ export default {
         },
         [
           // browser object not supported, try iframe
-          // eslint-disable-next-line no-underscore-dangle
+
           this.__renderIFrame(h),
         ],
       );
     },
 
-    // eslint-disable-next-line no-underscore-dangle
+
     __renderIFrame(h) {
       return h(
         'iframe',
@@ -108,7 +108,6 @@ export default {
       );
     },
 
-    // eslint-disable-next-line no-underscore-dangle
     __renderIFramePDFJS(h) {
       return h(
         'iframe',

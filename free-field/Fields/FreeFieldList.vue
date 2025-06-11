@@ -1,94 +1,47 @@
 <template>
   <div class="free-field-list row full-width">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.Label !== void 0"
-    >
-      <q-tooltip
-        v-if="Field.Description"
-        anchor="top right"
-      >{{Field.Description}}</q-tooltip>
-      {{Field.Label || ''}}
-      <span
-        v-if="Field.Required"
-        class="required-mark"
-      >*</span>
+    <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+      ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+      <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+      {{ Field.Label || '' }}
+      <span v-if="Field.Required" class="required-mark">*</span>
     </span>
 
-    <dynamic-list
-      class="col"
-      :Field="localField"
-      :values="values"
-      readonly
-      ref="fieldList"
-      selection="multiple"
-    >
+    <dynamic-list class="col" :Field="localField" :values="values" readonly ref="fieldList" selection="multiple">
       <template v-slot:top>
         <q-btn-group class="action-buttons">
-          <q-btn
-            icon="content_copy"
-            @click="copy"
-          >
+          <q-btn icon="content_copy" @click="copy">
             <q-tooltip>拷贝选中</q-tooltip>
           </q-btn>
-          <q-btn
-            icon="content_paste"
-            @click="paste"
-          >
+          <q-btn icon="content_paste" @click="paste">
             <q-tooltip>粘贴</q-tooltip>
           </q-btn>
-          <q-btn
-            icon="update"
-            @click="batch"
-            v-if="fieldListLength > 1"
-          >
+          <q-btn icon="update" @click="batch" v-if="fieldListLength > 1">
             <q-tooltip>批量修改</q-tooltip>
           </q-btn>
         </q-btn-group>
       </template>
       <template v-slot:header-actions>
-        <q-btn
-          flat
-          round
-          icon="add"
-          @click="addField"
-        ></q-btn>
+        <q-btn flat round icon="add" @click="addField"></q-btn>
       </template>
       <template v-slot:body-actions="props">
-        <q-btn
-          flat
-          round
-          icon="edit"
-          @click="editField(props.row)"
-        ></q-btn>
-        <q-btn
-          flat
-          round
-          icon="delete"
-          @click="deleteField(props)"
-        ></q-btn>
+        <q-btn flat round icon="edit" @click="editField(props.row)"></q-btn>
+        <q-btn flat round icon="delete" @click="deleteField(props)"></q-btn>
       </template>
       <template v-slot:warning>
         <slot name="warning"></slot>
       </template>
     </dynamic-list>
 
-    <free-field
-      :Field="editingFieldField"
-      :values="editingField"
-      @cancel="editorCancelled"
-      @save="saveField"
-      @input="editorInput"
-      @update:field="editingFieldChanged"
-    ></free-field>
+    <free-field :Field="editingFieldField" :values="editingField" @cancel="editorCancelled" @save="saveField"
+      @input="editorInput" @update:field="editingFieldChanged"></free-field>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, unref, computed, watchEffect } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import DynamicList from './DynamicList';
+import { defineComponent, ref, unref, computed } from 'vue';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import DynamicList from './DynamicList.vue';
 
 const clipBoardStore = {
   content: '',

@@ -1,12 +1,12 @@
 import { getCurrentInstance } from 'vue';
 import { date as quasarDate } from 'quasar';
 import config from '@/config';
-import useAppStore from '@/stores/app';
+// import useAppStore from '@/stores/app';
 import MsgDialog from './components/Dialog/index';
 
 import EIcon from './components/Basic/EIcon.vue';
-import StickyButtons from './components/StickyButtons';
-import SelectLocales from './components/SelectLocales';
+import StickyButtons from './components/StickyButtons/index.vue';
+import SelectLocales from './components/SelectLocales/index.vue';
 import SummaryHead from './components/Basic/SummaryHead.vue';
 import SlidingCarousel from './components/SlidingCarousel/index.vue';
 import SlidingNews from './components/SlidingNews/index.vue';
@@ -185,7 +185,6 @@ const filters = {
       }
       desc = step.Description.find((s) => s.Status === (status || stepStatus || '').toString());
       desc = desc ? desc.Description : '';
-      desc = desc;
     }
 
     desc = desc || '未知状态';
@@ -196,10 +195,10 @@ const filters = {
 export default (app, root) => {
   root.use(MsgDialog);
 
-  const appStore = useAppStore();
+  // const appStore = useAppStore();
 
   const validatorMobilePhone = (d) => !d || /^(0|86|17951)?(13[0-9]|14[0-9]|15[0-9]|16[0-9]|17[0-9]|18[0-9]|19[0-9])[0-9]{8}$/.test(d);
-  const validatorEmail = (d) => !d || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(d);
+  const validatorEmail = (d) => !d || /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(d);
   return {
     config: {
       backendDependencies: ["core-modules"],
@@ -413,7 +412,7 @@ export default (app, root) => {
       validatorOnlyNIZ: (d) => /^([0]|-[1-9][0-9]+)$/.test(d.toString()),
 
       //
-      validatorUrl: (d) => /^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?/.test(d),
+      validatorUrl: (d) => /^(ht|f)tp(s?):\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-.?,'/\\+&amp;%$#_]*)?/.test(d),
       validatorOfficePhone: (d) => /^(\(\d{3,4}\)|\d{3,4}-|\s)?\d{8}$/.test(d),
       validatorChinaZip: (d) => /^[1-9]{1}(\d+){5}$/.test(d),
 
@@ -421,8 +420,8 @@ export default (app, root) => {
       validatorPwd0: (d) => /^.*(?=.{6,16}).*$/.test(d),
       validatorPwd1: (d) => /^.{6,16}$/.test(d),
       validatorPwd2: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/.test(d),
-      validatorPwd3: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*?\(\)]).*$/.test(d),
-      validatorPwd4: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,})(?=.*[!@#$%^&*?\(\)]).*$/.test(d),
+      validatorPwd3: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*?()]).*$/.test(d),
+      validatorPwd4: (d) => /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{2,})(?=.*[a-z]{2,})(?=.*[!@#$%^&*?()]).*$/.test(d),
     },
   }
 };

@@ -1,152 +1,89 @@
 <template>
   <div class="row free-field-image" v-if="Field">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.Label && !Field.dense">
+    <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+      ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label && !Field.dense">
       <q-tooltip v-if="Field.Description" anchor="top right">
         {{
-        Field.Description
+          Field.Description
         }}
       </q-tooltip>
       {{ Field.Label || '' }}
       <span v-if="Field.Required" class="required-mark">*</span>
     </span>
-    <q-uploader
-      @uploaded="uploaded"
-      @removed="removeFile"
-      @rejected="filesRejected"
-      ref="uploader"
-      :factory="factoryFn"
-      auto-upload
-      :max-file-size="maxFileSize"
-      :class="(Field.dense ?
+    <q-uploader @uploaded="uploaded" @removed="removeFile" @rejected="filesRejected" ref="uploader" :factory="factoryFn"
+      auto-upload :max-file-size="maxFileSize" :class="(Field.dense ?
         `no-shadow dense` : `${Field.onlyIcon ? 'only-icon' : ''}`)
-          + (hasError ? ' free-field--error' : '')"
-    >
+        + (hasError ? ' free-field--error' : '')">
       <template v-slot:list="scope">
         <div class="uploader-btns row no-wrap items-center" v-if="!Field.dense && !(Field.onlyIcon || onlyIcon)">
           <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
-          <q-btn
-            v-if="!scope.isUploading"
-            type="a"
-            icon="cloud_upload"
-            dense
-            flat
-            class="upload-btn"
-            label="点击上传"
-            :disabled="Field.ReadOnly"
-          >
+          <q-btn v-if="!scope.isUploading" type="a" icon="cloud_upload" dense flat class="upload-btn" label="点击上传"
+            :disabled="Field.ReadOnly">
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-btn>
-          <q-btn
-            v-if="scope.isUploading"
-            icon="clear"
-            @click="scope.abort"
-            round
-            class="clear-btn"
-            dense
-            flat
-            :disabled="Field.ReadOnly"
-          ></q-btn>
+          <q-btn v-if="scope.isUploading" icon="clear" @click="scope.abort" round class="clear-btn" dense flat
+            :disabled="Field.ReadOnly"></q-btn>
           <slot name="warning"></slot>
         </div>
 
-        <q-btn
-          v-if="(Field.onlyIcon || onlyIcon) && (!fieldData.value || !fieldData.value || !fieldData.value.id)"
-          type="a"
-          :icon="fieldData?.value?.id ? 'check' : 'cloud_upload'"
-          dense
-          flat
-          :disabled="Field.ReadOnly"
-        >
+        <q-btn v-if="(Field.onlyIcon || onlyIcon) && (!fieldData.value || !fieldData.value || !fieldData.value.id)"
+          type="a" :icon="fieldData?.value?.id ? 'check' : 'cloud_upload'" dense flat :disabled="Field.ReadOnly">
           <q-uploader-add-trigger />
         </q-btn>
 
         <div v-else-if="(Field.onlyIcon || onlyIcon) && fieldData.value && fieldData.value?.id">
-          <q-img
-            :src="$filter(Field?.Options?.NoThumb ? 'serverImage' : 'serverThumb', `${fieldData.value.id}`)"
-            style="width:32px; max-height:32px;min-height:32px;"
-          >
+          <q-img :src="$filter(Field?.Options?.NoThumb ? 'serverImage' : 'serverThumb', `${fieldData.value.id}`)"
+            style="width:32px; max-height:32px;min-height:32px;">
           </q-img>
-          <q-uploader-add-trigger/>
+          <q-uploader-add-trigger />
         </div>
 
         <q-item v-else-if="Field.dense" class="items-center q-pa-none">
           <q-item-section v-if="fieldData.value.id" thumbnail>
-            <q-img
-              :src="`${ctx.config.thumbUrlBase}${fieldData.value.id}`"
-              style="width: 48px; max-height: 48px;"
-            >
+            <q-img :src="`${ctx.config.thumbUrlBase}${fieldData.value.id}`" style="width: 48px; max-height: 48px;">
             </q-img>
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>
 
-          <q-item-section v-if=" fieldData.value.__img" thumbnail class="gt-xs">
+          <q-item-section v-if="fieldData.value.__img" thumbnail class="gt-xs">
             <q-img :src="fieldData.value.__img.src">
             </q-img>
             <q-uploader-add-trigger v-if="!Field.ReadOnly" />
           </q-item-section>
 
           <q-item-section v-if="!fieldData.value?.id">
-            <q-btn
-              v-if="!scope.isUploading"
-              type="a"
-              icon="cloud_upload"
-              class="upload-btn"
-              dense
-              flat
-              :disabled="Field.ReadOnly"
-            >
+            <q-btn v-if="!scope.isUploading" type="a" icon="cloud_upload" class="upload-btn" dense flat
+              :disabled="Field.ReadOnly">
               <q-uploader-add-trigger v-if="!Field.ReadOnly" />
             </q-btn>
           </q-item-section>
         </q-item>
 
         <div v-else-if="fieldData.value?.id" class="file-list row items-start justify-start">
-          <q-card
-            flat
-            class="file-list-item">
-              <e-icon class="file-image"
-                :name="fileThumb(fieldData.value)"
-                :thumb="!Field?.Options?.NoThumb"
-                :relative="filePreviewType(fieldData.value) !== 'image'"
-                @click="preview(fieldData.value)">
-                <div class="view-btn-wrapper absolute-full justify-center text-center">
-                  <q-btn
-                    flat
-                    class="view-btn full-height full-width"
-                    @click="preview(fieldData.value)"
-                  >查看</q-btn>
-                </div>
-              </e-icon>
-              <span class="file-name full-width ellipsis">
-                <a
-                  v-if="fieldData.value && fieldData.value.id"
-                  target="_blank"
-                  :href="$filter('serverPath', fieldData.value.id)"
-                  :download="fieldData.value.name">
-                    {{ fieldData.value.name }}
-                </a>
-                <span v-else-if="fieldData.value && fieldData.value.name">
-                  {{fieldData.value.name}}
-                </span>
-                <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
+          <q-card flat class="file-list-item">
+            <e-icon class="file-image" :name="fileThumb(fieldData.value)" :thumb="!Field?.Options?.NoThumb"
+              :relative="filePreviewType(fieldData.value) !== 'image'" @click="preview(fieldData.value)">
+              <div class="view-btn-wrapper absolute-full justify-center text-center">
+                <q-btn flat class="view-btn full-height full-width" @click="preview(fieldData.value)">查看</q-btn>
+              </div>
+            </e-icon>
+            <span class="file-name full-width ellipsis">
+              <a v-if="fieldData.value && fieldData.value.id" target="_blank"
+                :href="$filter('serverPath', fieldData.value.id)" :download="fieldData.value.name">
+                {{ fieldData.value.name }}
+              </a>
+              <span v-else-if="fieldData.value && fieldData.value.name">
+                {{ fieldData.value.name }}
               </span>
+              <q-tooltip>{{ fieldData.value.name }}</q-tooltip>
+            </span>
 
-              <span class="file-size full-width ellipsis">
-                Size: {{ fieldData.value.sizeLabel || fieldData.value.__sizeLabel }}
-              </span>
+            <span class="file-size full-width ellipsis">
+              Size: {{ fieldData.value.sizeLabel || fieldData.value.__sizeLabel }}
+            </span>
 
-              <q-btn
-                flat
-                dense
-                round
-                class="delete-btn"
-                icon="close"
-                @click="scope.removeFile(fieldData.value)"
-                :disabled="Field.ReadOnly"
-              />
+            <q-btn flat dense round class="delete-btn" icon="close" @click="scope.removeFile(fieldData.value)"
+              :disabled="Field.ReadOnly" />
           </q-card>
         </div>
 
@@ -155,32 +92,18 @@
         </div>
       </template>
     </q-uploader>
-    <q-dialog class="image-preview-dialog"
-      flat
-      full-width full-height v-model="showPreview"
+    <q-dialog class="image-preview-dialog" flat full-width full-height v-model="showPreview"
       style="background: rgba(0,0,0,0)">
       <div class="image-preview">
-        <q-icon name="close"
-          class="absolute cursor-pointer bg-white text-primary"
-          style="border-radius: 6px;border: 1px solid primary;right: 0;"
-          round size="20px"
-          @click="showPreview=false"></q-icon>
-        <q-img
-          fit="contain"
-          v-if="previewType === 'image'"
-          :src="previewFile"
-          @click="showPreview=false"
+        <q-icon name="close" class="absolute cursor-pointer bg-white text-primary"
+          style="border-radius: 6px;border: 1px solid primary;right: 0;" round size="20px"
+          @click="showPreview = false"></q-icon>
+        <q-img fit="contain" v-if="previewType === 'image'" :src="previewFile" @click="showPreview = false"
           style="max-height: 100%; max-width: 100%;">
         </q-img>
 
-        <q-pdfviewer
-          v-if="previewType === 'pdf'"
-          v-model="showPreview"
-          @click="showPreview=false"
-          :src="previewFile"
-          type="pdfjs"
-          style="height: 100%; max-width: 100%;"
-        />
+        <q-pdfviewer v-if="previewType === 'pdf'" v-model="showPreview" @click="showPreview = false" :src="previewFile"
+          type="pdfjs" style="height: 100%; max-width: 100%;" />
       </div>
     </q-dialog>
   </div>
@@ -188,9 +111,9 @@
 
 <script>
 import { defineComponent, getCurrentInstance, ref } from 'vue';
-import { useFreeField, freeFieldProps } from 'free-fe-core-modules/free-field/composible/useFreeField';
-import { useFormValidator} from 'free-fe-core-modules/composible/useFormValidator';
-import { useUploader } from 'free-fe-core-modules/free-field/composible/useUploader';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
+import { useUploader } from '../composible/useUploader.js';
 
 export default defineComponent({
   name: 'InputFieldImage',
@@ -297,7 +220,6 @@ export default defineComponent({
         if (res && res.msg === 'OK') {
           setFieldData({
             id: res.data.id,
-            // eslint-disable-next-line no-underscore-dangle
             sizeLabel: file.__sizeLabel,
             name: file.name,
             size: file.size,

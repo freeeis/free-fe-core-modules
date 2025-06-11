@@ -1,55 +1,21 @@
 <template>
   <div class="row free-field-file-list" v-if="Field">
-    <span
-      :class="`field-label ${(Field.Label && Field.Label.trim().length)
-        ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`"
-      v-if="Field.Label !== void 0"
-    >
-      <q-tooltip
-        v-if="Field.Description"
-        anchor="top right"
-      >{{Field.Description}}</q-tooltip>
-      {{Field.Label || ''}}
-      <span
-        v-if="Field.Required"
-        class="required-mark"
-      >*</span>
+    <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
+      ? '' : 'field-label-empty'} ${Field.Required ? 'required' : ''}`" v-if="Field.Label !== void 0">
+      <q-tooltip v-if="Field.Description" anchor="top right">{{ Field.Description }}</q-tooltip>
+      {{ Field.Label || '' }}
+      <span v-if="Field.Required" class="required-mark">*</span>
     </span>
-    <q-uploader
-      @added="localFiles.push(...$event)"
-      @uploaded="uploaded"
-      @removed="removeFile"
-      @rejected="filesRejected"
-      :factory="factoryFn"
-      multiple
-      :auto-upload="Field && Field.Options && Field.Options.Auto"
-      :max-file-size="maxFileSize"
-      :max-total-size="maxTotalSize"
-      :accept="acceptedFileTypes"
-      :class="`q-ma-xs ${hasError ? 'free-field--error' : ''}`"
-      ref="uploader"
-    >
+    <q-uploader @added="localFiles.push(...$event)" @uploaded="uploaded" @removed="removeFile" @rejected="filesRejected"
+      :factory="factoryFn" multiple :auto-upload="Field && Field.Options && Field.Options.Auto"
+      :max-file-size="maxFileSize" :max-total-size="maxTotalSize" :accept="acceptedFileTypes"
+      :class="`q-ma-xs ${hasError ? 'free-field--error' : ''}`" ref="uploader">
       <template v-slot:list="scope">
-        <div
-          v-if="Field.Options && Field.Options.AsLink && Array.isArray(allFiles) && allFiles.length"
-          class="file-link row full-width ellipsis items-center"
-        >
-          <div
-            class="row ellipsis full-width"
-            v-for="(file, index) in allFiles || []"
-            :key="index"
-          >
-            <q-btn
-              icon="cloud_download"
-              dense
-              flat
-            ></q-btn>
-            <a
-              class="ellipsis"
-              target="_blank"
-              :href="$filter('serverPath', file.id)"
-              :download="file.name"
-            >
+        <div v-if="Field.Options && Field.Options.AsLink && Array.isArray(allFiles) && allFiles.length"
+          class="file-link row full-width ellipsis items-center">
+          <div class="row ellipsis full-width" v-for="(file, index) in allFiles || []" :key="index">
+            <q-btn icon="cloud_download" dense flat></q-btn>
+            <a class="ellipsis" target="_blank" :href="$filter('serverPath', file.id)" :download="file.name">
               {{ file.name }}
               <q-tooltip>{{ file.name }}</q-tooltip>
             </a>
@@ -57,43 +23,17 @@
         </div>
         <div v-else>
           <div class="uploader-btns row no-wrap items-center">
-            <q-spinner
-              v-if="scope.isUploading"
-              class="q-uploader__spinner"
-            />
-            <q-btn
-              v-if="scope.canAddFiles && !Field.ReadOnly && canHaveMore"
-              type="a"
-              icon="add_box"
-              label="点击添加"
-              class="add-btn"
-              dense
-              flat
-            >
+            <q-spinner v-if="scope.isUploading" class="q-uploader__spinner" />
+            <q-btn v-if="scope.canAddFiles && !Field.ReadOnly && canHaveMore" type="a" icon="add_box" label="点击添加"
+              class="add-btn" dense flat>
               <q-uploader-add-trigger v-if="!Field.ReadOnly" />
             </q-btn>
-            <q-btn
-              v-if="!Field.ReadOnly
-                && scope.canUpload && !(Field && Field.Options && Field.Options.Auto)"
-              type="a"
-              icon="cloud_upload"
-              @click="scope.upload"
-              class="upload-btn"
-              label="点击上传"
-              dense
-              flat
-            ></q-btn>
+            <q-btn v-if="!Field.ReadOnly
+              && scope.canUpload && !(Field && Field.Options && Field.Options.Auto)" type="a" icon="cloud_upload"
+              @click="scope.upload" class="upload-btn" label="点击上传" dense flat></q-btn>
 
-            <q-btn
-              v-if="scope.isUploading && !Field.ReadOnly"
-              type="a"
-              icon="clear"
-              @click="scope.abort"
-              class="abort-btn"
-              round
-              dense
-              flat
-            ></q-btn>
+            <q-btn v-if="scope.isUploading && !Field.ReadOnly" type="a" icon="clear" @click="scope.abort"
+              class="abort-btn" round dense flat></q-btn>
             <slot name="warning"></slot>
           </div>
 
@@ -134,36 +74,18 @@
             </q-list>
           </div> -->
 
-          <div
-            v-if="Array.isArray(allFiles) && allFiles.length"
-            class="file-list file-list-card row items-start justify-start q-gutter-xl"
-          >
-            <q-card
-              flat
-              class="file-list-item"
-              v-for="(file, index) in allFiles || []"
-              :key="index"
-            >
-              <e-icon
-                class="file-image"
-                :name="fileThumb(file)"
-                thumb
-                :relative="filePreviewType(file) !== 'image'"
-                @click="preview(file)"
-              >
+          <div v-if="Array.isArray(allFiles) && allFiles.length"
+            class="file-list file-list-card row items-start justify-start q-gutter-xl">
+            <q-card flat class="file-list-item" v-for="(file, index) in allFiles || []" :key="index">
+              <e-icon class="file-image" :name="fileThumb(file)" thumb :relative="filePreviewType(file) !== 'image'"
+                @click="preview(file)">
                 <div class="view-btn-wrapper absolute-full justify-center text-center">
-                  <q-btn
-                    flat
-                    class="view-btn full-height full-width"
-                  >查看</q-btn>
+                  <q-btn flat class="view-btn full-height full-width">查看</q-btn>
                 </div>
               </e-icon>
               <span class="file-name full-width ellipsis">
-                <a
-                  target="_blank"
-                  :href="$filter('serverPath', file.id)"
-                  :download="file.name">
-                    {{ file.name }}
+                <a target="_blank" :href="$filter('serverPath', file.id)" :download="file.name">
+                  {{ file.name }}
                 </a>
                 <q-tooltip>{{ file.name }}</q-tooltip>
               </span>
@@ -172,58 +94,28 @@
                 Size: {{ file.sizeLabel || file.__sizeLabel }}
               </span>
 
-              <q-btn
-                flat
-                dense
-                round
-                class="delete-btn"
-                icon="close"
-                @click="scope.removeFile(file)"
-                v-if="!Field.ReadOnly"
-              />
+              <q-btn flat dense round class="delete-btn" icon="close" @click="scope.removeFile(file)"
+                v-if="!Field.ReadOnly" />
             </q-card>
           </div>
-          <div
-            class="free-field--error-tag"
-            v-if="hasError"
-          >
+          <div class="free-field--error-tag" v-if="hasError">
             <e-icon name="error"></e-icon>
           </div>
         </div>
       </template>
     </q-uploader>
-    <q-dialog
-      class="image-preview-dialog"
-      flat
-      full-width
-      full-height
-      v-model="showPreview"
-      style="background: rgba(0,0,0,0)"
-    >
+    <q-dialog class="image-preview-dialog" flat full-width full-height v-model="showPreview"
+      style="background: rgba(0,0,0,0)">
       <div class="image-preview">
-        <q-icon name="close"
-          class="absolute cursor-pointer bg-white text-primary"
-          style="border-radius: 6px;border: 1px solid primary;right: 0;"
-          round size="20px"
-          @click="showPreview=false"></q-icon>
-        <q-img
-          v-if="previewType=== 'image'"
-          fit="contain"
-          :src="previewFile"
-          @click="showPreview=false"
-          style="height: 100%; max-width: 100%;"
-        >
+        <q-icon name="close" class="absolute cursor-pointer bg-white text-primary"
+          style="border-radius: 6px;border: 1px solid primary;right: 0;" round size="20px"
+          @click="showPreview = false"></q-icon>
+        <q-img v-if="previewType === 'image'" fit="contain" :src="previewFile" @click="showPreview = false"
+          style="height: 100%; max-width: 100%;">
         </q-img>
 
-        <pdf-viewer
-          v-if="previewType === 'pdf'"
-          v-model="showPreview"
-          @click="showPreview=false"
-          :src="previewFile"
-          :version="Field?.Options?.PdfViewerVersion"
-          type="pdfjs"
-          style="height: 100%; max-width: 100%;"
-        />
+        <pdf-viewer v-if="previewType === 'pdf'" v-model="showPreview" @click="showPreview = false" :src="previewFile"
+          :version="Field?.Options?.PdfViewerVersion" type="pdfjs" style="height: 100%; max-width: 100%;" />
       </div>
     </q-dialog>
   </div>
@@ -231,10 +123,10 @@
 
 <script>
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import { useFormValidator} from '../../composible/useFormValidator';
-import { useUploader } from '../composible/useUploader';
-import PdfViewer from './pdfviewer';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
+import { useUploader } from '../composible/useUploader.js';
+import PdfViewer from './pdfviewer.js';
 
 export default defineComponent({
   name: 'InputFieldFileList',
@@ -375,7 +267,6 @@ export default defineComponent({
           if (res && res.msg === 'OK') {
             uploadedFiles.push({
               id: res.data.id,
-              // eslint-disable-next-line no-underscore-dangle
               sizeLabel: file.__sizeLabel,
               name: file.name,
               size: file.size,

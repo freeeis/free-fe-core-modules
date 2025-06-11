@@ -1,21 +1,11 @@
 <template>
   <span class="e-icon justify-center items-center">
-    <q-icon
-      v-if="isIcon"
-      class="full-width full-height"
-      :name="name"
-    ></q-icon>
-    <q-img
-      v-else
-      class="full-width full-height"
-      style="display: block;"
-      :src="imgPath"
-      round
-    >
+    <q-icon v-if="isIcon" class="full-width full-height" :name="name"></q-icon>
+    <q-img v-else class="full-width full-height" style="display: block;" :src="imgPath" round>
       <slot></slot>
       <template v-slot:error v-if="!hideError">
         <div class="error-slot column absolute-full justify-center text-center">
-          <span class="no-picture-text full-width">{{noImageText}}</span>
+          <span class="no-picture-text full-width">{{ noImageText }}</span>
         </div>
       </template>
     </q-img>
@@ -23,7 +13,7 @@
 </template>
 
 <script>
-import { ref, computed, defineComponent, getCurrentInstance, watchEffect, nextTick } from 'vue';
+import { ref, computed, defineComponent, getCurrentInstance, watchEffect } from 'vue';
 
 export default defineComponent({
   name: 'EIcon',

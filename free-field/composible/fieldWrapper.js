@@ -31,7 +31,7 @@ export default defineComponent({
 
     const localField = computed(() => {
       const lField = Object.clone(props.Field);
-      
+
       lField.Rules = lField.Rules || [];
       for (let i = 0; i < lField.Rules.length; i += 1) {
         const rule = lField.Rules[i];
@@ -70,7 +70,6 @@ export default defineComponent({
       `;
 
       try {
-        // eslint-disable-next-line no-eval
         return eval(funcStr);
       } catch (ex) {
         console.error(ex)

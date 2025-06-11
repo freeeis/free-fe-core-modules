@@ -8,7 +8,7 @@ function fileSizeStrToNumber (s) {
   const sizeMatch = s.match(/^([0-9]*)(k|m|g*)(b*)/);
 
   if (sizeMatch) {
-    // eslint-disable-next-line no-unused-vars
+
     // const [tmp, num, unit] = sizeMatch;
     const num = sizeMatch[1];
     const unit = sizeMatch[2];
@@ -58,7 +58,7 @@ function fileSizeNumberToStr (s) {
   return `${sizeNum.toFixed(2)}${unit}`;
 }
 
-// eslint-disable-next-line no-underscore-dangle
+
 function _getFileType (f) {
   if (!f) return {};
 
@@ -100,7 +100,7 @@ function _getFileType (f) {
   return {};
 }
 
-export function useUploader(props, ctx) {
+export function useUploader(props) {
   const { proxy:vm } = getCurrentInstance();
 
   const showPreview = ref(false);
@@ -169,7 +169,7 @@ export function useUploader(props, ctx) {
 
     switch (fType) {
       case 'image':
-        // eslint-disable-next-line no-underscore-dangle
+
         type = file.id || (file.__img ? file.__img.src : '');
         break;
       case 'audio':
@@ -269,7 +269,7 @@ export function useUploader(props, ctx) {
         if (file.id) {
           url = vm.$filter('serverImage', file.id);
         } else {
-          // eslint-disable-next-line no-underscore-dangle
+
           url = file.__img ? file.__img.src : '';
         }
         break;

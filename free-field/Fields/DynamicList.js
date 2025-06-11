@@ -1,4 +1,4 @@
-import { ref, defineComponent, getCurrentInstance, h, computed, watchEffect } from 'vue';
+import { ref, defineComponent, h, computed, watchEffect } from 'vue';
 import { QTable, QTh, QTd, QTr, QIcon } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
@@ -247,7 +247,6 @@ export default defineComponent({
     const showCell = (p) => {
       const colNum = Number(p.col.name);
 
-      // eslint-disable-next-line no-restricted-globals
       if (isNaN(colNum)) return true;
 
       if (p.row.rowSize !== void 0) {

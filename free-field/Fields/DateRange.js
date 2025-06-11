@@ -1,8 +1,9 @@
 import { ref, defineComponent, getCurrentInstance, h, computed, watch, watchEffect } from 'vue';
 import { QInput, QIcon, QPopupProxy, QDate } from 'quasar';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import freeFieldLabel from '../composible/freeFieldLabel';
-import { useFormValidator} from '../../composible/useFormValidator';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import freeFieldLabel from '../composible/freeFieldLabel.js';
+import { useFormValidator} from '../../composible/useFormValidator.js';
+import ReadonlyContent from '../composible/readonlyContent.js';
 
 export default defineComponent({
   name: 'InputFieldDateRange',

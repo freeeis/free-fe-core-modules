@@ -3,38 +3,26 @@
     <slot name="warning"></slot>
     <div class="buttons relative-position" v-if="Field && Field.ShowButtons">
       <span class="q-ml-lg select-all-btn">
-        <q-btn round icon="check" @click="setFieldData(Object.assign({},serviceList))"></q-btn>
+        <q-btn round icon="check" @click="setFieldData(Object.assign({}, serviceList))"></q-btn>
       </span>
       <span class="q-ml-md clear-btn">
         <q-btn round icon="clear" @click="setFieldData({})"></q-btn>
       </span>
     </div>
     <div class="roles relative-position row items-center">
-      <q-radio
-        class="role"
-        v-model="currentRole"
-        v-for="(r, idx) in (Field && Field.Roles) || []"
-        :key="idx"
-        :val="r.Name"
-        :label="r.Name || idx"
-        @update:modelValue="setFieldData(r.Permission || {})"/>
+      <q-radio class="role" v-model="currentRole" v-for="(r, idx) in (Field && Field.Roles) || []" :key="idx"
+        :val="r.Name" :label="r.Name || idx" @update:modelValue="setFieldData(r.Permission || {})" />
     </div>
-    <permission-editor
-      v-if="Field && !Field.HideEditor"
-      class="permission-editor"
-      :Permission="fieldData.value"
-      :Service="serviceList"
-      :readonly="Field.ReadOnly"
-      @changed="permissionChanged"
-      :noDataScope="Field.NoDataScope"
-    ></permission-editor>
+    <permission-editor v-if="Field && !Field.HideEditor" class="permission-editor" :Permission="fieldData.value"
+      :Service="serviceList" :readonly="Field.ReadOnly" @changed="permissionChanged"
+      :noDataScope="Field.NoDataScope"></permission-editor>
   </span>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
-import { useFreeField, freeFieldProps } from '../composible/useFreeField';
-import PermissionEditor from './PermissionEditor';
+import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
+import PermissionEditor from './PermissionEditor.vue';
 
 export default defineComponent({
   name: 'InputFieldPermission',

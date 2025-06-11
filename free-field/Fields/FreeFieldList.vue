@@ -41,7 +41,7 @@
 <script>
 import { defineComponent, ref, unref, computed } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
-import DynamicList from './DynamicList.vue';
+import DynamicList from './DynamicList.js';
 
 const clipBoardStore = {
   content: '',

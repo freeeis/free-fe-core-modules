@@ -141,7 +141,7 @@ export default defineComponent({
     if (props.Field && props.Field.Info && props.Field.Info.KeepChanged) {
       onMounted(() => {
         nextTick(() => {
-          props.$emit("input", props.Field);
+          emit("input", props.Field);
         });
       });
     }

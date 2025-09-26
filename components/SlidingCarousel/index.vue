@@ -43,7 +43,7 @@ export default defineComponent({
     swipeable: { type: Boolean, default: true },
     thumbnails: { type: Boolean, default: true },
   },
-  emits: ['onUpdate:modelValue'],
+  emits: ['update:modelValue'],
   setup(props, ctx) {
     const {
       data,

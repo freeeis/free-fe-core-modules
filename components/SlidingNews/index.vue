@@ -87,7 +87,7 @@ export default defineComponent({
     transitionPrev: { type: String, default: 'slide-up' },
     transitionNext: { type: String, default: 'slide-down' },
   },
-  emits: ['onUpdate:modelValue'],
+  emits: ['update:modelValue'],
   setup(props, ctx) {
     const {
       data,

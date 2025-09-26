@@ -98,7 +98,7 @@ export default defineComponent({
     ...objectDataProps,
     pagination: { type: Boolean, default: true },
   },
-  emits: ['onUpdate:modelValue'],
+  emits: ['update:modelValue'],
   setup(props, ctx) {
     const {
       data,

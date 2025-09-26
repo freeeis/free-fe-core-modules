@@ -87,7 +87,7 @@ export default defineComponent({
       showImportTextArea: false,
     };
   },
-  emits: ['onUpdate:modelValue'],
+  emits: ['update:modelValue'],
   setup(props, ctx) {
     const {
       data,

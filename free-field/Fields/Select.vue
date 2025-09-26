@@ -333,13 +333,15 @@ export default defineComponent({
     };
 
     const { validate } = useFormValidator('fieldToValid');
-    expose ({
-      validate,
-    })
 
     if (props.Field.AsCheck && props.Field.Required) {
       expose ({
+        validate,
         selfValidate,
+      })
+    } else {
+      expose ({
+        validate,
       })
     }
 

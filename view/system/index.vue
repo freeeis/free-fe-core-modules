@@ -89,6 +89,7 @@ export default defineComponent({
     ...objectDataProps,
     buttonsVisible: { type: Function, default: () => true },
   },
+  emits: ['onUpdate:modelValue'],
   setup(props, ctx) {
     const {
       data,

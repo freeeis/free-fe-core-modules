@@ -83,7 +83,7 @@ import { useObjectData, objectDataProps } from '../../composible/useObjectData';
 
 export default defineComponent({
   name: 'SummaryHead',
-  emits: ['clicked'],
+  emits: ['clicked', 'onUpdate:modelValue'],
   props: {
     ...objectDataProps,
     has_multiple_head: { type: Boolean, default: false },

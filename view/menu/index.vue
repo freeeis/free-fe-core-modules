@@ -98,6 +98,7 @@ export default defineComponent({
     editMenu: { type: Function, default: () => { } },
     deleteMenu: { type: Function, default: () => { } },
   },
+  emits: ['onUpdate:modelValue'],
   setup(props, ctx) {
     const selectedMenuNode = ref({});
     const editingMenu = ref({});

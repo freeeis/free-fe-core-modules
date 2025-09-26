@@ -139,9 +139,9 @@ export default defineComponent({
       class: 'prefix',
     }, props.Field.Options?.Prefix));
 
-    const append = slots.append ? slots.append() : (props.Field.Options?.Postfix && h('span',{
+    const append = slots.append ? slots.append() : (props.Field.Options?.Postfix ? () => h('span',{
       class: 'postfix',
-    }, props.Field.Options?.Postfix));
+    }, props.Field.Options?.Postfix) : undefined);
 
     const mask = computed(() => {
       if (!props.Field?.Options) return undefined;

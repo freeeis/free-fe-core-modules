@@ -113,7 +113,7 @@ export default {
         'iframe',
         {
           staticClass: 'q-pdfviewer__iframe',
-          src: `pdfjs${this.version ? `_${this.version}` : ''}/web/viewer.html?file=${encodeURIComponent(this.src)}`,
+          src: `/pdfjs${this.version ? `_${this.version}` : ''}/web/viewer.html?file=${encodeURIComponent(this.src)}`,
           width: '100%',
           height: '100%',
         },

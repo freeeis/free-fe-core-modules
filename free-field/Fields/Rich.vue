@@ -58,6 +58,7 @@
           skin: isDark ? 'oxide-dark' : 'oxide',
           content_css: isDark ? 'dark' : '',
           promotion: false,
+          content_style: 'body[data-mce-placeholder]::before { white-space: pre-wrap; }',
         }"
         initial-value
         model-events

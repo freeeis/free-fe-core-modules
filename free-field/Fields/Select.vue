@@ -77,20 +77,38 @@
           <div class="free-field--error-tag" v-if="hasError">
             <e-icon name="error"></e-icon>
           </div>
-          <q-checkbox v-for="(option, index) in Field.Options" :class="{
-            checked: checked.includes(option.Value),
-            'with-inner-extra': option.InnerExtra?.length,
-          }" :key="index" hide-bottom-space :label="option.Label || ''" v-model="checked" :val="option.Value"
-            :disable="Field.ReadOnly" @update:modelValue="checkChanged(option.Value)"
-            :checked-icon="checkedIcon(option)">
-            <q-tooltip v-if="option.opt?.Tooltip" anchor="bottom middle">
-              {{ $t(option.opt.Tooltip) || '' }}
-            </q-tooltip>
-            <div class="option-inner-extra" v-if="option.InnerExtra?.length">
-              <free-field v-for="(fld, idx) in option.InnerExtra || []" :key="idx" :Field="fld"
-                :values="data"></free-field>
-            </div>
-          </q-checkbox>
+
+          <div
+            class="option-item"
+            v-for="(option, index) in Field.Options" 
+            :key="index" >
+
+            <div 
+              class="just-a-label"
+              v-if="option.opt?.asLabel">{{ option.Label }}</div>
+
+            <q-checkbox 
+              v-else
+              :class="{
+                checked: checked.includes(option.Value),
+                'with-inner-extra': option.InnerExtra?.length,
+              }" 
+              hide-bottom-space 
+              :label="option.Label || ''" 
+              v-model="checked" 
+              :val="option.Value"
+              :disable="Field.ReadOnly" 
+              @update:modelValue="checkChanged(option.Value)"
+              :checked-icon="checkedIcon(option)">
+              <q-tooltip v-if="option.opt?.Tooltip" anchor="bottom middle">
+                {{ $t(option.opt.Tooltip) || '' }}
+              </q-tooltip>
+              <div class="option-inner-extra" v-if="option.InnerExtra?.length">
+                <free-field v-for="(fld, idx) in option.InnerExtra || []" :key="idx" :Field="fld"
+                  :values="data"></free-field>
+              </div>
+            </q-checkbox>
+          </div>
         </div>
       </span>
     </span>

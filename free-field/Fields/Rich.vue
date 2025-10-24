@@ -371,7 +371,7 @@ export default defineComponent({
           },
         }).then((res) => {
           if (res && res.data && res.data.id) {
-            resolve(`${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}${this.ctx.config.imageUrlBase}${res.data.id}`);
+            resolve(`${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}${this.ctx.config.imageUrlBase}${res.data.id}${this.Field.Options?.UploadedImageUrlArgs || ''}`);
           } else {
             reject({
               message: '上传失败',

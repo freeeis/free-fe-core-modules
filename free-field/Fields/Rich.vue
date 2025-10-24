@@ -59,6 +59,10 @@
           content_css: isDark ? 'dark' : '',
           promotion: false,
           content_style: 'body[data-mce-placeholder]::before { white-space: pre-wrap; }',
+
+          convert_urls: false,  // 禁止转换 URL
+          relative_urls: false, // 禁止使用相对 URL
+          remove_script_host: false // 保留主机名
         }"
         initial-value
         model-events
@@ -367,7 +371,7 @@ export default defineComponent({
           },
         }).then((res) => {
           if (res && res.data && res.data.id) {
-            resolve(`${vm.ctx.config.imageUrlBase}${res.data.id}`);
+            resolve(`${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}${this.ctx.config.imageUrlBase}${res.data.id}`);
           } else {
             reject({
               message: '上传失败',

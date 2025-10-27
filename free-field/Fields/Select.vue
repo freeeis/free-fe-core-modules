@@ -306,6 +306,7 @@ export default defineComponent({
         (valueList || []).forEach((vl) => {
           const theOpt = props.Field.Options.find((opt) => opt.Value === vl);
           if (theOpt) labelList.push(theOpt.Label || fieldData.value);
+          else labelList.push(vl);
         });
 
         return labelList.join(',');

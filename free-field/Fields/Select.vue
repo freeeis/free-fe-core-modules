@@ -80,6 +80,9 @@
 
           <div
             class="option-item"
+            :class="{
+              padding: option.opt?.PaddingLeft,
+            }"
             v-for="(option, index) in Field.Options" 
             :key="index" >
 
@@ -103,9 +106,18 @@
               <q-tooltip v-if="option.opt?.Tooltip" anchor="bottom middle">
                 {{ $t(option.opt.Tooltip) || '' }}
               </q-tooltip>
-              <div class="option-inner-extra" v-if="option.InnerExtra?.length">
-                <free-field v-for="(fld, idx) in option.InnerExtra || []" :key="idx" :Field="fld"
-                  :values="data"></free-field>
+              <div class="option-inner-extra" 
+                v-if="(fieldData === option.Value || (fieldData && fieldData.indexOf && (fieldData.indexOf(option.Value) >= 0))) && option.InnerExtra?.length">
+                <free-field 
+                  @click.stop
+                  @keydown.stop
+                  @keypress.stop
+                  @keyup.stop
+                  @input="innerExtraFieldInput(fld)"
+                  v-for="(fld, idx) in option.InnerExtra || []" :key="idx" 
+                  :Field="{...fld, ReadOnly: Field.ReadOnly || fld.ReadOnly}"
+                  :values="data"
+                  ref="fieldToValid"></free-field>
               </div>
             </q-checkbox>
           </div>
@@ -466,6 +478,11 @@ export default defineComponent({
             return `${opt.Label || opt.Value || opt}`.toLowerCase().indexOf(needle) > -1;
           });
         })
+      },
+
+      innerExtraFieldInput: (fld) => {
+        selfValidate();
+        emit('input', fld);
       },
     };
   },

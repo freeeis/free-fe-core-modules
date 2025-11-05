@@ -2,7 +2,7 @@
   <div class="free-field-row row" :class="rowClasses" v-if="Field">
     <free-field
       v-for="(field, idx) in Field.Options?.Fields"
-      :Field="field"
+      :Field="{...field, ReadOnly: Field.ReadOnly || field.ReadOnly}"
       :values="fieldData.value"
       :key="idx"
       ref="fieldsToValidate"

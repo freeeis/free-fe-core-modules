@@ -103,9 +103,38 @@
 
 <script>
 import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
 import { useFormValidator} from '../../composible/useFormValidator.js';
 import { useUploader } from '../composible/useUploader.js';
+
+function parseStaticResourceParams(paramStr, route) {
+  if (!paramStr || paramStr.trim().length <= 0) {
+    return '';
+  }
+
+  let finalParamStr = paramStr || '';
+
+  const paramList = paramStr.match(/\{[^\}]+\}/g);
+  const paramValuesMap = {};
+  for (let i = 0; i < paramList.length; i += 1) {
+    const varItem = paramList[i];
+    if (paramValuesMap[varItem]) {
+      continue;
+    }
+
+    const varName = varItem.replace('{', '').replace('}', '');
+    const varValue = Object.nestValue(route, varName) || '';
+
+    console.log('varName, varValue', varName, varValue);
+
+    finalParamStr = finalParamStr.replace(new RegExp(varItem, 'g'), varValue);
+
+    paramValuesMap[varItem] = 1;
+  }
+
+  return finalParamStr;
+}
 
 export default defineComponent({
   name: 'InputFieldImageList',
@@ -131,6 +160,20 @@ export default defineComponent({
         Label: '最大总大小',
         Name: 'Options.MaxTotal',
         Default: '50m',
+      },
+      {
+        Type: 'String',
+        Label: '可访问来源',
+        Name: 'Options.staticResourceReferers',
+        Placeholder: '逗号分隔的来源列表，支持正则表达式。比如：/admin/f/case/{params.id}/(2|3|4|5)',
+        Default: '',
+      },
+      {
+        Type: 'String',
+        Label: '所需权限',
+        Name: 'Options.staticResourcePerms',
+        Placeholder: '逗号分隔的API路径列表，不支持正则表达式！比如：/api/case/{params.id}/2/view,/api/case/{params.id}/3/view',
+        Default: '',
       },
     ],
     Description: '',
@@ -181,10 +224,24 @@ export default defineComponent({
       return isValid;
     };
 
+    const route = useRoute();
     const factoryFn = () => {
+      // 静态资源访问权限控制
+      const {staticResourcePerms, staticResourceReferers} = props.Field.Options || {};
+
       return {
         url: props.Field.url || `${vm.ctx.config.baseUrl}/upload`,
         fieldName: 'file',
+        formFields: [
+          {
+            name: 'perms',
+            value: parseStaticResourceParams(staticResourcePerms, route) || '',
+          },
+          {
+            name: 'refs',
+            value: parseStaticResourceParams(staticResourceReferers, route) || '',
+          }
+        ],
       };
     };
 

@@ -171,6 +171,13 @@ export default defineComponent({
       },
       {
         Type: 'String',
+        Label: '可访问用户',
+        Name: 'Options.staticResourceUsers',
+        Placeholder: '逗号分隔的用户ID列表，self表示当前用户，比如：user1ID,self,user3ID',
+        Default: '',
+      },
+      {
+        Type: 'String',
         Label: '可访问来源',
         Name: 'Options.staticResourceReferers',
         Placeholder: '逗号分隔的来源列表，支持正则表达式。比如：/admin/f/case/{params.id}/(2|3|4|5)',
@@ -236,12 +243,16 @@ export default defineComponent({
     const route = useRoute();
     const factoryFn = () => {
       // 静态资源访问权限控制
-      const {staticResourcePerms, staticResourceReferers} = props.Field.Options || {};
+      const {staticResourcePerms, staticResourceReferers, staticResourceUsers} = props.Field.Options || {};
 
       return {
         url: props.Field.url || `${vm.ctx.config.baseUrl}/upload`,
         fieldName: 'file',
         formFields: [
+          {
+            name: 'users',
+            value: staticResourceUsers || '',
+          },
           {
             name: 'perms',
             value: parseStaticResourceParams(staticResourcePerms, route) || '',

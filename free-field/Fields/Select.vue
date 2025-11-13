@@ -68,7 +68,7 @@
           @keyup.stop
           @input="innerExtraFieldInput(fld)"
           v-for="(fld, idx) in selectedOptionsExtra" :key="idx"
-          :Field="{...fld, ReadOnly: Field.ReadOnly || fld.ReadOnly}"
+          :Field="{...fld, ReadOnly: Field.ReadOnly || fld?.ReadOnly}"
           :values="values"
           ref="fieldToValid">
         </free-field>
@@ -128,7 +128,7 @@
                   @keyup.stop
                   @input="innerExtraFieldInput(fld)"
                   v-for="(fld, idx) in option.InnerExtra || []" :key="idx"
-                  :Field="{...fld, ReadOnly: Field.ReadOnly || fld.ReadOnly}"
+                  :Field="{...fld, ReadOnly: Field.ReadOnly || fld?.ReadOnly}"
                   :values="values"
                   ref="fieldToValid">
                 </free-field>
@@ -470,7 +470,7 @@ export default defineComponent({
         opts = (localOptions.value || []).filter((opt) => opt.Value === fieldData.value);
       }
 
-      return opts.map((opt) => opt.Extra).flat();
+      return opts.map((opt) => opt.Extra).flat().filter((f) => f?.Name || f?.Label);
     });
 
 

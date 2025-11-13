@@ -60,6 +60,19 @@
         </template>
       </q-select>
       <slot name="warning"></slot>
+      <div v-if="selectedOptionsExtra.length">
+        <free-field
+          @click.stop
+          @keydown.stop
+          @keypress.stop
+          @keyup.stop
+          @input="innerExtraFieldInput(fld)"
+          v-for="(fld, idx) in selectedOptionsExtra" :key="idx"
+          :Field="{...fld, ReadOnly: Field.ReadOnly || fld.ReadOnly}"
+          :values="values"
+          ref="fieldToValid">
+        </free-field>
+      </div>
     </span>
     <span v-else class="free-field-select-ascheck row items-start no-wrap">
       <span :class="`field-label ${(Field.Label && Field.Label.trim().length)
@@ -83,41 +96,42 @@
             :class="{
               padding: option.opt?.PaddingLeft,
             }"
-            v-for="(option, index) in Field.Options" 
+            v-for="(option, index) in Field.Options"
             :key="index" >
 
-            <div 
+            <div
               class="just-a-label"
               v-if="option.opt?.asLabel">{{ option.Label }}</div>
 
-            <q-checkbox 
+            <q-checkbox
               v-else
               :class="{
                 checked: checked.includes(option.Value),
                 'with-inner-extra': option.InnerExtra?.length,
-              }" 
-              hide-bottom-space 
-              :label="option.Label || ''" 
-              v-model="checked" 
+              }"
+              hide-bottom-space
+              :label="option.Label || ''"
+              v-model="checked"
               :val="option.Value"
-              :disable="Field.ReadOnly" 
+              :disable="Field.ReadOnly"
               @update:modelValue="checkChanged(option.Value)"
               :checked-icon="checkedIcon(option)">
               <q-tooltip v-if="option.opt?.Tooltip" anchor="bottom middle">
                 {{ $t(option.opt.Tooltip) || '' }}
               </q-tooltip>
-              <div class="option-inner-extra" 
-                v-if="(fieldData === option.Value || (fieldData && fieldData.indexOf && (fieldData.indexOf(option.Value) >= 0))) && option.InnerExtra?.length">
-                <free-field 
+              <div class="option-inner-extra"
+                v-if="(fieldData === option?.Value || (fieldData && fieldData.indexOf && (fieldData.indexOf(option?.Value) >= 0))) && option.InnerExtra?.length">
+                <free-field
                   @click.stop
                   @keydown.stop
                   @keypress.stop
                   @keyup.stop
                   @input="innerExtraFieldInput(fld)"
-                  v-for="(fld, idx) in option.InnerExtra || []" :key="idx" 
+                  v-for="(fld, idx) in option.InnerExtra || []" :key="idx"
                   :Field="{...fld, ReadOnly: Field.ReadOnly || fld.ReadOnly}"
-                  :values="data"
-                  ref="fieldToValid"></free-field>
+                  :values="values"
+                  ref="fieldToValid">
+                </free-field>
               </div>
             </q-checkbox>
           </div>
@@ -445,10 +459,26 @@ export default defineComponent({
 
     const localOptions = ref(props.Field.Options || []);
 
+    const selectedOptionsExtra = computed(() => {
+      let opts = [];
+      if (fieldData.value) {
+        if (props.Field.Multiple) {
+          const vals = Array.isArray(fieldData.value) ? fieldData.value : (`${fieldData.value}`).split(',');
+          opts = (localOptions.value || []).filter((opt) => vals.indexOf(opt.Value) >= 0);
+        }
+
+        opts = (localOptions.value || []).filter((opt) => opt.Value === fieldData.value);
+      }
+
+      return opts.map((opt) => opt.Extra).flat();
+    });
+
+
     return {
       fieldData,
       setFieldData,
       localOptions,
+      selectedOptionsExtra,
 
       hasError,
       checked,

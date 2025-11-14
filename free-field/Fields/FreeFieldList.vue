@@ -121,7 +121,7 @@ export default defineComponent({
               {
                 Label: '标题',
                 Name: 'Label',
-                style: 'max-width: 300px; min-width: 100px',
+                style: 'max-width: 300px; min-width: 100px;white-space: wrap; text-align: left;',
                 sortable: true,
               },
               {

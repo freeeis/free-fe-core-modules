@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, getCurrentInstance, defineExpose } from 'vue';
+import { defineComponent, h, ref, getCurrentInstance, watch } from 'vue';
 import { QCheckbox, QIcon } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 
@@ -21,7 +21,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit }){
+  setup(props, { emit, expose }){
     if (!props.Field) return {};
 
     const { proxy:vm } = getCurrentInstance();
@@ -86,7 +86,8 @@ export default defineComponent({
     const validate = () => {
       if (props.Field.Required) {
         hasError.value = typeof fieldData.value === 'undefined' || !fieldData.value;
-        return !hasError.value;
+
+        if (hasError.value) return false;
       }
 
       const rules = Array.isArray(typeof props.Field.Rules)
@@ -100,13 +101,19 @@ export default defineComponent({
         if (typeof r === 'function') {
           isValid = isValid && r(fieldData.value);
         }
+
+        if (!isValid) return false;
       }
 
       hasError.value = !isValid;
       return isValid;
     };
 
-    defineExpose({
+    watch(() => fieldData.value, () => {
+      validate();
+    });
+
+    expose({
       validate,
     })
 

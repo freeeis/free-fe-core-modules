@@ -69,7 +69,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit, slots }){
+  setup(props, { emit, slots, expose }){
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
@@ -86,6 +86,14 @@ export default defineComponent({
       class: 'field-label-empty'
     });
 
+    const validate = () => {
+      if (props.Field?.Required) {
+        return fieldData.value === true;
+      }
+
+      return true;
+    };
+
     const checkboxNode = () => h(QCheckbox, {
       disable: props.Field?.ReadOnly,
       label: props.Field?.showLabel ? '' : props.Field?.Label,
@@ -96,6 +104,10 @@ export default defineComponent({
       'onUpdate:modelValue': (v) => {
         setFieldData(v, emit);
       },
+    });
+
+    expose({
+      validate,
     })
 
     return () => h('div', {

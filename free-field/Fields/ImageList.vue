@@ -115,7 +115,7 @@ function parseStaticResourceParams(paramStr, route) {
 
   let finalParamStr = paramStr || '';
 
-  const paramList = paramStr.match(/\{[^\}]+\}/g);
+  const paramList = paramStr.match(/\{[^\\}]+\}/g);
   const paramValuesMap = {};
   for (let i = 0; i < paramList.length; i += 1) {
     const varItem = paramList[i];

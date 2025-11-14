@@ -138,7 +138,11 @@ export default defineComponent({
   },
   computed: {
     rowClasses() {
-      return this.Field.Options?.NoWrap ? 'nowrap' : '' + this.Field.Options?.ItemsAlign + ' ' + this.Field.Options?.JustifyAlign;
+      const wrap = this.Field.Options?.NoWrap ? 'nowrap' : '';
+      const itemsAlign = this.Field.Options?.ItemsAlign || '';
+      const justifyAlign = this.Field.Options?.JustifyAlign || '';
+
+      return [wrap, itemsAlign, justifyAlign].filter((cls) => cls).join(' ');
     },
   },
 });

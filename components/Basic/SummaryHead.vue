@@ -143,9 +143,9 @@ export default defineComponent({
         item.disable = false;
         if (item.event) {
           if (item.event_params) {
-            this.Bus?.$emit(item.event, item.event_params);
+            this.Bus?.emit(item.event, item.event_params);
           } else {
-            this.Bus?.$emit(item.event);
+            this.Bus?.emit(item.event);
           }
         }
 

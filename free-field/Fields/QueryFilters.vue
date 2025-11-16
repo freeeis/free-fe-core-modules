@@ -27,11 +27,19 @@
 
       <q-space v-if="!hasKw || dense"></q-space>
       <div class="q-ma-xs query-btns" v-if="!hasKw || dense">
+        <q-btn
+          v-if="Field.canExport"
+          class="export-btn"
+          icon="fa fa-list"
+          label="导出"
+          @click="$emit('export')"
+        />
         <q-btn class="clear-btn" icon="refresh" label="清空" @click="clear"></q-btn>
         <q-btn class="query-btn q-ma-xs" icon="search" label="查询" @click="search"></q-btn>
       </div>
     </div>
-    <div class="row col items-center full-width" v-if="hasKw && !dense">
+    <div class="row col items-center full-width"
+      v-if="hasKw && !dense">
       <free-field
         :Field="{
           Type: 'String',
@@ -88,7 +96,7 @@ export default defineComponent({
     const kwFields = ref([]);
 
     watchEffect(()  => {
-      query.value = props.Field.queryData;
+      query.value = props.Field.queryData || {};
     })
 
     watchEffect(() => {
@@ -100,7 +108,7 @@ export default defineComponent({
         ) {
           if (!fd.Info || !fd.Info.Separate) {
             hasKw.value = true;
-            if (fd.Label) {
+            if (fd.Label && !kwFields.value.includes(fd.Label)) {
               kwFields.value.push(fd.Label);
             }
           }
@@ -145,7 +153,6 @@ export default defineComponent({
 
       return fList;
     });
-
 
     const search = () => {
       if (queryChanged.value) {

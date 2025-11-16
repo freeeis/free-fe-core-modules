@@ -150,7 +150,9 @@ export default defineComponent({
     fieldsClass: { type: String, default: '' },
     dialogClass: { type: String, default: '' },
 
-    remove: { type: Function, default: () => {}}
+    remove: { type: Function, default: () => {}},
+
+    noRejectOnCancel: { type: Boolean, default: false },
   },
   components: {
     FreeField,
@@ -242,11 +244,15 @@ export default defineComponent({
       }
 
       if (reject.value) {
-        reject.value('cancel');
-
-        if (typeof props.remove === 'function'){
-          props.remove();
+        if (!props.noRejectOnCancel) {
+          reject.value('cancel');
+        } else {
+          emit('ok');
         }
+      }
+
+      if (typeof props.remove === 'function'){
+        props.remove();
       }
     };
 

@@ -41,7 +41,7 @@ export default defineComponent({
       if (props.name.startsWith('blob:')) return props.name;
 
       // TODO:默认使用二倍图？
-      if (props.relative) return `images/${props.name}${props.defaultSize}.png`;
+      if (props.relative) return `${import.meta.env.BASE_URL}images/${props.name}${props.defaultSize}.png`;
 
       const ret = props.thumb
         ? vm.$filter('serverThumb', props.name)

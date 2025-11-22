@@ -51,7 +51,7 @@
           default_link_target: (Field && Field.Options && Field.Options.LinkTarget) || '_blank',
 
           automatic_uploads: (Field && Field.Options && Field.Options.NoUpload) ? false : true,
-          images_upload_url: '/api/upload',
+          images_upload_url: `${this.ctx.config.baseUrl}/upload`,
           images_reuse_filename: true,
           images_upload_handler,
 

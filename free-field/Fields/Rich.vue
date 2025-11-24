@@ -31,10 +31,10 @@
         v-if="!Field.ReadOnly"
         ref="tiny"
         api-key="wh7g3etkwrso25e0wcpqrx8uvoa51toag3j92mllkajtg1xb"
-        tinymce-script-src="/tiny/tiny7.js"
+        :tinymce-script-src="`${baseUrl}tiny/tiny7.js`"
         :init="{
           placeholder: Field.Placeholder || '',
-          language_url: '/tiny/langs/zh_cn.js',
+          language_url: `${baseUrl}tiny/langs/zh_cn.js`,
           language: 'zh_cn',
           plugins: Field.ReadOnly ? [] : this.plugins,
           menubar: Field.ReadOnly ? [] : this.menubar,
@@ -385,6 +385,8 @@ export default defineComponent({
           });
         });
       }),
+
+      baseUrl: import.meta.env.BASE_URL,
     };
   },
 });

@@ -273,6 +273,48 @@ export default defineComponent({
       return isVal;
     };
 
+    const handleVideoUpload = (file, editor) => {
+      const formData = new FormData();
+      formData.append('file', file, file.name || 'pasted-video');
+
+      vm.postRequest('/upload', formData, {
+        __ignoreDecycle: true,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then((res) => {
+        if (res && res.data && res.data.id) {
+          const videoUrl = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}${vm.ctx.config.videoUrlBase}${res.data.id}${props.Field.Options?.UploadedImageUrlArgs || ''}`;
+
+          // 插入视频元素到编辑器
+          editor.insertContent(`
+            <div class="video-container" style="margin: 10px 0;">
+              <video src="${videoUrl}" controls style="max-width: 100%; height: auto;">
+                您的浏览器不支持视频播放
+              </video>
+            </div>
+          `);
+        }
+      }).catch(() => {
+      });
+    };
+
+    const paste_preprocess = (editor, args) => {
+      const items = args.clipboardData.items;
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        // 检查是否为视频文件
+        if (item.kind === 'file' && item.type.startsWith('video/')) {
+          const file = item.getAsFile();
+
+          // 处理视频上传
+          handleVideoUpload(file, editor);
+        }
+      }
+    };
+
     const tinySetup = (editor) => {
       // add button for indent 2ems
       editor.on('init', () => {
@@ -331,6 +373,11 @@ export default defineComponent({
           }
         });
       }
+
+      // 处理粘贴视频文件
+      editor.on('paste', (e) => {
+        paste_preprocess(editor, e);
+      });
     };
 
     const tinyChanged = (v) => {

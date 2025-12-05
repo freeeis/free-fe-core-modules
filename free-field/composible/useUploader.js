@@ -158,9 +158,18 @@ export function useUploader(props) {
     return typeList.join(',');
   });
 
-  const fileThumb = computed(() => (file) => {
+  const fileThumb = computed(() => (file, app) => {
     const unknownType = 'insert_drive_file';
     if (!file) return unknownType;
+
+    if (app?.config?.['core-modules']?.fileTypeIconMap) {
+      const { fType, fExt } = _getFileType(file);
+      const key = `${fType}.${fExt}`;
+      const icon = app.config['core-modules'].fileTypeIconMap[key];
+      if (icon) {
+        return icon;
+      }
+    }
 
     let type = '';
     // const fTypes = file.type.split('/');

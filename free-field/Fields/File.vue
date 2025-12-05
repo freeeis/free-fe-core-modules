@@ -51,7 +51,7 @@
 
           <div v-else-if="!!fieldData.value?.id" class="file-list row items-start justify-start">
             <q-card flat class="file-list-item">
-              <e-icon class="file-image" :name="fileThumb(fieldData.value)" thumb
+              <e-icon class="file-image" :name="fileThumb(fieldData.value, ctx)" thumb
                 :relative="filePreviewType(fieldData.value) !== 'image'" @click="preview(fieldData.value)">
                 <div class="view-btn-wrapper absolute-full justify-center text-center">
                   <q-btn flat class="view-btn full-height full-width">查看</q-btn>

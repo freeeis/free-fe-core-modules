@@ -77,7 +77,7 @@
           <div v-if="Array.isArray(allFiles) && allFiles.length"
             class="file-list file-list-card row items-start justify-start q-gutter-xl">
             <q-card flat class="file-list-item" v-for="(file, index) in allFiles || []" :key="index">
-              <e-icon class="file-image" :name="fileThumb(file)" thumb :relative="filePreviewType(file) !== 'image'"
+              <e-icon class="file-image" :name="fileThumb(file, ctx)" thumb :relative="filePreviewType(file) !== 'image'"
                 @click="preview(file)">
                 <div class="view-btn-wrapper absolute-full justify-center text-center">
                   <q-btn flat class="view-btn full-height full-width">查看</q-btn>

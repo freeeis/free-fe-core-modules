@@ -26,6 +26,10 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
     const { fieldData, setFieldData } = useFreeField(props);
+    if (fieldData.value === void 0) {
+      setFieldData(false, emit);
+    }
+
     const hasError = ref(false);
 
     const fieldTip = (tip) => {

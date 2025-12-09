@@ -26,7 +26,7 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
     const { fieldData, setFieldData } = useFreeField(props);
-    if (fieldData.value === void 0) {
+    if (fieldData.value === void 0 || fieldData.value === null) {
       setFieldData(false, emit);
     }
 
@@ -91,8 +91,6 @@ export default defineComponent({
       if (props.Field.Required) {
         hasError.value = typeof fieldData.value === 'undefined' || !fieldData.value;
 
-        setFieldData(false, emit);
-
         if (hasError.value) return false;
       }
 
@@ -116,6 +114,10 @@ export default defineComponent({
     };
 
     watch(() => fieldData.value, () => {
+      if (fieldData.value === void 0 || fieldData.value === null) {
+        setFieldData(false, emit);
+      }
+
       validate();
     });
 

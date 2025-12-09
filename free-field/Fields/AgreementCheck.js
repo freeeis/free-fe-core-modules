@@ -91,6 +91,8 @@ export default defineComponent({
       if (props.Field.Required) {
         hasError.value = typeof fieldData.value === 'undefined' || !fieldData.value;
 
+        setFieldData(false, emit);
+
         if (hasError.value) return false;
       }
 

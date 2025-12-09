@@ -36,6 +36,7 @@
           @update:modelValue="selectionChanged(index)"
           ref="fieldsToValid"
           v-bind="inputControlSettings"
+          :rules="Field.Required ? [(val) => !!val] : []"
         ></q-select>
       </span>
       <span v-if="Field && Field.ReadOnly">

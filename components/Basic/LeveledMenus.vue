@@ -6,7 +6,7 @@
         v-if="!m.Sub || m.Sub.length <= 0"
         clickable
         class="simple"
-        :class="`${group} level_${level || 0}`"
+        :class="`${group} level_${level || 0} ${$route.fullPath === m.Route || $route.fullPath.startsWith(`${m.Route}/`.replace(/\/\//g, '/')) ? 'active' : ''}`"
         :to="m.Route"
         expand-icon-class="simple-expand-icon"
         :ref="`menuItem_${group}_index`"

@@ -126,6 +126,12 @@ export default defineComponent({
         Label: '禁止上传',
         Default: false,
       },
+      {
+        Type: 'Boolean',
+        Name: 'Options.EnableField',
+        Label: '启用数据字段插入按钮',
+        Default: false,
+      },
     ],
   },
   components: {
@@ -338,7 +344,7 @@ export default defineComponent({
       });
 
       // add button for insert field content
-      if (props.enableField) {
+      if (props.enableField || props.Field?.Options?.EnableField) {
         editor.ui.registry.addButton('insertFieldButton', {
           text: '数据字段',
           tooltip: '插入数据字段',

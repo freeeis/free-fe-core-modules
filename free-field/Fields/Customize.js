@@ -12,8 +12,10 @@ export default defineComponent({
       {
         Type: 'Rich',
         Label: '模板',
-        enableField: true,
         Name: 'Options.Template',
+        Options: {
+          EnableField: true,
+        },
       },
     ],
     Description: '',

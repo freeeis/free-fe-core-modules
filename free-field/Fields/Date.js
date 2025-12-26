@@ -39,7 +39,7 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit, slots, expose }){
+  setup(props, { emit, slots, expose, attrs }){
     if (!props.Field) return {};
 
     const { proxy: vm } = getCurrentInstance();
@@ -88,6 +88,8 @@ export default defineComponent({
       rules: props.Field.Rules,
 
       ...inputControlSettings.value,
+
+      placeholder: props.Field?.Placeholder || attrs.placeholder || vm.$t(vm.getModule('core-modules').config['defaultInputFieldPlaceholder']),
 
       class: 'full-width',
       modelValue: localDate.value,

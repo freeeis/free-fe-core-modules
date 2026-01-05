@@ -17,7 +17,7 @@
         :Field="{
           Type: 'String',
           Name: 'kw',
-          Placeholder: `请输入 [${(kwFields && kwFields.length) ? kwFields.join('、') : ''}] 关键字进行查询`
+          Placeholder: Field?.Options?.InputPlaceholder || `请输入 [${(kwFields && kwFields.length) ? kwFields.join('、') : ''}] 关键字进行查询`
         }"
         :values="query"
         @input="queryChanged = true"
@@ -45,7 +45,7 @@
           Type: 'String',
           Label: '关键字',
           Name: 'kw',
-          Placeholder: `请输入 [${(kwFields && kwFields.length) ? kwFields.join('、') : ''}] 进行查询`
+          Placeholder: Field?.Options?.InputPlaceholder || `请输入 [${(kwFields && kwFields.length) ? kwFields.join('、') : ''}] 进行查询`
          }"
         :values="query"
         @input="queryChanged = true"
@@ -80,6 +80,13 @@ export default defineComponent({
     Label: '筛选条件',
     Value: 'QueryFilters',
     Description: '',
+    Extra: [
+      {
+        Type: 'String',
+        Label: '输入框占位提示',
+        Name: 'Options.InputPlaceholder',
+      },
+    ],
   },
   props: {
     ...freeFieldProps,

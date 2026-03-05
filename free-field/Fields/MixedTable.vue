@@ -164,47 +164,49 @@ export default defineComponent({
           mtfrColumns.push({
             Label: `${ii + 1}`,
             Name: `${ii}`,
-            Type: 'FixedList',
-            Fields: [
-              {
-                Label: 'rowspan',
-                Name: 'rowspan',
-                Type: 'Number',
-              },
-              {
-                Label: 'colspan',
-                Name: 'colspan',
-                Type: 'Number',
-              },
-              {
-                Name: 'List',
-                Type: 'FieldList',
-                Options: {
-                  Columns: [
-                    {
-                      Label: '类型',
-                      Name: 'Type',
-                      style: 'max-width: 120px;',
-                    },
-                    {
-                      Label: '名称',
-                      Name: 'Name',
-                      style: 'max-width: 200px;',
-                    },
-                    {
-                      Label: '标题',
-                      Name: 'Label',
-                      style: 'max-width: 200px;',
-                    },
-                    {
-                      Label: '默认',
-                      Name: 'Default',
-                      style: 'max-width: 200px;',
-                    },
-                  ],
+            Type: 'Row',
+            Options: {
+              Fields: [
+                {
+                  Label: 'rowspan',
+                  Name: 'rowspan',
+                  Type: 'Number',
                 },
-              },
-            ],
+                {
+                  Label: 'colspan',
+                  Name: 'colspan',
+                  Type: 'Number',
+                },
+                {
+                  Name: 'List',
+                  Type: 'FieldList',
+                  Options: {
+                    Columns: [
+                      {
+                        Label: '类型',
+                        Name: 'Type',
+                        style: 'max-width: 120px;',
+                      },
+                      {
+                        Label: '名称',
+                        Name: 'Name',
+                        style: 'max-width: 200px;',
+                      },
+                      {
+                        Label: '标题',
+                        Name: 'Label',
+                        style: 'max-width: 200px;',
+                      },
+                      {
+                        Label: '默认',
+                        Name: 'Default',
+                        style: 'max-width: 200px;',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
           });
         }
 

@@ -222,6 +222,7 @@ export default defineComponent({
     expose ({
       // emits: emitsRef.value,
       validate: () => validate.value(props.Field.Name),
+      shouldHide: shouldHide.value,
     })
 
     const fieldTip = (tip) => {

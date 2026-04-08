@@ -120,7 +120,7 @@ export default defineComponent({
           && !Array.isArray(service)
           && ['scope'].indexOf(service) < 0
         ) {
-          children.push({ Name: sk, Index: props.Service[sk].Index || 0 });
+          children.push({ Name: sk, Index: props.Service[sk] ? (props.Service[sk].Index || 0) : 0 });
         }
       }
       return children.sort(

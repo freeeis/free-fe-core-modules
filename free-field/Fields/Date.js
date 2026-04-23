@@ -75,7 +75,13 @@ export default defineComponent({
       (l) => l.locale === (vm.ctx.config.locale || vm.ctx.config.defaultLocale),
     )?.calendar;
 
-    const localDate = computed(() => vm.$filter('normalDate', fieldData.value));
+    const normalizeDateValue = (value) => {
+      if (value === void 0 || value === null || value === '') return '';
+
+      return vm.$filter('normalDate', value) || '';
+    };
+
+    const localDate = computed(() => normalizeDateValue(fieldData.value));
 
     const showPopup = ref(false);
 
@@ -94,7 +100,7 @@ export default defineComponent({
       class: 'full-width',
       modelValue: localDate.value,
       'onUpdate:modelValue': (v) => {
-        setFieldData(v, emit);
+        setFieldData(normalizeDateValue(v), emit);
       },
     }, {
       default: () => h(QPopupProxy, {
@@ -113,7 +119,7 @@ export default defineComponent({
           locale,
 
           'onUpdate:modelValue': (v) => {
-            setFieldData(v, emit);
+            setFieldData(normalizeDateValue(v), emit);
 
             // TODO: not working, should close the popup but not
             showPopup.value = false;
@@ -129,7 +135,7 @@ export default defineComponent({
 
     const readonlyNode = () => h(ReadonlyContent, {
       Field: props.Field,
-      Content: fieldData.value,
+      Content: localDate.value,
     });
 
     const {

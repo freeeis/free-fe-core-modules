@@ -46,6 +46,12 @@ export default defineComponent({
 
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
+    const normalizeDateValue = (value) => {
+      if (value === void 0 || value === null || value === '') return '';
+
+      return vm.$filter('normalDate', value) || '';
+    };
+
     const updateFieldDate = () => {
       setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
     };
@@ -58,13 +64,18 @@ export default defineComponent({
 
     watchEffect(() => {
       const yl = (fieldData.value || '').split(props.Field.Separator || '~');
-      min.value = yl[0] && yl[0].trim();
-      max.value = yl[1] && yl[1].trim();
+      min.value = normalizeDateValue(yl[0] && yl[0].trim());
+      max.value = normalizeDateValue(yl[1] && yl[1].trim());
+    });
+
+    const readonlyContent = computed(() => {
+      const separator = props.Field.Separator || '~';
+      return [min.value, max.value].join(separator);
     });
 
     const readonlyNode = () => h(ReadonlyContent, {
       Field: props.Field,
-      Content: fieldData.value,
+      Content: readonlyContent.value,
     });
 
     const before = (props.Field.Label !== void 0) ? () => h(freeFieldLabel, {
@@ -132,7 +143,7 @@ export default defineComponent({
 
       modelValue: min.value,
       'onUpdate:modelValue': (v) => {
-        min.value = v;
+        min.value = normalizeDateValue(v);
         emit('input', v);
       },
     }, {
@@ -152,7 +163,7 @@ export default defineComponent({
           locale,
 
           'onUpdate:modelValue': (v) => {
-            min.value = v;
+            min.value = normalizeDateValue(v);
 
             // TODO: not working, should close the popup but not
             showMinPopup.value = false;
@@ -181,7 +192,7 @@ export default defineComponent({
 
       modelValue: max.value,
       'onUpdate:modelValue': (v) => {
-        max.value = v;
+        max.value = normalizeDateValue(v);
         emit('input', v);
       },
     }, {
@@ -201,7 +212,7 @@ export default defineComponent({
           locale,
 
           'onUpdate:modelValue': (v) => {
-            max.value = v;
+            max.value = normalizeDateValue(v);
 
             // TODO: not working, should close the popup but not
             showMaxPopup.value = false;

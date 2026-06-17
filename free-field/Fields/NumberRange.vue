@@ -15,7 +15,7 @@
     <span v-else class="row items-center no-wrap">
       <q-input
         :readonly="Field.ReadOnly"
-        :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
+        :placeholder="$attrs.placeholder || $t(getModule('core-modules').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
         @update:modelValue="rangeChanged"
         type="number"
@@ -41,7 +41,7 @@
       <span class="free-field-range-separator">{{`${Field.Separator || '~'}`}}</span>
       <q-input
         :readonly="Field.ReadOnly"
-        :placeholder="$attrs.placeholder || $t(getModule('field-components').config['defaultInputFieldPlaceholder'])"
+        :placeholder="$attrs.placeholder || $t(getModule('core-modules').config['defaultInputFieldPlaceholder'])"
         hide-bottom-space
         @update:modelValue="rangeChanged"
         type="number"

@@ -1,4 +1,4 @@
-import { defineComponent, h, computed } from 'vue';
+import { defineComponent, h, computed, getCurrentInstance } from 'vue';
 import { QSelect } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
@@ -75,6 +75,7 @@ export default defineComponent({
   setup(props, { emit, slots, expose, attrs }){
     if (!props.Field) return {};
 
+    const { proxy:vm } = getCurrentInstance();
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
     const before = (props.Field.Label !== void 0) ? () => h(freeFieldLabel, {

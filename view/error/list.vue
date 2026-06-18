@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-list">
+  <div class="flow-list admin-error-code-wrapper">
     <summary-head :values="data.summary"></summary-head>
     <q-table
       flat

@@ -20,15 +20,15 @@
           class="data-scope">
         <free-field
           v-for="(scope, index) in Service.Scope"
-          :key="index"
+          :key="scope.Field || scope.Name || scope.Label || index"
           :Field="{
             Type: 'Select',
             Label: scope.Label,
-            Name: `Scope.${scope.Field}`,
+            Name: `Scope.${scope.Field || scope.Name}`,
             Options: scope.Options || [],
             Multiple: scope.Multiple || false,
           }"
-          :values="fieldData"
+          :values="fieldData.value"
           @input="scopeChanged"
         />
       </div>
@@ -149,7 +149,7 @@ export default defineComponent({
     })
 
     return {
-      fieldData: fieldData.value,
+      fieldData,
       hasThis,
       childUpdated,
       scopeChanged,

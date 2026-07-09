@@ -351,13 +351,19 @@ export default defineComponent({
     return realComponent.value ? () => h(
       "div",
       {
-        class: wrapperClass,
-        style: props.Field.Info?.Style || '',
+        class: [
+          wrapperClass,
+          shouldHide.value ? "free-field-wrapper--hidden" : "",
+        ],
+        style: [
+          props.Field.Info?.Style || '',
+          shouldHide.value ? { display: "none" } : null,
+        ],
       },
       [
         realComp.value,
         tipsElem,
       ]
-    ) : () => null;
+    ) : null;
   },
 });

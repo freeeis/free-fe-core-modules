@@ -36,8 +36,8 @@ export function useFormValidator(...list) {
 
           if (!refi) continue;
 
-          const validFun = unref(refi.validate || refi.methods?.validate || refi.component?.exposed?.validate|| refi.component?.ctx?.validate);
-          const shouldHide = unref(refi.shouldHide || refi.component?.ctx?.shouldHide);
+          const validFun = unref(refi.validate || refi.methods?.validate || refi.exposed?.validate || refi.component?.exposed?.validate|| refi.component?.ctx?.validate);
+          const shouldHide = unref(refi.shouldHide || refi.exposed?.shouldHide || refi.component?.ctx?.shouldHide);
 
           if (typeof validFun === 'function' && shouldHide !== true) {
             hasErr = !validFun() || hasErr;

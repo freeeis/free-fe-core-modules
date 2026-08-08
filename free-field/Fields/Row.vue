@@ -120,11 +120,15 @@ export default defineComponent({
     Description: '',
   },
   emits: ['input'],
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if(!props.Field) return () => null;
 
     const { fieldData } = useFreeField(props);
     const { validate } = useFormValidator('fieldsToValidate');
+
+    expose({
+      validate,
+    });
 
     return {
       fieldData,

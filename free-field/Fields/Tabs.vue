@@ -121,11 +121,15 @@ export default defineComponent({
     ...freeFieldProps,
   },
   emits: ['input'],
-  setup(props, { emit }) {
+  setup(props, { emit, expose }) {
     if(!props.Field) return () => null;
 
     const { fieldData, setFieldData } = useFreeField(props);
     const { validate } = useFormValidator('fieldsToValidate');
+
+    expose({
+      validate,
+    });
 
     const tab = ref(0);
 

@@ -1,4 +1,4 @@
-import { ref, unref, getCurrentInstance, watch } from "vue";
+import { ref, unref, getCurrentInstance, nextTick, watch } from "vue";
 
 export const objectDataProps = {
   DefaultData: {},
@@ -47,7 +47,7 @@ export function useObjectData(props, ctx) {
         .then((d) => unref(d));
     });
 
-    return Promise.all(refreshTasks).then((results) => {
+    return Promise.all(refreshTasks).then(async (results) => {
       if (refreshBatchId !== latestRefreshBatchId) {
         return results;
       }
@@ -60,7 +60,9 @@ export function useObjectData(props, ctx) {
         data.value = results[0];
       }
 
-      if (typeof vm.afterRefresh === 'function') {
+      await nextTick();
+
+      if (refreshBatchId === latestRefreshBatchId && typeof vm.afterRefresh === 'function') {
         vm.afterRefresh();
       }
 

@@ -12,7 +12,7 @@ export function useObjectData(props, ctx) {
   const { proxy:vm } = getCurrentInstance();
 
   const data = ref(props.DefaultData || {});
-  const callsLeft = ref(100);
+  let latestRefreshBatchId = 0;
 
   watch(data, (v) => {
     ctx.emit('update:modelValue', v);
@@ -22,14 +22,10 @@ export function useObjectData(props, ctx) {
     data.value = props.modelValue;
   })
 
-  // call after refresh when all function got called
-  watch(() => callsLeft.value, () => {
-    if (typeof vm.afterRefresh === 'function' && callsLeft.value <= 0) {
-      vm.afterRefresh();
-    }
-  })
-
   const refreshData = (...args) => {
+    const refreshBatchId = latestRefreshBatchId + 1;
+    latestRefreshBatchId = refreshBatchId;
+
     // support multiple get data functions
     let hasMultipleGetData = false;
 
@@ -41,36 +37,41 @@ export function useObjectData(props, ctx) {
       getDataList.push(props.GetData);
     }
 
-    callsLeft.value = getDataList.length;
+    const refreshTasks = getDataList.map((getData) => {
+      if (typeof getData !== 'function') {
+        return Promise.resolve(unref(getData));
+      }
 
-    for (let i = 0; i < getDataList.length; i += 1) {
-      const getData = getDataList[i];
+      return Promise.resolve()
+        .then(() => getData(...args))
+        .then((d) => unref(d));
+    });
 
-      if (typeof getData === 'function') {
-        Promise.resolve(getData(...args)).then((d) => {
-          if (hasMultipleGetData) {
-            Object.assign(data.value, unref(d));
-          } else {
-            data.value = unref(d);
-          }
-        }).finally(() => {
-          callsLeft.value --;
+    return Promise.all(refreshTasks).then((results) => {
+      if (refreshBatchId !== latestRefreshBatchId) {
+        return results;
+      }
+
+      if (hasMultipleGetData) {
+        results.forEach((result) => {
+          Object.assign(data.value, result);
         });
       } else {
-        if (hasMultipleGetData) {
-          Object.assign(data.value, unref(getData));
-        } else {
-          data.value = unref(getData);
-        }
-        callsLeft.value --;
+        data.value = results[0];
       }
-    }
+
+      if (typeof vm.afterRefresh === 'function') {
+        vm.afterRefresh();
+      }
+
+      return results;
+    });
   };
 
   if(props.modelValue) {
     data.value = props.modelValue;
   } else if (props.autoGet) {
-    refreshData();
+    refreshData().catch(() => {});
   }
 
   return {

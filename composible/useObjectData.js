@@ -72,7 +72,7 @@ export function useObjectData(props, ctx) {
 
   if(props.modelValue) {
     data.value = props.modelValue;
-  } else if (props.autoGet) {
+  } else if (props.autoGet && props.GetData !== undefined && props.GetData !== null) {
     refreshData().catch(() => {});
   }
 

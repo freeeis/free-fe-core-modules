@@ -144,13 +144,13 @@ export default defineComponent({
             if (r.meta) {
               rItem.Label = Array.isArray(r.meta)
                 ? r.meta.map((rm) => rm.title).join(' > ')
-                : r.meta;
+                : (r.meta.title || '');
             } else {
               (r.children || []).forEach((rc) => {
                 if (rc.path === '' && rc.meta && !rItem.Label) {
                   rItem.Label = Array.isArray(rc.meta)
                     ? rc.meta.map((rm) => rm.title).join(' > ')
-                    : rc.meta;
+                    : (rc.meta.title || '');
                 }
               });
             }

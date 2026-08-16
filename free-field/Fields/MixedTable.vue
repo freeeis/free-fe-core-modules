@@ -53,7 +53,7 @@
                 :key="fIndex"
                 :Field="{...f, ReadOnly: Field.ReadOnly || f.ReadOnly}"
                 :values="fieldData.value"
-                @input="cellChanged(f, $event)"
+                @input="cellChanged(f)"
                 ref="fieldsToValid"
               ></free-field>
             </span>
@@ -64,7 +64,7 @@
               <free-field
                 :Field="{...r[rk].List[0], ReadOnly: Field.ReadOnly || r[rk].List[0].ReadOnly}"
                 :values="fieldData.value"
-                @input="cellChanged(r[rk].List[0], $event)"
+                @input="cellChanged(r[rk].List[0])"
                 borderless
                 ref="fieldToValid"
               ></free-field>
@@ -361,10 +361,9 @@ export default defineComponent({
       columns,
       summaryContent,
 
-      cellChanged: (f, subF) => {
-        emit('input', subF);
-        emit('input', f);
-        // emit('input'); // we have this in v2.0, is it necessary?
+      cellChanged: (field) => {
+        setFieldData(fieldData.value);
+        emit('input', fieldData.value, field || props.Field);
       },
       localRows: computed(() => {
         if (!props.Field?.Options?.Rows) return [];

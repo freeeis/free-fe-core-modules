@@ -100,6 +100,14 @@ export default defineComponent({
     Category: 'Table',
     Label: '自由表格',
     Value: 'MixedTable',
+    nesting: [{
+      path: 'Options.Rows.*.*.List',
+      label: '子字段',
+      wildcards: [
+        { label: '行', fallback: 'ordinal', append: true, appendLabel: '新增行', removable: true },
+        { label: '列', fallback: 'ordinal', countPath: 'Options.ColumnNumber' },
+      ],
+    }],
     Extra: [
       {
         Type: 'Number',

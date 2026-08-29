@@ -9,9 +9,11 @@ import {
   onMounted,
   nextTick,
   isRef,
+  inject,
 } from "vue";
 import { freeFieldProps } from "./useFreeField";
 import { useFormValidator } from '../../composible/useFormValidator';
+import { fieldComponentsKey } from '../context.js';
 
 import '../style.scss';
 
@@ -23,11 +25,12 @@ export default defineComponent({
     noWarning: { type: Boolean, default: false },
     noTips: { type: Boolean, default: false },
   },
-  emits: ['input'],
+  emits: ['input', 'field-event'],
   setup(props, { slots, emit, expose, attrs }) {
     if (!props.Field) return {};
 
     const { proxy: vm } = getCurrentInstance();
+    const localFieldComponents = inject(fieldComponentsKey, {});
 
     const localField = computed(() => {
       const lField = Object.clone(props.Field);
@@ -118,7 +121,7 @@ export default defineComponent({
     let realComponent = shallowRef(null);
 
     watchEffect(() => {
-      const fComponents = vm.ctx.FieldComponents || {};
+      const fComponents = { ...(vm.ctx.FieldComponents || {}), ...localFieldComponents };
       let field;
 
       // for some specified types
@@ -174,6 +177,10 @@ export default defineComponent({
 
         const captEm = `${em[0].toUpperCase()}${em.substring(1)}`;
         compEmits.value[`on${captEm}`] = (...args) => {
+          if (em === 'field-event') {
+            emit('field-event', args[0]);
+            return;
+          }
           // should not emit event directly as we were not inlucde these events in the emits list
           // but we could get any matched handller from the parent component and then call that
           // handller directly
@@ -181,7 +188,13 @@ export default defineComponent({
           const outerHandller = attrs[`on${captEm}`];
           if (typeof outerHandller === 'function') {
             outerHandller(...args);
+            if (em === 'action') return;
           }
+          emit('field-event', {
+            name: em,
+            payload: args.length > 1 ? args : args[0],
+            field: props.Field,
+          });
         };
       });
     })
@@ -201,8 +214,8 @@ export default defineComponent({
          * @param {any} _ value of the changed field
          * @param {Field} fld the changed field (optional)
          */
-        onInput: (_, fld) => {
-          emit("input", fld || props.Field);
+        onInput: (value, fld) => {
+          emit("input", fld || props.Field, value);
         },
         ...compEmits.value,
         ...localField.value.attrs,

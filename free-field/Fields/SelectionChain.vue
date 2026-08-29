@@ -33,7 +33,7 @@
           map-options
           :label="valuesList[index] ? '' : option.Placeholder"
           emit-value
-          @update:modelValue="selectionChanged(index)"
+          @update:modelValue="selectionChanged(index, $event)"
           ref="fieldsToValid"
           v-bind="inputControlSettings"
           :rules="Field.Required ? [(val) => !!val] : []"
@@ -180,8 +180,11 @@ export default defineComponent({
       }
     };
 
-    const selectionChanged = (index) => {
+    const selectionChanged = (index, value) => {
+      valuesList.value[index] = value;
       setFieldData(fieldData.value || {});
+
+      fieldData.value[props.Field.Options.Fields[index].Name] = value;
 
       if (index < props.Field.Options?.Fields?.length - 1) {
         for (let i = index + 1; i < props.Field.Options.Fields.length; i += 1) {
@@ -192,9 +195,6 @@ export default defineComponent({
         getOptions(index + 1);
       }
 
-      fieldData.value[props.Field.Options.Fields[index].Name] = valuesList.value[
-        index
-      ];
       emit('input');
     };
 

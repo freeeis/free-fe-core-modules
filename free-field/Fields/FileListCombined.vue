@@ -109,7 +109,7 @@
         >
         </q-img>
 
-        <q-pdfviewer
+        <pdf-viewer
           v-if="previewType === 'pdf'"
           v-model="showPreview"
           @click="showPreview=false"
@@ -126,6 +126,7 @@
 import { computed, defineComponent, ref } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useUploader } from '../composible/useUploader';
+import PdfViewer from './pdfviewer.js';
 
 export default defineComponent({
   name: 'InputFieldFileListCombined',
@@ -137,6 +138,9 @@ export default defineComponent({
   },
   props: {
     ...freeFieldProps,
+  },
+  components: {
+    PdfViewer,
   },
   setup(props) {
     const { fieldData, setFieldData } = useFreeField(props);

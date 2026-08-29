@@ -342,12 +342,6 @@ export default (app, root) => {
           showLabel: true,
         },
         {
-          Name: "NoLink",
-          Label: "不可点击",
-          Type: "Boolean",
-          showLabel: true,
-        },
-        {
           Name: "Description",
           Label: "说明",
           Type: "Text",

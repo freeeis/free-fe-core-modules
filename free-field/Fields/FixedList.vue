@@ -51,6 +51,11 @@ export default defineComponent({
     Category: 'Table',
     Label: '固定列表',
     Value: 'FixedList',
+    nesting: [{
+      path: 'Options.Columns.*.List',
+      label: '子字段',
+      wildcards: [{ label: '列', valuePath: 'Label', fallback: 'ordinal' }],
+    }],
     demoData: [],
     Extra: [
       {

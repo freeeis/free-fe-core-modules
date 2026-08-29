@@ -62,6 +62,7 @@ export default defineComponent({
     Category: 'Container',
     Label: '标签页',
     Value: 'Tabs',
+    nesting: [{ path: 'Options.Fields', label: '子字段' }],
     Extra: [
       {
         Type: 'String',

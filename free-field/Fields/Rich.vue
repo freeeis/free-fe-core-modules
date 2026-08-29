@@ -31,6 +31,7 @@
         v-if="!Field.ReadOnly"
         ref="tiny"
         api-key="wh7g3etkwrso25e0wcpqrx8uvoa51toag3j92mllkajtg1xb"
+        :key="editorDark ? 'dark' : 'light'"
         :tinymce-script-src="`${baseUrl}tiny/tiny7.js`"
         :init="{
           placeholder: Field.Placeholder || '',
@@ -41,7 +42,7 @@
           toolbar: Field.ReadOnly ? '' : this.toolbar.join(' '),
           toolbar_mode: 'wrap',
           importcss_append: true,
-          height: 500,
+          height: Field.Info?.EditorHeight || 500,
           image_caption: true,
           quickbars_selection_toolbar: Field.ReadOnly
             ? '' : this.quickbars_selection_toolbar.join(' '),
@@ -55,10 +56,12 @@
           images_reuse_filename: true,
           images_upload_handler,
 
-          skin: isDark ? 'oxide-dark' : 'oxide',
-          content_css: isDark ? 'dark' : '',
+          skin: editorDark ? 'oxide-dark' : 'oxide',
+          content_css: '',
           promotion: false,
-          content_style: 'body[data-mce-placeholder]::before { white-space: pre-wrap; }',
+          content_style: editorDark
+            ? 'html,body { background: #1a1b1f; color: #e4e4e7; } body[data-mce-placeholder]::before { color: #71717a; white-space: pre-wrap; }'
+            : 'body[data-mce-placeholder]::before { white-space: pre-wrap; }',
 
           convert_urls: false,  // 禁止转换 URL
           relative_urls: false, // 禁止使用相对 URL
@@ -92,6 +95,23 @@ export default defineComponent({
     Value: 'Rich',
     Description: '',
     Extra: [
+      {
+        Type: 'Number',
+        Label: '编辑器高度',
+        Name: 'Info.EditorHeight',
+        Default: '500',
+      },
+      {
+        Type: 'Select',
+        Label: '编辑器主题',
+        Name: 'Info.EditorTheme',
+        Default: 'auto',
+        Options: [
+          { Label: '自动', Value: 'auto' },
+          { Label: '亮色', Value: 'light' },
+          { Label: '暗色', Value: 'dark' },
+        ],
+      },
       {
         Type: 'Number',
         Label: '最大长度',
@@ -410,6 +430,8 @@ export default defineComponent({
       contextmenu,
 
       isDark: $q.dark.isActive,
+      editorDark: props.Field?.Info?.EditorTheme === 'dark'
+        || (props.Field?.Info?.EditorTheme !== 'light' && $q.dark.isActive),
 
       images_upload_handler: (
         blobInfo,

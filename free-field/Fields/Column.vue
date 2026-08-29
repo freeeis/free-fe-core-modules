@@ -24,6 +24,7 @@ export default defineComponent({
     Category: 'Container',
     Label: '列',
     Value: 'Column',
+    nesting: [{ path: 'Options.Fields', label: '子字段' }],
     Extra: [
       {
         Label: '不换行',

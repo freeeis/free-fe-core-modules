@@ -25,7 +25,7 @@
         </span>
       </span>
 
-      <q-select v-else popup-content-class="free-field-select-control" hide-bottom-space :modelValue="fieldData.value"
+      <q-select v-else :popup-content-class="`free-field-select-control ${(Field && Field.PopupContentClass) || ''}`" hide-bottom-space :modelValue="fieldData.value"
         @update:modelValue="selectChanged" :options="localOptions" option-value="Value" option-label="Label" map-options
         emit-value :label="Field.Placeholder || $t(getModule('core-modules').config['defaultSelectFieldPlaceholder'])"
         :multiple="Field.Multiple" :readonly="Field.ReadOnly" ref="fieldToValid"

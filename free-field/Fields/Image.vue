@@ -102,7 +102,7 @@
           style="max-height: 100%; max-width: 100%;">
         </q-img>
 
-        <q-pdfviewer v-if="previewType === 'pdf'" v-model="showPreview" @click="showPreview = false" :src="previewFile"
+        <pdf-viewer v-if="previewType === 'pdf'" v-model="showPreview" @click="showPreview = false" :src="previewFile"
           type="pdfjs" style="height: 100%; max-width: 100%;" />
       </div>
     </q-dialog>
@@ -115,6 +115,7 @@ import { useRoute } from 'vue-router';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
 import { useFormValidator} from '../../composible/useFormValidator.js';
 import { useUploader } from '../composible/useUploader.js';
+import PdfViewer from './pdfviewer.js';
 
 function parseStaticResourceParams(paramStr, route) {
   if (!paramStr || paramStr.trim().length <= 0) {
@@ -197,6 +198,9 @@ export default defineComponent({
     ...freeFieldProps,
     dense: { type: Boolean, default: false },
     onlyIcon: { type: Boolean, default: false },
+  },
+  components: {
+    PdfViewer,
   },
   emits: ['input'],
   setup(props, { expose, emit }) {

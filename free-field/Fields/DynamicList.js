@@ -11,6 +11,11 @@ export default defineComponent({
     Category: 'Table',
     Label: '动态列表',
     Value: 'DynamicList',
+    nesting: [{
+      path: 'Options.Columns.*.List',
+      label: '子字段',
+      wildcards: [{ label: '列', valuePath: 'Label', fallback: 'ordinal' }],
+    }],
     demoField: {
       Name: 'demo',
       Label: '动态列表标签',

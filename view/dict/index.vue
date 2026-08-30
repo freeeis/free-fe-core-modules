@@ -50,8 +50,11 @@
     </q-tree>
 
     <div class="row items-center justify-center q-my-md" v-if="canImport">
-      <q-btn flat @click="exportTranslates" class="btn-primary q-mr-md">导出翻译</q-btn>
-      <q-btn flat @click="importTranslates" class="btn-primary">导入翻译</q-btn>
+      <q-btn flat @click="exportDictionaries" class="btn-primary q-mr-md">导出全部字典</q-btn>
+      <q-btn flat @click="selectDictionaryFile" class="btn-primary q-mr-md">从文件导入字典</q-btn>
+      <q-btn flat @click="exportTranslates" class="btn-secondary q-mr-md">导出翻译</q-btn>
+      <q-btn flat @click="importTranslates" class="btn-secondary">导入翻译</q-btn>
+      <input ref="dictionaryFile" type="file" accept="application/json,.json" hidden @change="importDictionaries">
 
       <div class="row full-width q-mt-md">
         <q-input v-if="showImportTextArea" class="full-width" type="textarea" autogrow v-model="importText" placeholder="请输入要导入的内容(tab键分割)，如：
@@ -83,6 +86,7 @@ export default defineComponent({
       editingDict: {},
       dictFields: [],
       canImport: false,
+      importingDictionaries: false,
       importText: '',
       showImportTextArea: false,
     };
@@ -363,6 +367,55 @@ export default defineComponent({
           }
         });
       }
+    },
+    selectDictionaryFile() {
+      this.$refs.dictionaryFile.click();
+    },
+    exportDictionaries() {
+      this.getRequest('/dict/export/full').then((d) => {
+        const payload = d && d.data;
+        if (!payload || !Array.isArray(payload.dictionaries)) {
+          this.$q.notify({ type: 'negative', message: '导出失败：返回数据格式不正确' });
+          return;
+        }
+
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `dictionaries-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.$q.notify(`已导出 ${payload.dictionaries.length} 个根字典`);
+      });
+    },
+    importDictionaries(event) {
+      const file = event.target.files && event.target.files[0];
+      event.target.value = '';
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const payload = JSON.parse(reader.result);
+          if (!payload || payload.version !== 1 || !Array.isArray(payload.dictionaries)) {
+            throw new Error('invalid dictionary export');
+          }
+          this.importingDictionaries = true;
+          this.postRequest('/dict/import/full', payload).then((d) => {
+            if (d && d.msg === 'OK') {
+              const result = d.data || {};
+              this.$q.notify(`导入完成：新增 ${result.created || 0} 项，跳过 ${result.skipped || 0} 个已存在的根字典`);
+              this.refreshData();
+            }
+          }).finally(() => {
+            this.importingDictionaries = false;
+          });
+        } catch (error) {
+          this.$q.notify({ type: 'negative', message: '导入失败：请选择系统导出的 JSON 字典文件' });
+        }
+      };
+      reader.readAsText(file);
     },
     exportTranslates() {
       this.showImportTextArea = false;

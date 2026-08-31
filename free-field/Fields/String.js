@@ -74,11 +74,11 @@ export default defineComponent({
       Field: props.Field,
     });
 
-    const prepend = slots.prepend ? slots.prepend() : (props.Field.Options?.Prefix && h('span',{
+    const prepend = () => slots.prepend ? slots.prepend() : (props.Field.Options?.Prefix && h('span',{
       class: 'prefix',
     }, props.Field.Options?.Prefix));
 
-    const append = slots.append ? slots.append() : (props.Field.Options?.Postfix && h('span',{
+    const append = () => slots.append ? slots.append() : (props.Field.Options?.Postfix && h('span',{
       class: 'postfix',
     }, props.Field.Options?.Postfix));
 

@@ -60,8 +60,8 @@
           content_css: '',
           promotion: false,
           content_style: editorDark
-            ? 'html,body { background: #1a1b1f; color: #e4e4e7; } body[data-mce-placeholder]::before { color: #71717a; white-space: pre-wrap; }'
-            : 'body[data-mce-placeholder]::before { white-space: pre-wrap; }',
+            ? `html,body { background: #1a1b1f; color: #e4e4e7; } ${editorFontSizeStyle} body[data-mce-placeholder]::before { color: #71717a; white-space: pre-wrap; }`
+            : `${editorFontSizeStyle} body[data-mce-placeholder]::before { white-space: pre-wrap; }`,
 
           convert_urls: false,  // 禁止转换 URL
           relative_urls: false, // 禁止使用相对 URL
@@ -172,6 +172,9 @@ export default defineComponent({
 
     const readonlyContent = ref(null);
     const tiny = ref(null);
+    const editorFontSizeStyle = props.Field?.Info?.EditorFontSize
+      ? `body { font-size: ${props.Field.Info.EditorFontSize}px; }`
+      : '';
 
     // TODO: 设置默认warning信息不生效
     if (props.Field.Warning) {
@@ -428,6 +431,7 @@ export default defineComponent({
       toolbar,
       quickbars_selection_toolbar,
       contextmenu,
+      editorFontSizeStyle,
 
       isDark: $q.dark.isActive,
       editorDark: props.Field?.Info?.EditorTheme === 'dark'

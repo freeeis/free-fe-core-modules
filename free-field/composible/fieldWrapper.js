@@ -7,6 +7,7 @@ import {
   watchEffect,
   computed,
   onMounted,
+  onBeforeUnmount,
   nextTick,
   isRef,
   inject,
@@ -14,6 +15,11 @@ import {
 import { freeFieldProps } from "./useFreeField";
 import { useFormValidator } from '../../composible/useFormValidator';
 import { fieldComponentsKey } from '../context.js';
+import {
+  SCOPED_STYLE_ATTRIBUTE,
+  createManagedScopedStyle,
+  extractRootDeclarations,
+} from './scopedStyles.js';
 
 import '../style.scss';
 
@@ -31,9 +37,22 @@ export default defineComponent({
 
     const { proxy: vm } = getCurrentInstance();
     const localFieldComponents = inject(fieldComponentsKey, {});
+    const fieldStyle = createManagedScopedStyle('field', { includeRootDeclarations: false });
+
+    watchEffect(() => {
+      fieldStyle.update(props.Field.Info?.Style);
+    });
+    onBeforeUnmount(() => fieldStyle.destroy());
 
     const localField = computed(() => {
       const lField = Object.clone(props.Field);
+
+      if (lField.Info?.Style) {
+        lField.Info = {
+          ...lField.Info,
+          Style: extractRootDeclarations(lField.Info.Style),
+        };
+      }
 
       lField.Rules = lField.Rules || [];
       for (let i = 0; i < lField.Rules.length; i += 1) {
@@ -368,8 +387,9 @@ export default defineComponent({
           wrapperClass,
           shouldHide.value ? "free-field-wrapper--hidden" : "",
         ],
+        [SCOPED_STYLE_ATTRIBUTE]: fieldStyle.scopeToken,
         style: [
-          props.Field.Info?.Style || '',
+          extractRootDeclarations(props.Field.Info?.Style),
           shouldHide.value ? { display: "none" } : null,
         ],
       },

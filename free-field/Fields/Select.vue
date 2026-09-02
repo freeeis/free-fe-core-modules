@@ -25,11 +25,14 @@
         </span>
       </span>
 
-      <q-select v-else :popup-content-class="`free-field-select-control ${(Field && Field.PopupContentClass) || ''}`" hide-bottom-space :modelValue="fieldData.value"
+      <q-select v-else :popup-content-class="`free-field-select-control ${(Field && Field.PopupContentClass) || ''}`" hide-bottom-space
+        :modelValue="Field?.EditableInput && editableInputFocused ? null : fieldData.value"
         @update:modelValue="selectChanged" :options="localOptions" option-value="Value" option-label="Label" map-options
         emit-value :label="Field.Placeholder || $t(getModule('core-modules').config['defaultSelectFieldPlaceholder'])"
         :multiple="Field.Multiple" :readonly="Field.ReadOnly" ref="fieldToValid"
         :use-input="Field && (Field.UseInput || (Field.Info?.CanFilter))" @filter="filterFunc"
+        :hide-selected="!!Field?.EditableInput && editableInputFocused"
+        @focus="beginEditableInput" @blur="endEditableInput" @input-value="editableInputChanged"
         :use-chips="Field && (Field.UseChip || (Field.Info && Field.Info.Chip))" v-bind="inputControlSettings"
         :rules="Field.Rules" :new-value-mode="Field?.NewValueMode ? 'add' : undefined">
         <template v-slot:before>
@@ -39,6 +42,10 @@
             {{ $t(Field.Label) || '' }}
             <span v-if="Field.Required" class="required-mark">*</span>
           </span>
+        </template>
+
+        <template v-if="Field?.EditableInput" v-slot:selected>
+          <span class="ellipsis">{{ fieldData.value }}</span>
         </template>
 
         <template v-slot:option="scope">
@@ -308,6 +315,9 @@ export default defineComponent({
     const checked = ref([]);
     const dependencies = ref({});
     const selectOptions = ref([]);
+    const editableInputFocused = ref(false);
+    const editableInputValue = ref('');
+    let suppressEditableInput = false;
 
     watchEffect(() => {
       if (Array.isArray(props.Field.Options)) {
@@ -392,7 +402,39 @@ export default defineComponent({
 
     const selectChanged = (v) => {
       selfValidate();
+      suppressEditableInput = !!props.Field?.EditableInput;
+      editableInputFocused.value = !!props.Field?.EditableInput;
+      editableInputValue.value = String(v ?? '');
       setFieldData(v, emit);
+      if (suppressEditableInput) {
+        vm.$nextTick(() => {
+          vm.$refs.fieldToValid?.updateInputValue?.(editableInputValue.value, false);
+          suppressEditableInput = false;
+        });
+      }
+    };
+
+    const editableInputChanged = (value) => {
+      if (!props.Field?.EditableInput || !editableInputFocused.value || suppressEditableInput) return;
+      editableInputValue.value = value;
+    };
+
+    const beginEditableInput = () => {
+      if (!props.Field?.EditableInput) return;
+      editableInputFocused.value = true;
+      editableInputValue.value = String(fieldData.value ?? '');
+      vm.$nextTick(() => {
+        vm.$refs.fieldToValid?.updateInputValue?.(editableInputValue.value, false);
+        vm.$refs.fieldToValid?.showPopup?.();
+      });
+    };
+
+    const endEditableInput = () => {
+      if (!editableInputFocused.value || suppressEditableInput) return;
+      editableInputFocused.value = false;
+      if (editableInputValue.value !== fieldData.value) {
+        setFieldData(editableInputValue.value, emit);
+      }
     };
 
     const checkChanged = (v) => {
@@ -483,6 +525,8 @@ export default defineComponent({
       hasError,
       checked,
       dependencies,
+      editableInputFocused,
+      editableInputValue,
 
       selectOptions,
 
@@ -490,6 +534,9 @@ export default defineComponent({
       checkedIcon,
 
       selectChanged,
+      beginEditableInput,
+      endEditableInput,
+      editableInputChanged,
       checkChanged,
       inputControlSettings,
 
@@ -505,7 +552,8 @@ export default defineComponent({
           const needle = val.toLowerCase();
 
           localOptions.value = (props.Field.Options || []).filter(opt => {
-            return `${opt.Label || opt.Value || opt}`.toLowerCase().indexOf(needle) > -1;
+            return `${opt.Label || opt.Value || opt}`.toLowerCase().indexOf(needle) > -1
+              || `${opt.SearchText || ''}`.toLowerCase().indexOf(needle) > -1;
           });
         })
       },

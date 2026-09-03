@@ -33,14 +33,14 @@ export default defineComponent({
     const hasError = ref(false);
 
     const fieldTip = (tip) => {
-      if (!tip || !tip.Text) return '';
+      if (!tip || !tip.Text) return [];
       if (!tip.Links || !Array.isArray(tip.Links) || tip.Links.length <= 0) {
         return [{ Text: tip.Text }];
       }
 
       // process tip with links
       let linkPos = [];
-      tip.Links.forEach((tl) => {
+      (tip.Links || []).forEach((tl) => {
         if (!tl || !tl.Text || !tl.Link) return;
 
         const start = tip.Text.indexOf(tl.Text);
@@ -138,37 +138,47 @@ export default defineComponent({
       },
     });
 
-    const tipsNode = () => h('div', {},[
-      h('span', {
-        class: 'free-field-ips-prefix'
-      }),
-      h('span',{
-        class: 'tips-list'
-      }, (props.Field.Tips || []).map((tip) => h('span', {
-        class:'free-field-tips-tip',
-      }, [
+    const tipsNode = () => {
+      const tips = Array.isArray(props.Field.Tips)
+        ? props.Field.Tips.filter((tip) => tip?.Text)
+        : [];
+      if (!tips.length) return undefined;
+
+      return h('div', {},[
         h('span', {
-          class: 'free-field-tips-tip-prefix'
+          class: 'free-field-ips-prefix'
         }),
-        fieldTip(tip).map((t) => h('span', {}, [
-          t.Link ? h('span', {
-            class: 'tip-link'
-          },[
-            h('span', {class: 'tip-link-prefix'}),
-            h('a',{
-              href: t.Link,
-            },t.Text),
-            h('span', {class: 'tip-link-postfix'}),
-          ]) : h('span',{class: 'tip-text'}, t.Text),
-        ])),
-        h('span', {
-          class: 'free-field-tips-tip-postfix'
+        h('span',{
+          class: 'tips-list'
+        }, tips.map((tip) => {
+          const tipParts = fieldTip(tip);
+          return h('span', {
+            class:'free-field-tips-tip',
+          }, [
+            h('span', {
+              class: 'free-field-tips-tip-prefix'
+            }),
+            (Array.isArray(tipParts) ? tipParts : []).map((t) => h('span', {}, [
+            t.Link ? h('span', {
+              class: 'tip-link'
+            },[
+              h('span', {class: 'tip-link-prefix'}),
+              h('a',{
+                href: t.Link,
+              },t.Text),
+              h('span', {class: 'tip-link-postfix'}),
+            ]) : h('span',{class: 'tip-text'}, t.Text),
+            ])),
+            h('span', {
+              class: 'free-field-tips-tip-postfix'
+            })
+          ]);
+        })),
+        h('span',{
+          class: 'free-field-tips-postfix'
         })
-      ]))),
-      h('span',{
-        class: 'free-field-tips-postfix'
-      })
-    ]);
+      ]);
+    };
 
     return () => h('div', {
       class: `free-field-agreement-check row items-center no-wrap\

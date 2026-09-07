@@ -411,7 +411,7 @@ export default defineComponent({
           }).finally(() => {
             this.importingDictionaries = false;
           });
-        } catch (error) {
+        } catch {
           this.$q.notify({ type: 'negative', message: '导入失败：请选择系统导出的 JSON 字典文件' });
         }
       };

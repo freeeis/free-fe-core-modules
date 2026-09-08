@@ -9,11 +9,11 @@
         {{Field.Label || ''}}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData.value}}</span>
+      <span class="readonly-content">{{displayValue}}</span>
     </span>
-    <q-input v-else v-model="fieldData.value" hide-bottom-space
+    <q-input v-else :model-value="displayValue" hide-bottom-space
       :readonly="Field.ReadOnly"
-      @update:modelValue="$emit('input')"
+      @update:modelValue="changed"
       v-bind="inputControlSettings"
       ref="fieldToValid">
       <template v-slot:before v-if="Field.Label !== void 0">
@@ -28,7 +28,7 @@
       <q-popup-proxy v-if="!Field.ReadOnly" transition-show="scale" transition-hide="scale">
         <span class="row">
           <q-date
-            :modelValue="fieldData.value"
+            :modelValue="displayValue"
             mask="YYYY-MM-DD HH:mm:ss"
             :hour-options="hourOptions"
             :minute-options="minuteOptions"
@@ -38,7 +38,7 @@
             :locale="locale"
           />
           <q-time
-            :modelValue="fieldData.value"
+            :modelValue="displayValue"
             mask="YYYY-MM-DD HH:mm:ss"
             format24h
             @update:modelValue="changed"
@@ -57,6 +57,7 @@
 <script>
 import { computed, defineComponent, getCurrentInstance } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import formatDateTime from '../../composible/formatDateTime';
 import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
@@ -99,6 +100,14 @@ export default defineComponent({
     const { proxy:vm } = getCurrentInstance();
 
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
+
+    const displayValue = computed(() => {
+      if (fieldData.value === void 0 || fieldData.value === null || fieldData.value === '') {
+        return fieldData.value;
+      }
+
+      return formatDateTime(fieldData.value);
+    });
 
     const locale = vm.ctx.config.locales.find(
       (l) => l.locale === (vm.ctx.config.locale || vm.ctx.config.defaultLocale),
@@ -167,6 +176,7 @@ export default defineComponent({
 
     return {
       fieldData,
+      displayValue,
       locale,
 
       hourOptions,

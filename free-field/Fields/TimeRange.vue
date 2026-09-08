@@ -10,7 +10,7 @@
         {{Field.Label || ''}}
         <span v-if="Field.Required" class="required-mark">*</span>
       </span>
-      <span class="readonly-content">{{fieldData.value}}</span>
+      <span class="readonly-content">{{readonlyValue}}</span>
     </span>
     <span v-else class="row items-center no-wrap">
       <span v-if="Field.Label !== void 0" class="q-field__before">
@@ -100,6 +100,7 @@
 <script>
 import { defineComponent, ref, getCurrentInstance, watch, watchEffect, computed } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
+import formatDateTime from '../../composible/formatDateTime';
 import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
@@ -165,6 +166,12 @@ export default defineComponent({
 
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
+    const normalizeTimeValue = (value) => {
+      if (value === void 0 || value === null || value === '') return '';
+
+      return formatDateTime(value, false);
+    };
+
     const updateFieldDate = () => {
       setFieldData([min.value, max.value].join(props.Field.Separator || '~'), emit);
     };
@@ -177,8 +184,13 @@ export default defineComponent({
 
     watchEffect(() => {
       const yl = (fieldData.value || '').split(props.Field.Separator || '~');
-      min.value = yl[0] && yl[0].trim();
-      max.value = yl[1] && yl[1].trim();
+      min.value = normalizeTimeValue(yl[0] && yl[0].trim());
+      max.value = normalizeTimeValue(yl[1] && yl[1].trim());
+    });
+
+    const readonlyValue = computed(() => {
+      const separator = props.Field.Separator || '~';
+      return [normalizeTimeValue(min.value), normalizeTimeValue(max.value)].join(separator);
     });
 
     const locale = vm.ctx.config.locales.find(
@@ -354,6 +366,7 @@ export default defineComponent({
       min,
       max,
       fieldData,
+      readonlyValue,
       locale,
 
       minDateOptions,

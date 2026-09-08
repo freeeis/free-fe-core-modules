@@ -193,9 +193,10 @@ export default defineComponent({
 
     const getSizedData = (d) => {
       const dd = [];
-      if (d) {
-        for (let i = 0; i < d.length; i += 1) {
-          const fd = d[i];
+      const sourceData = d ?? props.Field.Options?.Default;
+      if (sourceData) {
+        for (let i = 0; i < sourceData.length; i += 1) {
+          const fd = sourceData[i];
 
           dd[i] = fd;
           if (fd.rowSize !== void 0) {
@@ -208,7 +209,7 @@ export default defineComponent({
         }
 
         if (props.Field.Options?.MinRows) {
-          for (let i = d.length; i < props.Field.Options?.MinRows; i += 1) {
+          for (let i = sourceData.length; i < props.Field.Options?.MinRows; i += 1) {
             dd.push({});
           }
         }

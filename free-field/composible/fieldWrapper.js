@@ -37,7 +37,7 @@ export default defineComponent({
 
     const { proxy: vm } = getCurrentInstance();
     const localFieldComponents = inject(fieldComponentsKey, {});
-    const fieldStyle = createManagedScopedStyle('field', { includeRootDeclarations: false });
+    const fieldStyle = createManagedScopedStyle('field', { includeRootDeclarations: true });
 
     watchEffect(() => {
       fieldStyle.update(props.Field.Info?.Style);

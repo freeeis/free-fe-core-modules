@@ -14,6 +14,7 @@ export default defineComponent({
         Type: 'FixedList',
         Label: '选项',
         Name: 'Options',
+        ValueType: 'array', // 明确Options是数组
         Options: {
           Columns: [
             {

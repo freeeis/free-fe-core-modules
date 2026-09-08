@@ -3,7 +3,6 @@ import { QTable, QTh, QTd, QTr, QIcon } from 'quasar';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import freeFieldLabel from '../composible/freeFieldLabel';
 import FreeField from '../composible/fieldWrapper';
-import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldDynamicList',
@@ -342,6 +341,7 @@ export default defineComponent({
       delete field.field;
 
       field.ReadOnly = props.Field.ReadOnly || field.ReadOnly;
+      field.Required = props.Field.Required || field.Required;
 
       return field;
     };
@@ -426,10 +426,14 @@ export default defineComponent({
       }
     };
 
-    const fieldsToValidate = ref([]);
-    const {
-      validate
-    } = useFormValidator(fieldsToValidate);
+    const fieldInstances = new Map();
+
+    const validate = () => {
+      if (props.Field.Required && !tableData.value?.length) return false;
+      return [...fieldInstances.values()].every((field) => (
+        !field || typeof field.validate !== 'function' || field.validate()
+      ));
+    };
 
     expose({
       selected,
@@ -464,27 +468,6 @@ export default defineComponent({
     );
 
     const bodyCell = (slotProps) => {
-      const fields = ref([]);
-      fields.value = slotProps.col?.List?.length > 1 ? slotProps.col.List.map((col) =>
-        h(FreeField, {
-          Field: columnField(col, true, slotProps.col),
-          values: slotProps.row,
-          style: "margin: 4px auto",
-          onInput: cellChanged,
-        })
-      ) : [
-        h(FreeField, {
-          Field: columnField(slotProps.col),
-          values: slotProps.row,
-          borderless: true,
-          onInput: cellChanged,
-        }),
-      ];
-
-      // add fields from the current cell to validate list
-      fieldsToValidate.value.push(...fields.value);
-
-
       if (slotProps.col.name === "listActions") {
         return h(QTd, null, {
           default: () =>
@@ -500,7 +483,35 @@ export default defineComponent({
                   },
                 }),
         });
-      } else if (showCell(slotProps)) {
+      }
+
+      const fields = slotProps.col?.List?.length > 1 ? slotProps.col.List.map((col) => {
+        const fieldKey = `${slotProps.row.auto__index}:${slotProps.col.name}:${col.Name || col.name}`;
+        return h(FreeField, {
+          Field: columnField(col, true, slotProps.col),
+          values: slotProps.row,
+          style: "margin: 4px auto",
+          ref: (instance) => {
+            if (instance) fieldInstances.set(fieldKey, instance);
+            else fieldInstances.delete(fieldKey);
+          },
+          onInput: cellChanged,
+        });
+      }) : (() => {
+        const fieldKey = `${slotProps.row.auto__index}:${slotProps.col.name}`;
+        return [h(FreeField, {
+          Field: columnField(slotProps.col),
+          values: slotProps.row,
+          borderless: true,
+          ref: (instance) => {
+            if (instance) fieldInstances.set(fieldKey, instance);
+            else fieldInstances.delete(fieldKey);
+          },
+          onInput: cellChanged,
+        })];
+      })();
+
+      if (showCell(slotProps)) {
         return h(
           QTd,
           {
@@ -515,7 +526,7 @@ export default defineComponent({
             {
               class: "full-height full-width",
             },
-            fields.value,
+            fields,
           )
         );
       }

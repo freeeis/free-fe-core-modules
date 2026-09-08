@@ -115,9 +115,9 @@ export default defineComponent({
       {
         Type: 'DynamicList',
         Label: '默认内容',
-        Name: 'Options.Default',
+        Name: 'Default',
+        Default: [{}],
         Options: {
-          Default: [{}],
         },
       },
       {
@@ -165,7 +165,7 @@ export default defineComponent({
       if (!editor || !d || !opt || !opt.Extra) return;
 
       d.Options = d.Options || {};
-      const theDefault = opt.Extra.find((ex) => ex.Name === 'Options.Default');
+      const theDefault = opt.Extra.find((ex) => ex.Name === 'Default');
       if (theDefault) {
         theDefault.Options.Columns = d.Options.Columns;
         //editor.$set(
@@ -183,7 +183,7 @@ export default defineComponent({
     if (!props.Field) return {};
 
     const { fieldData, setFieldData } = useFreeField(props);
-    const tableData = ref(props.Field.Options?.Default || []);
+    const tableData = ref(props.Field?.Default || []);
 
     watchEffect(() => {
       if (fieldData.value) {

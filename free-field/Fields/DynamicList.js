@@ -34,8 +34,8 @@ export default defineComponent({
             Type: 'String',
           }],
         }],
-        Default: [{ }],
       },
+      Default: [{ }],
     },
     demoData: [{
       CA: 'AA',
@@ -89,7 +89,7 @@ export default defineComponent({
       {
         Type: 'DynamicList',
         Label: '默认内容',
-        Name: 'Options.Default',
+        Name: 'Default',
         Options: {
         },
       },
@@ -164,7 +164,7 @@ export default defineComponent({
       if (!editor || !d || !opt || !opt.Extra) return;
 
       d.Options = d.Options || {};
-      const theDefault = opt.Extra.find((ex) => ex.Name === 'Options.Default');
+      const theDefault = opt.Extra.find((ex) => ex.Name === 'Default');
       if (theDefault) {
         //editor.$set(
         //  theDefault.Options,

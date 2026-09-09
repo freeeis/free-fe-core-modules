@@ -6,7 +6,7 @@
       {{ Field.Label || '' }}
       <span v-if="Field.Required" class="required-mark">*</span>
     </span>
-    <q-uploader @added="localFiles.push(...$event)" @uploaded="uploaded" @removed="removeFile" @rejected="filesRejected"
+    <q-uploader @added="filesAdded" @uploaded="uploaded" @removed="removeFile" @rejected="filesRejected"
       :factory="factoryFn" multiple :auto-upload="Field && Field.Options && Field.Options.Auto"
       :max-file-size="maxFileSize" :max-total-size="maxTotalSize" :accept="acceptedFileTypes"
       :class="`q-ma-xs ${hasError ? 'free-field--error' : ''}`" ref="uploader">
@@ -267,10 +267,21 @@ export default defineComponent({
     const localFiles = ref([]);
     const hasError = ref(false);
 
+    const filesAdded = (files) => {
+      localFiles.value.push(...files);
+      const isValid = selfValidate();
+      vm.$el?.classList?.toggle('hasError', !isValid);
+    };
+
     const selfValidate = () => {
+      const currentFiles = [
+        ...(fieldData.value || []),
+        ...localFiles.value,
+      ];
+
       if (props.Field?.Required) {
-        hasError.value = fieldData.value?.length <= 0;
-        return fieldData.value?.length > 0;
+        hasError.value = currentFiles.length <= 0;
+        return currentFiles.length > 0;
       }
 
       const rules = Array.isArray(typeof props.Field.Rules) ? props.Field.Rules : [props.Field.Rules];
@@ -280,7 +291,7 @@ export default defineComponent({
         const r = rules[i];
 
         if (typeof r === 'function') {
-          isValid = isValid && r(fieldData.value);
+          isValid = isValid && r(currentFiles);
         }
       }
 
@@ -388,6 +399,7 @@ export default defineComponent({
       preview,
       uploader,
       localFiles,
+      filesAdded,
 
       hasError,
       selfValidate,

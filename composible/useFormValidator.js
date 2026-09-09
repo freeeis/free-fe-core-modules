@@ -40,13 +40,22 @@ export function useFormValidator(...list) {
           const shouldHide = unref(refi.shouldHide || refi.exposed?.shouldHide || refi.component?.ctx?.shouldHide);
 
           if (typeof validFun === 'function' && shouldHide !== true) {
-            hasErr = !validFun() || hasErr;
+            const isValid = validFun();
+            hasErr = !isValid || hasErr;
 
-            if (hasErr) {
-              if (refi.el?.className) {
-                refi.el.className += ' hasError';
+            if (refi.el?.className) {
+              const classNames = String(refi.el.className)
+                .split(/\s+/)
+                .filter((className) => className && className !== 'hasError');
+
+              if (!isValid) {
+                classNames.push('hasError');
               }
 
+              refi.el.className = classNames.join(' ');
+            }
+
+            if (hasErr) {
               console.error('got error', args)
               break;
             }

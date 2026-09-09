@@ -13,6 +13,8 @@
     </span>
     <q-input v-else :model-value="displayValue" hide-bottom-space
       :readonly="Field.ReadOnly"
+      :placeholder="Field.Placeholder || ''"
+      :rules="Field.Rules"
       @update:modelValue="changed"
       v-bind="inputControlSettings"
       ref="fieldToValid">

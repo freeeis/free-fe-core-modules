@@ -163,6 +163,8 @@ export default defineComponent({
       hideBottomSpace: true,
       readonly: props.Field?.ReadOnly,
 
+      placeholder: props.Field?.Placeholder || '',
+
       ...inputControlSettings.value,
 
       class: 'full-width',

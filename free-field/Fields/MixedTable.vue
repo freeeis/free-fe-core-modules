@@ -100,6 +100,7 @@
 import { computed, defineComponent } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
+import MixedTableDesigner from './MixedTableDesigner.vue';
 
 export default defineComponent({
   name: 'InputFieldMixedTable',
@@ -116,6 +117,7 @@ export default defineComponent({
         { label: '列', fallback: 'ordinal', countPath: 'Options.ColumnNumber' },
       ],
     }],
+    designer: MixedTableDesigner,
     Extra: [
       {
         Type: 'Number',

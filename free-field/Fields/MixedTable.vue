@@ -15,7 +15,15 @@
         class="required-mark"
       >*</span>
     </span>
+    <q-banner
+      v-if="hasInvalidRows"
+      dense
+      class="q-ma-xs col-12 bg-negative text-white"
+    >
+      表格配置无效：Options.Rows 必须是数组，请清理该字段配置后重试。
+    </q-banner>
     <q-table
+      v-else
       class="q-ma-xs col"
       :rows="[{}]"
       :columns="columns"
@@ -115,14 +123,6 @@ export default defineComponent({
         Label: '列数',
       },
       {
-        Type: 'DynamicList',
-        Label: '定义',
-        Name: 'Options.Rows',
-        Options: {
-          Columns: [{}],
-        },
-      },
-      {
         Type: 'String',
         Label: '统计信息模板',
         Name: 'Options.Summary.Pattern',
@@ -149,82 +149,15 @@ export default defineComponent({
     ],
     Description: '',
     onOptionsChanged: (editor, d, opt) => {
-      if (!editor || !d || !opt || !opt.Extra) return;
+      if (!editor || !d || !opt) return;
 
-      // auto set rows and columns
       d.Options = d.Options || {};
+      if (d.Options.Rows === undefined) d.Options.Rows = [];
+      if (!Array.isArray(d.Options.Rows)) return;
 
-      const cols = d.Options.ColumnNumber || 0;
-
-      const mTableFieldRows = opt.Extra.find(
-        (e) => e.Name === 'Options.Rows',
-      );
-      if (mTableFieldRows) {
-        const mtfrColumns = [
-          {
-            Label: '',
-            Name: 'auto__index',
-            ReadOnly: true,
-          },
-        ];
-
-        for (let ii = 0; ii < cols; ii += 1) {
-          mtfrColumns.push({
-            Label: `${ii + 1}`,
-            Name: `${ii}`,
-            Type: 'Row',
-            Options: {
-              Fields: [
-                {
-                  Label: 'rowspan',
-                  Name: 'rowspan',
-                  Type: 'Number',
-                },
-                {
-                  Label: 'colspan',
-                  Name: 'colspan',
-                  Type: 'Number',
-                },
-                {
-                  Name: 'List',
-                  Type: 'FieldList',
-                  Options: {
-                    Columns: [
-                      {
-                        Label: '类型',
-                        Name: 'Type',
-                        style: 'max-width: 120px;',
-                      },
-                      {
-                        Label: '名称',
-                        Name: 'Name',
-                        style: 'max-width: 200px;',
-                      },
-                      {
-                        Label: '标题',
-                        Name: 'Label',
-                        style: 'max-width: 200px;',
-                      },
-                      {
-                        Label: '默认',
-                        Name: 'Default',
-                        style: 'max-width: 200px;',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          });
-        }
-
-        //editor.$set(mTableFieldRows.Options, 'Columns', mtfrColumns);
-        mTableFieldRows.Options.Columns = mtfrColumns;
-
-        // table rows and columns correction
-        const rowColNumbers = [];
-        d.Options.Rows = d.Options.Rows || [];
-        for (let i = 0; i < d.Options.Rows.length; i += 1) {
+      const columnCount = Math.max(0, Number(d.Options.ColumnNumber) || 0);
+      const rowColNumbers = [];
+      for (let i = 0; i < d.Options.Rows.length; i += 1) {
           d.Options.Rows[i] = d.Options.Rows[i] || {};
 
           // set data row index
@@ -234,9 +167,9 @@ export default defineComponent({
 
           // limit rowspan and colspan
           if (typeof rowColNumbers[i] === 'undefined') {
-            rowColNumbers[i] = d.Options.ColumnNumber;
+            rowColNumbers[i] = columnCount;
           } else {
-            rowColNumbers[i] += d.Options.ColumnNumber;
+            rowColNumbers[i] += columnCount;
           }
 
           for (let j = 0; j < rowColNumbers[i]; j += 1) {
@@ -279,7 +212,6 @@ export default defineComponent({
           //editor.$set(d.Options.Rows, i, newRow);
           d.Options.Rows[i] = newRow;
         }
-      }
     },
   },
   props: {
@@ -302,11 +234,12 @@ export default defineComponent({
     };
 
     const columns = computed(() => {
-      if (!props.Field.Options?.Rows) return [];
+      const rows = props.Field.Options?.Rows;
+      if (!Array.isArray(rows)) return [];
 
       let cols = 0;
-      for (let i = 0; i < props.Field.Options.Rows.length; i += 1) {
-        const r = props.Field.Options.Rows[i];
+      for (let i = 0; i < rows.length; i += 1) {
+        const r = rows[i];
 
         for (let j = 0; j < Object.keys(r).length; j += 1) {
           const rk = Number(Object.keys(r)[j]);
@@ -368,14 +301,19 @@ export default defineComponent({
       rowCells,
       columns,
       summaryContent,
+      hasInvalidRows: computed(() => {
+        const rows = props.Field?.Options?.Rows;
+        return rows !== undefined && !Array.isArray(rows);
+      }),
 
       cellChanged: (field) => {
         setFieldData(fieldData.value);
         emit('input', fieldData.value, field || props.Field);
       },
       localRows: computed(() => {
-        if (!props.Field?.Options?.Rows) return [];
-        return [...props.Field.Options.Rows].sort((a, b) => (Number(a.auto__index) || 0) - (Number(b.auto__index) || 0));
+        const rows = props.Field?.Options?.Rows;
+        if (!Array.isArray(rows)) return [];
+        return [...rows].sort((a, b) => (Number(a.auto__index) || 0) - (Number(b.auto__index) || 0));
       }),
     }
   },

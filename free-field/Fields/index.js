@@ -39,6 +39,7 @@ import fApiCall from './ApiCall.js';
 import fTabs from './Tabs.vue';
 import fRow from './Row.vue';
 import fColumn from './Column.vue';
+import fValueConcat from './ValueConcat.vue';
 
 export default {
   Static: fStatic,
@@ -83,4 +84,5 @@ export default {
   Tabs: fTabs,
   Row: fRow,
   Column: fColumn,
+  ValueConcat: fValueConcat,
 };

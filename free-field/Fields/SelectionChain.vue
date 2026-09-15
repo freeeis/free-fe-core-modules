@@ -40,32 +40,38 @@
         ></q-select>
       </span>
       <span v-if="Field && Field.ReadOnly">
-        <span
-          class="readonly-content"
-          v-for="(option, index) in Field.Options.Fields"
-          :key="index"
-        >
-          <span v-if="valuesList[index] && !option.Hide">
-            {{optionsList[index] ?
-                (optionsList[index].find(o => o.Value === valuesList[index]) || {}).Label : ''}}
-          </span>
-        </span>
+        <span class="readonly-content">{{ readonlyContent }}</span>
       </span>
     </span>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref, watch, getCurrentInstance, } from 'vue';
+import { defineComponent, ref, watch, computed, getCurrentInstance, } from 'vue';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField';
 import { useFormValidator} from '../../composible/useFormValidator';
 
 export default defineComponent({
   name: 'InputFieldSelectChain',
+  valueToString(value, Field) {
+    if (!Field?.Options?.Fields || !value) {
+      return value;
+    }
+
+    const optionsList = this.optionsList || [];
+    return Field.Options.Fields.map((field, index) => {
+      if (field.Hide || !value[field.Name]) {
+        return '';
+      }
+
+      const option = optionsList[index]?.find((item) => item.Value === value[field.Name]);
+      return option?.Label || '';
+    }).filter(Boolean).join('');
+  },
   props: {
     ...freeFieldProps,
   },
-  emits:['input'],
+  emits:['input', 'valueToStringChange'],
   fieldInfo: {
     Category: 'Advanced',
     Label: '选择链',
@@ -121,7 +127,12 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
+    const {
+      fieldData,
+      setFieldData,
+      valueToString: fieldValueToString,
+      inputControlSettings,
+    } = useFreeField(props);
 
     const optionsList = ref([]);
     const valuesList = ref([]);
@@ -145,6 +156,7 @@ export default defineComponent({
 
             if (Array.isArray(dd)) {
               optionsList.value[index] = dd;
+              emit('valueToStringChange');
             }
           }
         });
@@ -158,6 +170,7 @@ export default defineComponent({
         parent = parent || '';
 
         optionsList.value[index] = props.Field.Options.Data.filter(dd => dd[props.Field.Options.ParentName] === parent);
+        emit('valueToStringChange');
       }
     };
 
@@ -198,6 +211,8 @@ export default defineComponent({
       emit('input');
     };
 
+    const readonlyContent = computed(() => fieldValueToString());
+
     watch(fieldData, () => {
       if(typeof fieldData.value === 'undefined'){
         valuesList.value = [];
@@ -208,6 +223,7 @@ export default defineComponent({
     const { validate } = useFormValidator('fieldsToValid');
     expose ({
       validate,
+      valueToString: fieldValueToString,
     })
 
     return {
@@ -217,6 +233,8 @@ export default defineComponent({
 
       optionsList,
       valuesList,
+      readonlyContent,
+      valueToString: fieldValueToString,
 
       selectionChanged,
       inputControlSettings,

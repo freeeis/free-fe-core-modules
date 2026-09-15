@@ -6,8 +6,22 @@ export const freeFieldProps = {
 };
 
 export function useFreeField(props, ctx) {
-  const { proxy:vm } = getCurrentInstance();
+  const instance = getCurrentInstance();
+  const { proxy:vm } = instance;
   const fieldData = reactive({});
+
+  const valueToString = (value = fieldData.value) => {
+    const formatter = instance.type?.valueToString;
+    const formattedValue = typeof formatter === 'function'
+      ? formatter.call(vm, value, props.Field, props.values)
+      : value;
+
+    if (formattedValue === void 0 || formattedValue === null) {
+      return '';
+    }
+
+    return String(formattedValue);
+  };
 
   watchEffect(() => {
     let realData = void 0;
@@ -77,6 +91,7 @@ export function useFreeField(props, ctx) {
 
   return {
     fieldData,
+    valueToString,
     getFieldData: (n) => Object.nestValue(props.values, n),
     setFieldData: (v, emit, evt  = 'input') => {
       fieldData.value = v;

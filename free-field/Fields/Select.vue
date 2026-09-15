@@ -162,6 +162,27 @@ const NUM_ICONS = [
 
 export default defineComponent({
   name: 'InputFieldSelect',
+  valueToString(value, Field) {
+    if (!Array.isArray(Field?.Options)) {
+      return value;
+    }
+
+    let valueList;
+    if (Field.Multiple) {
+      if (Array.isArray(value)) {
+        valueList = value;
+      } else if (typeof value === 'string') {
+        valueList = value.split(',');
+      }
+    } else {
+      valueList = [value];
+    }
+
+    return (valueList || []).map((item) => {
+      const option = Field.Options.find((opt) => opt.Value === item);
+      return option ? (option.Label || item) : item;
+    }).join(',');
+  },
   props: {
     ...freeFieldProps,
   },
@@ -310,7 +331,13 @@ export default defineComponent({
 
     const { proxy:vm } = getCurrentInstance();
 
-    const { fieldData, getFieldData, setFieldData, inputControlSettings } = useFreeField(props);
+    const {
+      fieldData,
+      getFieldData,
+      setFieldData,
+      valueToString: fieldValueToString,
+      inputControlSettings,
+    } = useFreeField(props);
 
     const hasError = ref(false);
     const checked = ref([]);
@@ -326,31 +353,7 @@ export default defineComponent({
       }
     });
 
-    const readonlyContent = computed(() => {
-      if (Array.isArray(props.Field.Options)) {
-        let valueList;
-        if (props.Field.Multiple) {
-          if (Array.isArray(fieldData.value)) {
-            valueList = fieldData.value;
-          } else if (typeof fieldData.value === 'string') {
-            valueList = fieldData.value.split(',');
-          }
-        } else {
-          valueList = [fieldData.value];
-        }
-
-        const labelList = [];
-        (valueList || []).forEach((vl) => {
-          const theOpt = props.Field.Options.find((opt) => opt.Value === vl);
-          if (theOpt) labelList.push(theOpt.Label || fieldData.value);
-          else labelList.push(vl);
-        });
-
-        return labelList.join(',');
-      }
-
-      return fieldData.value;
-    });
+    const readonlyContent = computed(() => fieldValueToString());
 
     const checkedIcon = computed(() => {
       // only when ascheck and multiple and as order number
@@ -394,10 +397,12 @@ export default defineComponent({
       expose ({
         validate,
         selfValidate,
+        valueToString: fieldValueToString,
       })
     } else {
       expose ({
         validate,
+        valueToString: fieldValueToString,
       })
     }
 
@@ -540,6 +545,8 @@ export default defineComponent({
       editableInputChanged,
       checkChanged,
       inputControlSettings,
+
+      valueToString: fieldValueToString,
 
       filterFunc: (val, update) => {
         if (val === '') {

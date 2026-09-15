@@ -138,6 +138,7 @@ export default defineComponent({
     });
 
     let realComponent = shallowRef(null);
+    const fieldInstance = ref(null);
 
     watchEffect(() => {
       const fComponents = { ...(vm.ctx.FieldComponents || {}), ...localFieldComponents };
@@ -221,6 +222,7 @@ export default defineComponent({
     const realComp = computed(() => realComponent.value && h(
       realComponent.value,
       {
+        ref: fieldInstance,
         Field: localField.value,
         values: props.values,
         style: shouldHide.value ? "display:none;" : "",
@@ -245,6 +247,18 @@ export default defineComponent({
       }
     ));
 
+    const valueToString = () => {
+      if (typeof fieldInstance.value?.valueToString === 'function') {
+        return fieldInstance.value.valueToString();
+      }
+
+      const value = props.Field?.Name
+        ? Object.nestValue(props.values, props.Field.Name)
+        : props.Field?.Value ?? props.Field?.Default;
+
+      return value === void 0 || value === null ? '' : String(value);
+    };
+
     // const emitsRef = computed(() => realComponent?.value?.emits);
 
     const {
@@ -255,6 +269,7 @@ export default defineComponent({
       // emits: emitsRef.value,
       validate: () => shouldHide.value || validate.value(props.Field.Name),
       shouldHide,
+      valueToString,
     })
 
     const fieldTip = (tip) => {

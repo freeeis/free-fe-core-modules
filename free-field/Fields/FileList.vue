@@ -94,7 +94,7 @@
                 Size: {{ file.sizeLabel || file.__sizeLabel }}
               </span>
 
-              <q-btn flat dense round class="delete-btn" icon="close" @click="scope.removeFile(file)"
+              <q-btn flat dense round class="delete-btn" icon="close" @click="removeUploaderFile(file)"
                 v-if="!Field.ReadOnly" />
             </q-card>
           </div>
@@ -378,6 +378,35 @@ export default defineComponent({
 
 
     const { validate } = useFormValidator();
+    const removeFile = (files = []) => {
+      const filesToRemove = Array.isArray(files) ? files : [files];
+      const matches = (left, right) => (
+        left === right || (
+          left?.name === right?.name && left?.size === right?.size
+        )
+      );
+
+      localFiles.value = localFiles.value.filter((file) => (
+        !filesToRemove.some((item) => matches(file, item))
+      ));
+      setFieldData((fieldData.value || []).filter((file) => (
+        !filesToRemove.some((item) => matches(file, item))
+      )), emit);
+      selfValidate();
+    };
+
+    const removeUploaderFile = (file) => {
+      const internalFile = uploader.value?.files?.find((item) => (
+        item === file || (item.name === file?.name && item.size === file?.size)
+      ));
+
+      if (internalFile) {
+        uploader.value.removeFile(internalFile);
+      } else {
+        removeFile([file]);
+      }
+    };
+
     expose({
       validate,
     });
@@ -406,6 +435,7 @@ export default defineComponent({
       factoryFn,
       uploaded,
       allFiles,
+      removeUploaderFile,
       canHaveMore: computed(() => {
         if (!fieldData.value?.length) return true;
         if (!props.Field?.Options?.MaxCount) return true;
@@ -413,11 +443,7 @@ export default defineComponent({
         return fieldData.value?.length < props.Field?.Options?.MaxCount;
       }),
       dense: computed(() => props.Field?.dense || props.Field?.Options?.Dense),
-      removeFile: (files) => {
-        localFiles.value = localFiles.value.filter((f) => !files.includes(f));
-        setFieldData(fieldData.value.filter((f) => !files.includes(f)), emit);
-        selfValidate();
-      },
+      removeFile,
     };
   },
 });

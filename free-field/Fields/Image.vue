@@ -82,7 +82,7 @@
               Size: {{ fieldData.value.sizeLabel || fieldData.value.__sizeLabel }}
             </span>
 
-            <q-btn flat dense round class="delete-btn" icon="close" @click="scope.removeFile(fieldData.value)"
+            <q-btn flat dense round class="delete-btn" icon="close" @click="removeUploaderFile(fieldData.value)"
               :disabled="Field.ReadOnly" />
           </q-card>
         </div>
@@ -306,7 +306,24 @@ export default defineComponent({
       }
     }
 
+    const removeFile = () => {
+      setFieldData([], emit);
+      selfValidate();
+    };
+
     const { validate } = useFormValidator();
+    const removeUploaderFile = (file) => {
+      const internalFile = uploader.value?.files?.find((item) => (
+        item === file || (item.name === file?.name && item.size === file?.size)
+      ));
+
+      if (internalFile) {
+        uploader.value.removeFile(internalFile);
+      } else {
+        removeFile();
+      }
+    };
+
     expose({
       validate,
     });
@@ -332,15 +349,9 @@ export default defineComponent({
       selfValidate,
       factoryFn,
       uploaded,
+      removeUploaderFile,
 
-      removeFile: (files = []) => {
-        setFieldData([], emit);
-        selfValidate();
-
-        uploader.value.files = uploader.value.files.filter((f) => {
-          return files.findIndex((file) => file.name === f.name && file.size === f.size) < 0;
-        });
-      },
+      removeFile,
     };
   },
 });

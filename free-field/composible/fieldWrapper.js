@@ -219,7 +219,7 @@ export default defineComponent({
       });
     })
 
-    const realComp = computed(() => realComponent.value && h(
+    const realComp = () => realComponent.value && h(
       realComponent.value,
       {
         ref: fieldInstance,
@@ -245,7 +245,7 @@ export default defineComponent({
         ...slots,
         warning: slots.warning ? slots.warning : () => warningSlot,
       }
-    ));
+    );
 
     const valueToString = () => {
       if (typeof fieldInstance.value?.valueToString === 'function') {
@@ -263,7 +263,7 @@ export default defineComponent({
 
     const {
       validate,
-    } = useFormValidator(realComp);
+    } = useFormValidator(fieldInstance);
 
     expose ({
       // emits: emitsRef.value,
@@ -409,7 +409,7 @@ export default defineComponent({
         ],
       },
       [
-        realComp.value,
+        realComp(),
         tipsElem,
       ]
     ) : null;

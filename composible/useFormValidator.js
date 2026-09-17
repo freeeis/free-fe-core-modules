@@ -43,8 +43,8 @@ export function useFormValidator(...list) {
             const isValid = validFun();
             hasErr = !isValid || hasErr;
 
-            if (refi.el?.className) {
-              const classNames = String(refi.el.className)
+            if (refi.$el?.className) {
+              const classNames = String(refi.$el.className)
                 .split(/\s+/)
                 .filter((className) => className && className !== 'hasError');
 
@@ -52,7 +52,7 @@ export function useFormValidator(...list) {
                 classNames.push('hasError');
               }
 
-              refi.el.className = classNames.join(' ');
+              refi.$el.className = classNames.join(' ');
             }
 
             if (hasErr) {

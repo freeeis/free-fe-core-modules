@@ -5,7 +5,7 @@
       {{ Field.Label || '' }}
     </span>
     <span class="readonly-content">{{ displayValue }}</span>
-    <span class="free-field-value-concat-children" aria-hidden="true">
+    <div class="free-field-value-concat-children" aria-hidden="true">
       <free-field
         v-for="(childField, index) in childFields"
         :key="childField.Name || index"
@@ -15,7 +15,7 @@
         @input="refreshDisplayValue"
         @valueToStringChange="refreshDisplayValue"
       ></free-field>
-    </span>
+    </div>
     <slot name="warning"></slot>
   </div>
 </template>

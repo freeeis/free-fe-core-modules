@@ -104,6 +104,8 @@ export default defineComponent({
 
 <style scoped>
 .free-field-value-concat-children {
-  display: none;
+  display: none !important;
+  max-height: 0 !important;
+  max-width: 0 !important;
 }
 </style>

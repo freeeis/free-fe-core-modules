@@ -1,13 +1,20 @@
 {
   "name": "free-fe-core-modules",
-  "version": "0.1.68",
+  "version": "0.1.69",
   "main": "index.js",
   "repository": "https://github.com/freeeis/free-fe-core-modules.git",
   "author": "zhiquan",
   "license": "UNLICENSED",
+  "scripts": {
+    "build:browser": "node scripts/build-browser.mjs",
+    "prepare": "yarn build:browser"
+  },
   "dependencies": {
     "@tinymce/tinymce-vue": "^5.1.1",
     "postcss": "^8.5.26",
     "postcss-nested": "^8.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.11"
   }
 }

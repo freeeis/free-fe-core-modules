@@ -19,7 +19,7 @@ import {
   SCOPED_STYLE_ATTRIBUTE,
   createManagedScopedStyle,
   extractRootDeclarations,
-} from './scopedStyles.js';
+} from './scopedStyles.browser.mjs';
 
 import '../style.scss';
 

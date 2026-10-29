@@ -52,6 +52,8 @@
         <q-img contain :src="previewFile"
           @click="showPreview=false"
           style="height: 100%; max-width: 100%;"></q-img>
+        <video v-if="previewType === 'video'" :src="previewFile" controls autoplay playsinline preload="metadata"
+          style="display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; background: #000;"></video>
       </div>
     </q-dialog>
   </div>

@@ -94,6 +94,9 @@
           style="height: 100%; max-width: 100%;">
         </q-img>
 
+        <video v-if="previewType === 'video'" :src="previewFile" controls autoplay playsinline preload="metadata"
+          style="display: block; width: 100%; height: 100%; max-width: 100%; max-height: 100%; object-fit: contain; background: #000;"></video>
+
         <pdf-viewer v-if="previewType === 'pdf'" v-model="showPreview" @click="showPreview = false" :src="previewFile"
           type="pdfjs" style="height: 100%; max-width: 100%;" />
       </div>

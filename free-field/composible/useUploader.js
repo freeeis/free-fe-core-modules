@@ -100,6 +100,28 @@ function _getFileType (f) {
   return {};
 }
 
+const VIDEO_EXTENSIONS = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv', 'webm', 'm4v', 'mpeg', 'mpg'];
+
+// 从文件名或文件id中提取扩展名（用于 mime 不可靠的场景，如 octet-stream）
+function _getFileExtName (f) {
+  if (!f) return '';
+
+  const candidates = [f.name, f.id, f.__localFile?.name];
+
+  for (let i = 0; i < candidates.length; i += 1) {
+    const c = candidates[i];
+    if (typeof c !== 'string' || !c) continue;
+
+    const dotIndex = c.lastIndexOf('.');
+    if (dotIndex < 0) continue;
+
+    const ext = c.substring(dotIndex + 1).toLowerCase();
+    if (ext) return ext;
+  }
+
+  return '';
+}
+
 export function useUploader(props) {
   const { proxy:vm } = getCurrentInstance();
 
@@ -241,7 +263,13 @@ export function useUploader(props) {
     switch (fType) {
       case 'image':
         return 'image';
+      case 'video':
+        return 'video';
       case 'application':
+        // mime 不可靠（如 octet-stream）时，按扩展名兜底识别视频
+        if (VIDEO_EXTENSIONS.indexOf(_getFileExtName(file)) >= 0) {
+          return 'video';
+        }
         switch (fExt) {
           case 'doc':
           case 'docx':
@@ -285,6 +313,11 @@ export function useUploader(props) {
       case 'pdf':
         if (file.id) {
           url = vm.$filter('serverDocument', file.id);
+        }
+        break;
+      case 'video':
+        if (file.id) {
+          url = vm.$filter('serverVideo', file.id);
         }
         break;
       default:

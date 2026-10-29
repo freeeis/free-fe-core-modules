@@ -31,7 +31,7 @@
         <span class="row">
           <q-date
             :modelValue="displayValue"
-            mask="YYYY-MM-DD HH:mm:ss"
+            :mask="pickerMask"
             :hour-options="hourOptions"
             :minute-options="minuteOptions"
             :second-options="secondOptions"
@@ -41,8 +41,9 @@
           />
           <q-time
             :modelValue="displayValue"
-            mask="YYYY-MM-DD HH:mm:ss"
+            :mask="pickerMask"
             format24h
+            :with-seconds="showSecond"
             @update:modelValue="changed"
           />
         </span>
@@ -89,6 +90,12 @@ export default defineComponent({
         Label: '最小从“现在”',
         Name: 'Info.FromNow',
       },
+      {
+        Type: 'Boolean',
+        Label: '显示秒',
+        Name: 'Info.ShowSecond',
+        Default: true,
+      },
     ],
     Description: '',
   },
@@ -103,12 +110,20 @@ export default defineComponent({
 
     const { fieldData, setFieldData, inputControlSettings } = useFreeField(props);
 
+    // 是否显示秒。未配置（历史数据）时按显示处理，只有显式为 false 才隐藏。
+    const showSecond = computed(() => props.Field.Info?.ShowSecond !== false);
+
+    // 隐藏秒时，值与 mask 都不再带秒，避免解析与格式化不一致。
+    const pickerMask = computed(() =>
+      showSecond.value ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD HH:mm',
+    );
+
     const displayValue = computed(() => {
       if (fieldData.value === void 0 || fieldData.value === null || fieldData.value === '') {
         return fieldData.value;
       }
 
-      return formatDateTime(fieldData.value);
+      return formatDateTime(fieldData.value, showSecond.value);
     });
 
     const locale = vm.ctx.config.locales.find(
@@ -180,6 +195,8 @@ export default defineComponent({
       fieldData,
       displayValue,
       locale,
+      showSecond,
+      pickerMask,
 
       hourOptions,
       minuteOptions,

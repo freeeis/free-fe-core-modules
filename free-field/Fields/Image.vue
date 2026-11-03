@@ -10,7 +10,7 @@
       {{ Field.Label || '' }}
       <span v-if="Field.Required" class="required-mark">*</span>
     </span>
-    <q-uploader @uploaded="uploaded" @removed="removeFile" @rejected="filesRejected" ref="uploader" :factory="factoryFn"
+    <q-uploader @uploaded="uploaded" @failed="resetUploader" @removed="removeFile" @rejected="filesRejected" ref="uploader" :factory="factoryFn"
       auto-upload :max-file-size="maxFileSize" :class="(Field.dense ?
         `no-shadow dense` : `${Field.onlyIcon ? 'only-icon' : ''}`)
         + (hasError ? ' free-field--error' : '')">
@@ -277,6 +277,7 @@ export default defineComponent({
       const file = info.files[0];
 
       if (!file) return;
+      resetUploader();
 
       const { xhr } = file;
       let res;
@@ -308,6 +309,10 @@ export default defineComponent({
         selfValidate();
       }
     }
+
+    const resetUploader = () => {
+      uploader.value?.reset();
+    };
 
     const removeFile = () => {
       setFieldData([], emit);
@@ -352,6 +357,7 @@ export default defineComponent({
       selfValidate,
       factoryFn,
       uploaded,
+      resetUploader,
       removeUploaderFile,
 
       removeFile,

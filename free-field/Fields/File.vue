@@ -103,7 +103,7 @@
 </template>
 
 <script>
-import { computed, defineComponent, getCurrentInstance, ref } from 'vue';
+import { computed, defineComponent, getCurrentInstance, nextTick, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useFreeField, freeFieldProps } from '../composible/useFreeField.js';
 import { useFormValidator} from '../../composible/useFormValidator.js';
@@ -311,7 +311,7 @@ export default defineComponent({
     }
 
     const resetUploader = () => {
-      uploader.value?.reset();
+      nextTick(() => uploader.value?.reset());
     };
 
     const removeFile = () => {
